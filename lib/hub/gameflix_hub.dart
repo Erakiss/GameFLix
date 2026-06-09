@@ -265,7 +265,10 @@ class _GameFlixHubState extends State<GameFlixHub> {
             width: cardRenderWidth,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: const Color(0xFF111122), 
+              color: const Color(0xFF111122),
+              border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.5), width: 2),
+              boxShadow: [
+                BoxShadow(color: Colors.purpleAccent.withValues(alpha: 0.3),blurRadius: 15,spreadRadius: 2,),],
               image: imagePath != null 
                 ? DecorationImage(
                     image: AssetImage(imagePath),
@@ -273,9 +276,6 @@ class _GameFlixHubState extends State<GameFlixHub> {
                     colorFilter: isLocked ? ColorFilter.mode(Colors.black.withValues(alpha: 0.7), BlendMode.darken) : null,
                   )
                 : null,
-              boxShadow: const [
-                BoxShadow(color: Colors.black54, blurRadius: 10, offset: Offset(0, 5))
-              ],
             ),
             child: Stack(
               children: [
