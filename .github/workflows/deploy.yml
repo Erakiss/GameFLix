@@ -1,0 +1,24 @@
+name: Deploy Flutter Web
+
+on:
+  push:
+    branches:
+      - main  # Ou 'master' si c'est ta branche principale
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      - run: flutter pub get
+      - run: flutter build web --release --base-href /GameFlix/ # Remplace /tos2/ par le nom de ton repo
+
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
