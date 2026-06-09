@@ -16,7 +16,7 @@ jobs:
           channel: 'stable'
           
       - run: flutter pub get
-      - run: flutter build web --release --base-href /GameFlix/ # Remplace /tos2/ par le nom de ton repo
+      - run: flutter build web --release --base-href /GameFLix/ 
 
       - uses: peaceiris/actions-gh-pages@v3
         with:
