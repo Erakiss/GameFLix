@@ -69,39 +69,68 @@ class _GameFlixHubState extends State<GameFlixHub> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "GAMEFLIX", 
-          style: TextStyle(
-            fontSize: 28, 
-            fontWeight: FontWeight.w900, 
-            color: Colors.white, 
-            letterSpacing: 4, 
-            shadows: [Shadow(color: Colors.redAccent, blurRadius: 15)]
-          )
-        ),
-        centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(Icons.group, color: Colors.cyanAccent, size: 30),
-                if (_globalPlayers.isNotEmpty)
-                  Positioned(
-                    right: -5, top: -5,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                      child: Text('${_globalPlayers.length}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
-                    ),
-                  )
-              ],
+        // On met TOUT le bloc de gauche (drapeau + bouton joueurs) dans le 'leading'
+        leadingWidth: 100, // On donne assez de place pour les deux icônes
+        leading: Row(
+          children: [
+            const SizedBox(width: 10), // Petit décalage pour ne pas coller au bord écran
+            // 1. Le drapeau
+            GestureDetector(
+              onTap: () { /* Logique langue */ },
+              child: const Text("🇫🇷", style: TextStyle(fontSize: 22)),
             ),
-            onPressed: _openPlayerManager,
+            const SizedBox(width: 5), // L'écart ultra-réduit que tu voulais
+            // 2. Le bouton joueurs
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.people_alt, color: Colors.cyanAccent, size: 26),
+                  if (_globalPlayers.isNotEmpty)
+                    Positioned(
+                      right: -5, top: -5,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
+                        child: Text('${_globalPlayers.length}', style: const TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.white)),
+                      ),
+                    )
+                ],
+              ),
+              onPressed: _openPlayerManager,
+            ),
+          ],
+        ),
+        // Le titre est maintenant tout seul au centre
+        title: const Text(
+          "GAMEFLIX",
+          style: TextStyle(
+            fontSize: 24, 
+            fontWeight: FontWeight.w900, 
+            color: Colors.white, 
+            letterSpacing: 2, 
+            shadows: [Shadow(color: Colors.redAccent, blurRadius: 10)]
           ),
-          const SizedBox(width: 15),
+        ),
+        centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            icon: const Icon(Icons.settings, color: Colors.white70, size: 26),
+            color: const Color(0xFF1A1A30),
+            onSelected: (value) { /* ... */ },
+            itemBuilder: (BuildContext context) => [
+              _buildPopupMenuItem('volume', 'Volume', Icons.volume_up),
+              _buildPopupMenuItem('sub', 'Manage Subscription', Icons.card_membership),
+              _buildPopupMenuItem('restore', 'Restore Purchase', Icons.restore),
+              _buildPopupMenuItem('contact', 'Contact Us', Icons.mail_outline),
+            ],
+          ),
+          const SizedBox(width: 10),
         ],
       ),
       extendBodyBehindAppBar: true,
@@ -112,6 +141,19 @@ class _GameFlixHubState extends State<GameFlixHub> {
         child: SafeArea(
           child: _buildCatalogue(),
         ),
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupMenuItem(String value, String text, IconData icon) {
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.cyanAccent, size: 20),
+          const SizedBox(width: 10),
+          Text(text, style: const TextStyle(color: Colors.white)),
+        ],
       ),
     );
   }
