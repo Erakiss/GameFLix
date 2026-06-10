@@ -519,9 +519,9 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
               onPanUpdate: _drawController.isAnimating ? null : (d) => setState(() => _swipeOffset += d.delta),
               onPanEnd: _drawController.isAnimating ? null : (d) {
                 setState(() => _isDragging = false);
-                if (_swipeOffset.dx > 120) _handleSuccess();
-                else if (_swipeOffset.dx < -120) _handleFail();
-                else _swipeOffset = Offset.zero;
+                if (_swipeOffset.dx > 120) {_handleSuccess();} 
+                else if (_swipeOffset.dx < -120) {_handleFail();}
+                else {_swipeOffset = Offset.zero;}
               },
               child: AnimatedContainer(
                 duration: _isDragging ? Duration.zero : const Duration(milliseconds: 400), curve: Curves.elasticOut,

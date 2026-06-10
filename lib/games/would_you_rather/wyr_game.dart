@@ -298,8 +298,7 @@ class _ChoiceZoneState extends State<ChoiceZone> {
             border: const Border(bottom: BorderSide(color: Colors.white10)),
           ),
           // Effet d'enfoncement (réduit à 95% de sa taille)
-          transform: _isPressed ? (Matrix4.identity()..scale(0.95, 0.95)) : Matrix4.identity(),
-          transformAlignment: Alignment.center,
+          transform: _isPressed ? Matrix4.diagonal3Values(0.95, 0.95, 1.0) : Matrix4.identity(),          transformAlignment: Alignment.center,
           child: Center(
             child: AutoSizeText(
               widget.text, 

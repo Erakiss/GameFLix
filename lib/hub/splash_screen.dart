@@ -21,8 +21,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       if (mounted) {
         Navigator.pushReplacement(context, PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 800),
-          pageBuilder: (_, __, ___) => const GameFlixHub(), // Redirige vers le HUB
-          transitionsBuilder: (_, animation, __, child) => FadeTransition(opacity: animation, child: child),
+          pageBuilder: (_, _, _) => const GameFlixHub(), // Redirige vers le HUB
+          transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
         ));
       }
     });

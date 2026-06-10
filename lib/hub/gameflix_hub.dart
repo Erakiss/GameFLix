@@ -71,17 +71,16 @@ class _GameFlixHubState extends State<GameFlixHub> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        // On met TOUT le bloc de gauche (drapeau + bouton joueurs) dans le 'leading'
-        leadingWidth: 100, // On donne assez de place pour les deux icônes
+        leadingWidth: 100, 
         leading: Row(
           children: [
-            const SizedBox(width: 10), // Petit décalage pour ne pas coller au bord écran
+            const SizedBox(width: 10), 
             // 1. Le drapeau
             GestureDetector(
               onTap: () { /* Logique langue */ },
               child: const Text("🇫🇷", style: TextStyle(fontSize: 22)),
             ),
-            const SizedBox(width: 5), // L'écart ultra-réduit que tu voulais
+            const SizedBox(width: 10), // L'écart ultra-réduit que tu voulais
             // 2. Le bouton joueurs
             IconButton(
               padding: EdgeInsets.zero,
