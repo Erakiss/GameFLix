@@ -57,7 +57,7 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   late AnimationController _cameraAnimController;
   Animation<Matrix4>? _cameraAnimation;
 
-  final int _totalTiles = 60; 
+  final int _totalTiles = 62; 
   final double _tileWidth = 90.0;
   final double _tileHeight = 55.0;
 
@@ -77,15 +77,43 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   List<TileAction> _actionPool = [];
   TileAction? _currentAction;
 
+  Offset _getOffsetForPlayer(int playerIndexOnTile, int totalPlayersOnTile) {
+  
+  // Logique type "Dé" :
+  // 1 joueur : au centre (0,0)
+  // 2 joueurs : en diagonale
+  // 3 joueurs : triangle
+  // 4 joueurs : coins
+  switch (totalPlayersOnTile) {
+    case 2:
+      if (playerIndexOnTile == 0) return const Offset(-10, -10);
+      return const Offset(10, 10);
+    case 3:
+      if (playerIndexOnTile == 0) return const Offset(-10, -10);
+      if (playerIndexOnTile == 1) return const Offset(10, 10);
+      return const Offset(0, 0);
+    case 4:
+      if (playerIndexOnTile == 0) return const Offset(-10, -10);
+      if (playerIndexOnTile == 1) return const Offset(10, -10);
+      if (playerIndexOnTile == 2) return const Offset(-10, 10);
+      return const Offset(10, 10);
+    default: // 1 ou plus de 4
+      return const Offset(0, 0);
+  }
+}
+
   final List<BoardLadder> _ladders = [
-    const BoardLadder(fromTile: 6, toTile: 13, color: Colors.greenAccent),
-    const BoardLadder(fromTile: 14, toTile: 47, color: Colors.greenAccent),
-    const BoardLadder(fromTile: 21, toTile: 43, color: Colors.greenAccent),
-    const BoardLadder(fromTile: 42, toTile: 50, color: Colors.greenAccent),
-    const BoardLadder(fromTile: 45, toTile: 7, color: Colors.purpleAccent),
-    const BoardLadder(fromTile: 41, toTile: 27, color: Colors.purpleAccent),
-    const BoardLadder(fromTile: 53, toTile: 23, color: Colors.purpleAccent),
-    const BoardLadder(fromTile: 39, toTile: 5, color: Colors.purpleAccent),
+    // --- LADDERS (Vertes) : Pour accélérer la progression ---
+    const BoardLadder(fromTile: 8, toTile: 25, color: Colors.greenAccent),
+    const BoardLadder(fromTile: 9, toTile: 19, color: Colors.greenAccent),
+    const BoardLadder(fromTile: 33, toTile: 48, color: Colors.greenAccent),
+    const BoardLadder(fromTile: 44, toTile: 56, color: Colors.greenAccent),
+
+    // --- SNAKES (Violettes) : Pour pimenter la fin de partie ---
+    const BoardLadder(fromTile: 28, toTile: 4, color: Colors.purpleAccent),
+    const BoardLadder(fromTile: 40, toTile: 15, color: Colors.purpleAccent),
+    const BoardLadder(fromTile: 52, toTile: 22, color: Colors.purpleAccent),
+    const BoardLadder(fromTile: 57, toTile: 42, color: Colors.purpleAccent),
   ];
 
   @override
@@ -293,28 +321,52 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   }
 
   Future<void> _triggerTileAction(int index) async {
+    // 1. Pas de carte sur la case DÉPART (0) ni sur la FIN (59)
+    if (index == 0 || index == _totalTiles - 1) {
+      return; 
+    }
+
     if (_actionPool.isEmpty) return;
 
+    // 2. Déterminer la couleur de la case (Pair = Rose/Gage, Impair = Cyan/Question)
+    bool isActionTile = index % 2 == 0;
+
+    // 3. Filtrer les cartes du JSON selon le type de la case
+    List<TileAction> possibleCards = _actionPool.where((card) {
+      if (isActionTile) {
+        // Sur une case Rose : Gages, Actions physiques, Boissons ou Mouvements Spéciaux
+        return card.type == TileType.action || card.type == TileType.drink || card.type == TileType.special;
+      } else {
+        // Sur une case Cyan : Uniquement des Questions ou Vérités
+        return card.type == TileType.question;
+      }
+    }).toList();
+
+    // Sécurité : si tu n'as pas encore assez de cartes d'un certain type dans ton JSON
+    if (possibleCards.isEmpty) {
+      possibleCards = _actionPool;
+    }
+
+    // 4. Piocher UNE carte au hasard parmi la liste filtrée
     setState(() {
-      _currentAction = _actionPool[Random().nextInt(_actionPool.length)];
+      _currentAction = possibleCards[Random().nextInt(possibleCards.length)];
       _phase = GamePhase.card;
     });
 
-    // Boucle d'attente : on reste ici tant que le joueur n'a pas fermé la carte
+    // Boucle d'attente (le joueur lit sa carte)
     while (_phase == GamePhase.card) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
-    // LE CORRECTIF VISUEL EST ICI : On gère le mouvement de la carte et on fait une PAUSE
+    // 5. Exécution d'un mouvement spécial (ex: Avance de 3)
     if (_currentAction!.movement != 0) {
-      setState(() => _phase = GamePhase.moving); // Repasse en mode mouvement pour bloquer le reste
+      setState(() => _phase = GamePhase.moving); 
       
       int newIndex = (_boardPlayers[_currentPlayerIndex].currentTileIndex + _currentAction!.movement).clamp(0, _totalTiles - 1);
       setState(() => _boardPlayers[_currentPlayerIndex].currentTileIndex = newIndex);
       
       _focusCameraOnTile(newIndex, scale: 1.0, animate: true, duration: const Duration(milliseconds: 500));
       
-      // On attend 1.5s pour que le joueur voie bien sa punition/récompense avant que la caméra s'en aille !
       await Future.delayed(const Duration(milliseconds: 1500)); 
     }
   }
@@ -339,23 +391,52 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    CustomPaint(size: Size(_boardWidth, _boardHeight), painter: LaddersPainter(tileCenters: _tileCenters, ladders: _ladders)),
                     ..._boardTiles,
+                    CustomPaint(
+                      size: Size(_boardWidth, _boardHeight), 
+                      painter: LaddersPainter(tileCenters: _tileCenters, ladders: _ladders)
+                    ),
+      
                     if (_tileCenters.isNotEmpty)
                       ..._boardPlayers.asMap().entries.map((entry) {
-                        int index = entry.key; BoardPlayer p = entry.value; Offset center = _tileCenters[p.currentTileIndex];
-                        double offsetX = (index * 12).toDouble() - 12; double offsetY = (index * 12).toDouble() - 12;
+                      final _ = entry.key; 
+                      BoardPlayer p = entry.value; 
+                      Offset center = _tileCenters[p.currentTileIndex];
 
-                        return AnimatedPositioned(
-                          duration: const Duration(milliseconds: 250), curve: Curves.easeInOutSine,
-                          left: center.dx - 16 + offsetX, top: center.dy - 16 + offsetY,
-                          child: Container(
-                            width: 32, height: 32,
-                            decoration: BoxDecoration(shape: BoxShape.circle, color: p.color, border: Border.all(color: Colors.white, width: 2), boxShadow: [BoxShadow(color: p.color.withValues(alpha: 0.8), blurRadius: 10, spreadRadius: 2)]),
-                            child: Center(child: Text(p.player.name[0], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+                      // 1. Trouver tous les autres joueurs sur la même case
+                      List<BoardPlayer> onSameTile = _boardPlayers
+                          .where((other) => other.currentTileIndex == p.currentTileIndex)
+                          .toList();
+                          
+                      // 2. Trouver l'index de ce joueur spécifique parmi ceux sur la case
+                      int indexOnTile = onSameTile.indexOf(p);
+                      
+                      // 3. Calculer le décalage dynamique
+                      Offset dynamicOffset = _getOffsetForPlayer(indexOnTile, onSameTile.length);
+
+                      return AnimatedPositioned(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeInOutSine,
+                        // On centre sur la case et on ajoute le décalage calculé
+                        left: center.dx - 16 + dynamicOffset.dx, 
+                        top: center.dy - 16 + dynamicOffset.dy,
+                        child: Container(
+                          width: 32, height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle, 
+                            color: p.color, 
+                            border: Border.all(color: Colors.white, width: 2), 
+                            boxShadow: [BoxShadow(color: p.color.withValues(alpha: 0.8), blurRadius: 4, spreadRadius: 1)]
                           ),
-                        );
-                      }),
+                          child: Center(
+                            child: Text(
+                              p.player.name[0], 
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)
+                            )
+                          ),
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -523,22 +604,117 @@ class DiceFace extends StatelessWidget {
 class LaddersPainter extends CustomPainter {
   final List<Offset> tileCenters; final List<BoardLadder> ladders;
   LaddersPainter({required this.tileCenters, required this.ladders});
+  
 
   @override
   void paint(Canvas canvas, Size size) {
     if (tileCenters.isEmpty) return;
+
     for (var ladder in ladders) {
       if (ladder.fromTile >= tileCenters.length || ladder.toTile >= tileCenters.length) continue;
-      Offset start = tileCenters[ladder.fromTile]; Offset end = tileCenters[ladder.toTile];
-      final paintLine = Paint()..color = ladder.color.withValues(alpha: 0.5)..strokeWidth = 6.0..strokeCap = StrokeCap.round..style = PaintingStyle.stroke;
-      final paintCore = Paint()..color = Colors.white..strokeWidth = 1.5..strokeCap = StrokeCap.round;
-      canvas.drawLine(start, end, paintLine); canvas.drawLine(start, end, paintCore);
-      double distance = (end - start).distance; int rungs = (distance / 20).floor(); 
-      for (int i = 1; i < rungs; i++) {
-        double ratio = i / rungs; Offset centerRung = Offset.lerp(start, end, ratio)!;
-        Offset direction = (end - start) / distance; Offset perpendicular = Offset(-direction.dy, direction.dx) * 10; 
-        canvas.drawLine(centerRung - perpendicular, centerRung + perpendicular, paintLine);
-        canvas.drawLine(centerRung - perpendicular, centerRung + perpendicular, paintCore);
+      
+      Offset start = tileCenters[ladder.fromTile]; 
+      Offset end = tileCenters[ladder.toTile];
+      bool isLadder = ladder.toTile > ladder.fromTile;
+
+      if (isLadder) {
+        // --- DESIGN ÉCHELLE (déjà validé) ---
+        final paintLadder = Paint()..color = ladder.color..strokeWidth = 3.0;
+        final paintRung = Paint()..color = Colors.white..strokeWidth = 2.0;
+
+        Offset dir = (end - start) / (end - start).distance;
+        Offset perp = Offset(-dir.dy, dir.dx) * 8; 
+
+        canvas.drawLine(start - perp, end - perp, paintLadder);
+        canvas.drawLine(start + perp, end + perp, paintLadder);
+
+        int count = ((end - start).distance / 20).floor();
+        for (int i = 1; i < count; i++) {
+          Offset center = Offset.lerp(start, end, i / count)!;
+          canvas.drawLine(center - perp, center + perp, paintRung);
+        }
+      } else {
+        // --- DESIGN SERPENT (Double trait + Tête + Pointe) ---
+        final paintSnake = Paint()..color = ladder.color..strokeWidth = 2.0..style = PaintingStyle.stroke;
+        
+        Offset dir = (end - start) / (end - start).distance;
+        Offset perp = Offset(-dir.dy, dir.dx); // Vecteur de largeur
+
+        // On dessine deux chemins parallèles
+        Path path1 = Path();
+        Path path2 = Path();
+        
+        int segments = 20;
+        for (int i = 0; i <= segments; i++) {
+          double t = i / segments;
+          Offset p = Offset.lerp(start, end, t)!;
+          
+          // Ondulation (amplitude qui diminue vers la queue)
+          double wave = sin(t * pi * 4) * 15 * (1 - t); 
+          Offset waveOffset = perp * wave;
+          
+          // Largeur du corps (plus large au début, fin à la queue)
+          double width = 5 * (1 - t); 
+          
+          if (i == 0) {
+            path1.moveTo(p.dx + waveOffset.dx + perp.dx * width, p.dy + waveOffset.dy + perp.dy * width);
+            path2.moveTo(p.dx + waveOffset.dx - perp.dx * width, p.dy + waveOffset.dy - perp.dy * width);
+          } else {
+            path1.lineTo(p.dx + waveOffset.dx + perp.dx * width, p.dy + waveOffset.dy + perp.dy * width);
+            path2.lineTo(p.dx + waveOffset.dx - perp.dx * width, p.dy + waveOffset.dy - perp.dy * width);
+          }
+        }
+        
+        canvas.drawPath(path1, paintSnake);
+        canvas.drawPath(path2, paintSnake);
+
+        // --- LA TÊTE (Cercle au début) ---
+        // --- LA TÊTE (Tête de Vipère agressive) ---
+        canvas.save();
+        canvas.translate(start.dx, start.dy);
+        
+        // Calcul de l'angle pour que la tête regarde à l'opposé du corps
+        double angle = atan2(dir.dy, dir.dx);
+        canvas.rotate(angle + pi); 
+
+        // 1. La forme de la tête (un diamant incurvé)
+        Path headPath = Path();
+        headPath.moveTo(-6, -5); // Base du cou gauche
+        headPath.quadraticBezierTo(4, -14, 10, -6); // Joue gauche large
+        headPath.quadraticBezierTo(16, -2, 18, 0);  // Museau pointu gauche
+        headPath.quadraticBezierTo(16, 2, 10, 6);   // Museau pointu droit
+        headPath.quadraticBezierTo(4, 14, -6, 5);   // Joue droite large
+        headPath.close();
+
+        // Fond sombre pour masquer le corps en dessous
+        canvas.drawPath(headPath, Paint()..color = const Color(0xFF0A0A14)..style = PaintingStyle.fill);
+        // Contour néon de la tête
+        canvas.drawPath(headPath, Paint()..color = ladder.color..strokeWidth = 2.0..style = PaintingStyle.stroke);
+
+        // 2. Les yeux "méchants" (des traits en diagonale)
+        final paintEye = Paint()..color = ladder.color..strokeWidth = 2.0..strokeCap = StrokeCap.round;
+        // Oeil gauche
+        canvas.drawLine(const Offset(6, -6), const Offset(10, -3), paintEye);
+        // Oeil droit
+        canvas.drawLine(const Offset(6, 6), const Offset(10, 3), paintEye);
+
+        // 3. La langue fourchue
+        Path tonguePath = Path();
+        tonguePath.moveTo(18, 0); // Base de la langue au bout du museau
+        tonguePath.quadraticBezierTo(22, 0, 26, -4); // Branche gauche
+        tonguePath.moveTo(22, 0); // Milieu de la langue
+        tonguePath.quadraticBezierTo(24, 0, 26, 4);  // Branche droite
+
+        canvas.drawPath(tonguePath, Paint()
+          ..color = Colors.redAccent 
+          ..strokeWidth = 1.5 
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+        );
+
+        canvas.restore();
+        // Petits yeux
+        canvas.drawCircle(start + dir * 3, 2, Paint()..color = Colors.black);
       }
     }
   }
