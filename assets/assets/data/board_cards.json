@@ -1,0 +1,44 @@
+[
+  {
+    "title": "GAGE",
+    "description": "Tous les garçons boivent 2 gorgées.",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "AVANCE",
+    "description": "Coup de chance ! Avance de 3 cases.",
+    "type": "special",
+    "movement": 3
+  },
+  {
+    "title": "RECULE",
+    "description": "Oups... Recule de 3 cases.",
+    "type": "special",
+    "movement": -3
+  },
+  {
+    "title": "VÉRITÉ",
+    "description": "Quelle est la chose la plus honteuse que tu as faite en soirée ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "COQUIN",
+    "description": "Fais un massage de 30 secondes au joueur à ta droite.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "CUL SEC",
+    "description": "Fini ton verre immédiatement !",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "LE MIXOLOGUE",
+    "description": "C'est l'heure de montrer tes talents ! Prépare le prochain cocktail (ou shot) pour le joueur de ton choix.",
+    "type": "action",
+    "movement": 0
+  }
+]
