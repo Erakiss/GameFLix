@@ -1,44 +1,122 @@
 [
   {
-    "title": "GAGE",
-    "description": "Tous les garçons boivent 2 gorgées.",
-    "type": "drink",
-    "movement": 0
-  },
-  {
-    "title": "AVANCE",
-    "description": "Coup de chance ! Avance de 3 cases.",
-    "type": "special",
-    "movement": 3
-  },
-  {
-    "title": "RECULE",
-    "description": "Oups... Recule de 3 cases.",
-    "type": "special",
-    "movement": -3
-  },
-  {
-    "title": "VÉRITÉ",
+    "title": "TRUTH",
     "description": "Quelle est la chose la plus honteuse que tu as faite en soirée ?",
     "type": "question",
     "movement": 0
   },
   {
-    "title": "COQUIN",
+    "title": "TRUTH",
+    "description": "Si tu devais échanger ta vie avec l'un des joueurs autour de la table, qui ce serait et pourquoi ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Quel est ton pire tue-l'amour chez quelqu'un ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "As-tu déjà menti pour échapper à une soirée avec des amis ? Si oui, quel était le mensonge ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Quelle est la pire manie ou habitude d'un des joueurs présents ici ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Quel est le rêve le plus bizarre ou inavouable que tu as fait récemment ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
     "description": "Fais un massage de 30 secondes au joueur à ta droite.",
     "type": "action",
     "movement": 0
   },
   {
-    "title": "CUL SEC",
-    "description": "Fini ton verre immédiatement !",
+    "title": "DARE (LE MIXOLOGUE)",
+    "description": "C'est l'heure de montrer tes talents ! Prépare le prochain cocktail (ou shot) pour le joueur de ton choix.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Tu deviens le serveur de la table pendant les 2 prochains tours. Tu dois resservir tout le monde à la demande.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Imite un animal de ton choix. Les autres doivent deviner. Si personne ne trouve en 15 secondes, bois 2 gorgées.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Donne ton téléphone au joueur à ta gauche. Il a le droit de regarder ta galerie photo pendant 15 secondes.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Tous les garçons boivent 2 gorgées.",
     "type": "drink",
     "movement": 0
   },
   {
-    "title": "LE MIXOLOGUE",
-    "description": "C'est l'heure de montrer tes talents ! Prépare le prochain cocktail (ou shot) pour le joueur de ton choix.",
-    "type": "action",
+    "title": "DARE",
+    "description": "Toutes les filles boivent 2 gorgées.",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Fini ton verre immédiatement (Cul Sec) !",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Choisis un partenaire de boisson. Chaque fois que tu bois une gorgée durant les 3 prochains tours, il doit boire la même chose.",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "SPÉCIAL",
+    "description": "Coup de chance ! Avance de 3 cases.",
+    "type": "special",
+    "movement": 3
+  },
+  {
+    "title": "SPÉCIAL",
+    "description": "Le sol glisse... Recule de 3 cases.",
+    "type": "special",
+    "movement": -3
+  },
+  {
+    "title": "SPÉCIAL",
+    "description": "Aspiration temporelle ! Avance jusqu'à la prochaine case Spéciale.",
+    "type": "special",
+    "movement": 6
+  },
+  {
+    "title": "SPÉCIAL",
+    "description": "Retour de karma. Recule de 5 cases.",
+    "type": "special",
+    "movement": -5
+  },
+  {
+    "title": "SPÉCIAL",
+    "description": "Trou noir spatial ! Échange ta position sur le plateau avec le joueur le plus en retard.",
+    "type": "special",
     "movement": 0
   }
 ]

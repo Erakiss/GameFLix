@@ -5,10 +5,10 @@ import 'dart:math';
 
 import 'package:gameflix/models/player.dart';
 
-// --- NOUVEAU : LA MACHINE D'ÉTAT ABSOLUE ---
-enum GamePhase { idle, rolling, moving, card, transition }
+// --- MACHINE D'ÉTAT ABSOLUE ---
+enum GamePhase { idle, rolling, moving, card, transition, victory }
 
-// --- MODÈLES ---
+// --- MODÈLES LOCAUX ---
 enum TileType { action, question, drink, special }
 
 class TileAction {
@@ -40,6 +40,12 @@ class BoardPlayer {
   final Player player;
   final Color color;
   int currentTileIndex;
+
+  // STATS DE FIN DE PARTIE
+  int sipsCount = 0;
+  int laddersClimbed = 0;
+  int snakesSlid = 0;
+
   BoardPlayer({required this.player, required this.color, this.currentTileIndex = 0});
 }
 
@@ -57,7 +63,8 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   late AnimationController _cameraAnimController;
   Animation<Matrix4>? _cameraAnimation;
 
-  final int _totalTiles = 62; 
+  // --- PARAMÈTRES DU PLATEAU ---
+  final int _totalTiles = 62; // 0 = Départ, 1-60 = Jeu, 61 = Fin
   final double _tileWidth = 90.0;
   final double _tileHeight = 55.0;
 
@@ -67,7 +74,7 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   double _boardHeight = 0;
 
   // --- ÉTAT DU JEU ---
-  GamePhase _phase = GamePhase.idle; // Remplace tous les booléens !
+  GamePhase _phase = GamePhase.idle;
   
   final List<BoardPlayer> _boardPlayers = [];
   int _currentPlayerIndex = 0;
@@ -77,39 +84,12 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   List<TileAction> _actionPool = [];
   TileAction? _currentAction;
 
-  Offset _getOffsetForPlayer(int playerIndexOnTile, int totalPlayersOnTile) {
-  
-  // Logique type "Dé" :
-  // 1 joueur : au centre (0,0)
-  // 2 joueurs : en diagonale
-  // 3 joueurs : triangle
-  // 4 joueurs : coins
-  switch (totalPlayersOnTile) {
-    case 2:
-      if (playerIndexOnTile == 0) return const Offset(-10, -10);
-      return const Offset(10, 10);
-    case 3:
-      if (playerIndexOnTile == 0) return const Offset(-10, -10);
-      if (playerIndexOnTile == 1) return const Offset(10, 10);
-      return const Offset(0, 0);
-    case 4:
-      if (playerIndexOnTile == 0) return const Offset(-10, -10);
-      if (playerIndexOnTile == 1) return const Offset(10, -10);
-      if (playerIndexOnTile == 2) return const Offset(-10, 10);
-      return const Offset(10, 10);
-    default: // 1 ou plus de 4
-      return const Offset(0, 0);
-  }
-}
-
+  // 4 Ladders (Montée) et 4 Snakes (Descente)
   final List<BoardLadder> _ladders = [
-    // --- LADDERS (Vertes) : Pour accélérer la progression ---
     const BoardLadder(fromTile: 8, toTile: 25, color: Colors.greenAccent),
-    const BoardLadder(fromTile: 9, toTile: 19, color: Colors.greenAccent),
+    const BoardLadder(fromTile: 19, toTile: 35, color: Colors.greenAccent),
     const BoardLadder(fromTile: 33, toTile: 48, color: Colors.greenAccent),
     const BoardLadder(fromTile: 44, toTile: 56, color: Colors.greenAccent),
-
-    // --- SNAKES (Violettes) : Pour pimenter la fin de partie ---
     const BoardLadder(fromTile: 28, toTile: 4, color: Colors.purpleAccent),
     const BoardLadder(fromTile: 40, toTile: 15, color: Colors.purpleAccent),
     const BoardLadder(fromTile: 52, toTile: 22, color: Colors.purpleAccent),
@@ -152,6 +132,7 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
     }
   }
 
+  // --- LOGIQUE CAMÉRA ---
   void _focusCameraOnTile(int tileIndex, {required double scale, required bool animate, Duration duration = const Duration(milliseconds: 1000)}) {
     if (_tileCenters.isEmpty) return;
     Offset target = _tileCenters[tileIndex];
@@ -176,8 +157,29 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
 
   void _updateCamera() => _cameraController.value = _cameraAnimation!.value;
 
+  // --- CALCUL DE POSITION (MOTIF DÉ) ---
+  Offset _getOffsetForPlayer(int playerIndexOnTile, int totalPlayersOnTile) {
+    switch (totalPlayersOnTile) {
+      case 2:
+        if (playerIndexOnTile == 0) return const Offset(-10, -10);
+        return const Offset(10, 10);
+      case 3:
+        if (playerIndexOnTile == 0) return const Offset(-10, -10);
+        if (playerIndexOnTile == 1) return const Offset(10, 10);
+        return const Offset(0, 0);
+      case 4:
+        if (playerIndexOnTile == 0) return const Offset(-10, -10);
+        if (playerIndexOnTile == 1) return const Offset(10, -10);
+        if (playerIndexOnTile == 2) return const Offset(-10, 10);
+        return const Offset(10, 10);
+      default:
+        return const Offset(0, 0);
+    }
+  }
+
+  // --- GÉNÉRATION DU PLATEAU ---
   void _buildBoardLayout() {
-    List<List<int>> segments = [[11, 1, 0], [9, 0, -1], [11, -1, 0], [7, 0, 1], [9, 1, 0], [5, 0, -1], [7, -1, 0], [3, 0, 1], [2, 1, 0]];
+    List<List<int>> segments = [[11, 1, 0], [9, 0, -1], [11, -1, 0], [7, 0, 1], [9, 1, 0], [5, 0, -1], [7, -1, 0], [3, 0, 1], [4, 1, 0]]; // Ajusté pour 62 cases
     List<Offset> positions = [];
     int currentX = 0; int currentY = 0;
 
@@ -190,7 +192,8 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
       }
     }
 
-    double stepX = 90.0; double stepY = 55.0;
+    double stepX = 90.0; 
+    double stepY = 55.0;
     _tileCenters = []; _boardTiles = [];
 
     double minX = positions.map((p) => p.dx).reduce(min);
@@ -201,22 +204,25 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
     for (int i = 0; i < positions.length; i++) {
       double finalX = (positions[i].dx - minX) * stepX + 50; 
       double finalY = (positions[i].dy - minY) * stepY + 50;
-
       _tileCenters.add(Offset(finalX + _tileWidth / 2, finalY + _tileHeight / 2));
 
-      late Color tileColor;
+      Color tileBackgroundColor = const Color(0xFF0C1020); 
+      late Color neonColor; 
       late String tileText;
 
       if (i == 0) {
-        tileColor = Colors.greenAccent;
+        neonColor = Colors.greenAccent;
         tileText = "DÉPART";
       } else if (i == positions.length - 1) {
-        tileColor = Colors.amber;
+        neonColor = Colors.amberAccent;
         tileText = "FIN";
+      } else if (i % 6 == 0) {
+        neonColor = Colors.white;
+        tileText = "SPÉCIAL";
       } else {
-        bool isActionTile = i % 2 == 0;
-        tileColor = isActionTile ? Colors.pinkAccent : Colors.cyanAccent;
-        tileText = isActionTile ? "GAGE\n$i" : "Q\n$i";
+        bool isTruth = i % 2 != 0; 
+        neonColor = isTruth ? Colors.redAccent : Colors.lightBlueAccent; 
+        tileText = isTruth ? "TRUTH" : "DARE"; 
       }
 
       Widget? ladderBadge;
@@ -235,27 +241,25 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
           child: Container(
             width: _tileWidth, height: _tileHeight,
             decoration: BoxDecoration(
-              color: const Color(0xFF0A0A14), 
-              border: Border.all(color: tileColor, width: 1.5), // Utilisation correcte
-              boxShadow: [BoxShadow(color: tileColor.withValues(alpha: 0.3), blurRadius: 8, spreadRadius: -2)]
+              color: tileBackgroundColor, 
+              border: Border.all(color: neonColor, width: 2.0), 
+              boxShadow: [
+                BoxShadow(color: Colors.purpleAccent.withValues(alpha: 0.5), blurRadius: 15, spreadRadius: 2)
+              ]
             ),
             child: Stack(
               children: [
-                // 2. Texte centré, sobre
                 Center(
-                  child: Text(
-                    tileText.replaceAll('\n', ' '), 
-                    textAlign: TextAlign.center, 
-                    style: const TextStyle(
-                      color: Colors.white70, 
-                      fontWeight: FontWeight.w900, 
-                      fontSize: 11
-                    )
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("$i", style: TextStyle(color: neonColor.withValues(alpha: 0.5), fontWeight: FontWeight.bold, fontSize: 9)),
+                      const SizedBox(height: 1),
+                      Text(tileText, textAlign: TextAlign.center, style: TextStyle(color: neonColor, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 0.5)),
+                    ],
                   ),
                 ),
-                // 3. Indicateur d'échelle élégant
-                if (ladderBadge != null)
-                  Positioned(bottom: 2, right: 2, child: ladderBadge),
+                if (ladderBadge != null) Positioned(bottom: 2, right: 2, child: ladderBadge),
               ],
             ),
           ),
@@ -268,7 +272,6 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
 
   // --- LOGIQUE SÉCURISÉE DU JEU ---
   Future<void> _rollDiceAndMove() async {
-    // Si on n'est pas "Idle", on ignore totalement le clic. Impossible de spammer.
     if (_phase != GamePhase.idle || _boardPlayers.isEmpty) return;
 
     setState(() => _phase = GamePhase.rolling);
@@ -295,16 +298,36 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
       }
     }
 
+    // Victoire immédiate
+    if (currentPlayer.currentTileIndex == _totalTiles - 1) {
+      setState(() => _phase = GamePhase.victory);
+      return;
+    }
+
+    // Serpents et Échelles
     try {
       var ladder = _ladders.firstWhere((l) => l.fromTile == currentPlayer.currentTileIndex);
-      setState(() => currentPlayer.currentTileIndex = ladder.toTile);
+      setState(() {
+        currentPlayer.currentTileIndex = ladder.toTile;
+        if (ladder.toTile > ladder.fromTile) {
+          currentPlayer.laddersClimbed++;
+        } else {
+          currentPlayer.snakesSlid++;
+        }
+      });
       _focusCameraOnTile(currentPlayer.currentTileIndex, scale: 1.0, animate: true, duration: const Duration(milliseconds: 400));
       await Future.delayed(const Duration(milliseconds: 500));
     } catch (_) {}
 
     await _triggerTileAction(currentPlayer.currentTileIndex);
 
-    // --- TRANSITION SÉCURISÉE ---
+    // Si victoire post-carte
+    if (currentPlayer.currentTileIndex == _totalTiles - 1) {
+      setState(() => _phase = GamePhase.victory);
+      return;
+    }
+
+    // --- TRANSITION DU TOUR ---
     setState(() => _phase = GamePhase.transition);
     
     int nextIndex = (_currentPlayerIndex + 1) % _boardPlayers.length;
@@ -316,59 +339,64 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
     _focusCameraOnTile(_boardPlayers[_currentPlayerIndex].currentTileIndex, scale: 0.8, animate: true, duration: const Duration(milliseconds: 600));
     await Future.delayed(const Duration(milliseconds: 600));
 
-    // Fin officielle du tour. Le prochain joueur peut lancer.
     setState(() => _phase = GamePhase.idle);
   }
 
   Future<void> _triggerTileAction(int index) async {
-    // 1. Pas de carte sur la case DÉPART (0) ni sur la FIN (59)
-    if (index == 0 || index == _totalTiles - 1) {
-      return; 
-    }
-
+    if (index == 0 || index == _totalTiles - 1) return;
     if (_actionPool.isEmpty) return;
 
-    // 2. Déterminer la couleur de la case (Pair = Rose/Gage, Impair = Cyan/Question)
-    bool isActionTile = index % 2 == 0;
+    bool isSpecial = index % 6 == 0;
+    bool isQuestion = !isSpecial && index % 2 != 0;
 
-    // 3. Filtrer les cartes du JSON selon le type de la case
     List<TileAction> possibleCards = _actionPool.where((card) {
-      if (isActionTile) {
-        // Sur une case Rose : Gages, Actions physiques, Boissons ou Mouvements Spéciaux
-        return card.type == TileType.action || card.type == TileType.drink || card.type == TileType.special;
-      } else {
-        // Sur une case Cyan : Uniquement des Questions ou Vérités
-        return card.type == TileType.question;
-      }
+      if (isSpecial) return card.type == TileType.special;
+      if (isQuestion) return card.type == TileType.question;
+      return card.type == TileType.action || card.type == TileType.drink;
     }).toList();
 
-    // Sécurité : si tu n'as pas encore assez de cartes d'un certain type dans ton JSON
-    if (possibleCards.isEmpty) {
-      possibleCards = _actionPool;
-    }
+    if (possibleCards.isEmpty) possibleCards = _actionPool;
 
-    // 4. Piocher UNE carte au hasard parmi la liste filtrée
     setState(() {
       _currentAction = possibleCards[Random().nextInt(possibleCards.length)];
+      
+      if (_currentAction!.type == TileType.drink) {
+        _boardPlayers[_currentPlayerIndex].sipsCount += 3;
+      } else if (_currentAction!.type == TileType.action) {
+        _boardPlayers[_currentPlayerIndex].sipsCount += 1;
+      }
+      
       _phase = GamePhase.card;
     });
 
-    // Boucle d'attente (le joueur lit sa carte)
     while (_phase == GamePhase.card) {
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
-    // 5. Exécution d'un mouvement spécial (ex: Avance de 3)
     if (_currentAction!.movement != 0) {
       setState(() => _phase = GamePhase.moving); 
-      
       int newIndex = (_boardPlayers[_currentPlayerIndex].currentTileIndex + _currentAction!.movement).clamp(0, _totalTiles - 1);
       setState(() => _boardPlayers[_currentPlayerIndex].currentTileIndex = newIndex);
-      
       _focusCameraOnTile(newIndex, scale: 1.0, animate: true, duration: const Duration(milliseconds: 500));
-      
       await Future.delayed(const Duration(milliseconds: 1500)); 
     }
+  }
+
+  // --- WIDGET UTILITAIRE (STATS) ---
+  Widget _buildStatRow(IconData icon, String label, String value, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(width: 12),
+            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+          ],
+        ),
+        Text(value, style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.w900)),
+      ],
+    );
   }
 
   @override
@@ -382,7 +410,7 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
       body: SafeArea(
         child: Stack(
           children: [
-            // --- 1. LE PLATEAU ET LA CAMÉRA ---
+            // --- 1. LE PLATEAU ---
             InteractiveViewer(
               transformationController: _cameraController,
               constrained: false, boundaryMargin: const EdgeInsets.all(1200), minScale: 0.15, maxScale: 2.5,
@@ -391,52 +419,25 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    ..._boardTiles,
-                    CustomPaint(
-                      size: Size(_boardWidth, _boardHeight), 
-                      painter: LaddersPainter(tileCenters: _tileCenters, ladders: _ladders)
-                    ),
-      
+                    ..._boardTiles, // 1. Cases au fond
+                    CustomPaint(size: Size(_boardWidth, _boardHeight), painter: LaddersPainter(tileCenters: _tileCenters, ladders: _ladders)), // 2. Échelles par dessus
                     if (_tileCenters.isNotEmpty)
-                      ..._boardPlayers.asMap().entries.map((entry) {
-                      final _ = entry.key; 
-                      BoardPlayer p = entry.value; 
-                      Offset center = _tileCenters[p.currentTileIndex];
+                      ..._boardPlayers.map((p) {
+                        List<BoardPlayer> onSameTile = _boardPlayers.where((other) => other.currentTileIndex == p.currentTileIndex).toList();
+                        int indexOnTile = onSameTile.indexOf(p);
+                        Offset dynamicOffset = _getOffsetForPlayer(indexOnTile, onSameTile.length);
+                        Offset center = _tileCenters[p.currentTileIndex];
 
-                      // 1. Trouver tous les autres joueurs sur la même case
-                      List<BoardPlayer> onSameTile = _boardPlayers
-                          .where((other) => other.currentTileIndex == p.currentTileIndex)
-                          .toList();
-                          
-                      // 2. Trouver l'index de ce joueur spécifique parmi ceux sur la case
-                      int indexOnTile = onSameTile.indexOf(p);
-                      
-                      // 3. Calculer le décalage dynamique
-                      Offset dynamicOffset = _getOffsetForPlayer(indexOnTile, onSameTile.length);
-
-                      return AnimatedPositioned(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeInOutSine,
-                        // On centre sur la case et on ajoute le décalage calculé
-                        left: center.dx - 16 + dynamicOffset.dx, 
-                        top: center.dy - 16 + dynamicOffset.dy,
-                        child: Container(
-                          width: 32, height: 32,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle, 
-                            color: p.color, 
-                            border: Border.all(color: Colors.white, width: 2), 
-                            boxShadow: [BoxShadow(color: p.color.withValues(alpha: 0.8), blurRadius: 4, spreadRadius: 1)]
+                        return AnimatedPositioned(
+                          duration: const Duration(milliseconds: 250), curve: Curves.easeInOutSine,
+                          left: center.dx - 16 + dynamicOffset.dx, top: center.dy - 16 + dynamicOffset.dy,
+                          child: Container(
+                            width: 32, height: 32,
+                            decoration: BoxDecoration(shape: BoxShape.circle, color: p.color, border: Border.all(color: Colors.white, width: 2), boxShadow: [BoxShadow(color: p.color.withValues(alpha: 0.8), blurRadius: 4, spreadRadius: 1)]),
+                            child: Center(child: Text(p.player.name[0], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
                           ),
-                          child: Center(
-                            child: Text(
-                              p.player.name[0], 
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)
-                            )
-                          ),
-                        ),
-                      );
-                    }),
+                        );
+                      }), // 3. Pions en haut
                   ],
                 ),
               ),
@@ -483,46 +484,48 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
               ),
             ),
 
-            // --- 4. HUD ---
+            // --- 4. HUD FIXE ---
             Positioned(top: 10, left: 10, child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30), onPressed: () => Navigator.pop(context))),
             
             Positioned(
               bottom: 30, left: 20, right: 20,
               child: AnimatedOpacity(
-                opacity: _phase == GamePhase.transition ? 0.0 : 1.0,
+                opacity: (_phase == GamePhase.idle || _phase == GamePhase.rolling || _phase == GamePhase.moving) ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 200),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      decoration: BoxDecoration(color: Colors.black87, borderRadius: BorderRadius.circular(20), border: Border.all(color: currentPlayer.color, width: 1.5)),
-                      child: Text("Tour de ${currentPlayer.player.name}", style: TextStyle(color: currentPlayer.color, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-                    ),
-                    const SizedBox(height: 15),
-                    GestureDetector(
-                      // SEUL MOMENT OÙ ON PEUT CLIQUER :
-                      onTap: _phase == GamePhase.idle ? _rollDiceAndMove : null,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        height: 65,
-                        decoration: BoxDecoration(
-                          color: _phase != GamePhase.idle ? Colors.grey.shade900 : currentPlayer.color.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(35),
-                          border: Border.all(color: _phase != GamePhase.idle ? Colors.grey : currentPlayer.color, width: 3),
-                          boxShadow: _phase != GamePhase.idle ? [] : [BoxShadow(color: currentPlayer.color.withValues(alpha: 0.4), blurRadius: 15, spreadRadius: 1)]
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.casino, color: _phase != GamePhase.idle ? Colors.grey : Colors.white, size: 28),
-                            const SizedBox(width: 15),
-                            Text(_phase != GamePhase.idle ? "EN COURS..." : "LANCER LE DÉ", style: TextStyle(color: _phase != GamePhase.idle ? Colors.grey : Colors.white, fontWeight: FontWeight.w900, fontSize: 18)),
-                          ],
+                child: IgnorePointer(
+                  ignoring: _phase != GamePhase.idle,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        decoration: BoxDecoration(color: Colors.black87, borderRadius: BorderRadius.circular(20), border: Border.all(color: currentPlayer.color, width: 1.5)),
+                        child: Text("Tour de ${currentPlayer.player.name}", style: TextStyle(color: currentPlayer.color, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                      ),
+                      const SizedBox(height: 15),
+                      GestureDetector(
+                        onTap: _phase == GamePhase.idle ? _rollDiceAndMove : null,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: 65,
+                          decoration: BoxDecoration(
+                            color: _phase != GamePhase.idle ? Colors.grey.shade900 : currentPlayer.color.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(35),
+                            border: Border.all(color: _phase != GamePhase.idle ? Colors.grey : currentPlayer.color, width: 3),
+                            boxShadow: _phase != GamePhase.idle ? [] : [BoxShadow(color: currentPlayer.color.withValues(alpha: 0.4), blurRadius: 15, spreadRadius: 1)]
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.casino, color: _phase != GamePhase.idle ? Colors.grey : Colors.white, size: 28),
+                              const SizedBox(width: 15),
+                              Text(_phase != GamePhase.idle ? "EN COURS..." : "LANCER LE DÉ", style: TextStyle(color: _phase != GamePhase.idle ? Colors.grey : Colors.white, fontWeight: FontWeight.w900, fontSize: 18)),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -532,7 +535,6 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
               Positioned.fill(
                 child: GestureDetector(
                   onTap: () {
-                    // Ferme la carte et libère la boucle while !
                     if (_phase == GamePhase.card) setState(() => _phase = GamePhase.moving); 
                   },
                   child: Container(
@@ -554,6 +556,57 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
                   ),
                 ),
               ),
+
+            // --- 6. ÉCRAN DE VICTOIRE ---
+            if (_phase == GamePhase.victory)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black87,
+                  child: Stack(
+                    children: [
+                      const NeonConfettiWidget(),
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.emoji_events, color: currentPlayer.color, size: 100, shadows: [BoxShadow(color: currentPlayer.color.withValues(alpha: 0.5), blurRadius: 40, spreadRadius: 10)]),
+                            const SizedBox(height: 10),
+                            Text("VICTOIRE !", style: TextStyle(color: currentPlayer.color, fontSize: 40, fontWeight: FontWeight.w900, letterSpacing: 3)),
+                            const SizedBox(height: 5),
+                            Text(currentPlayer.player.name.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                            const SizedBox(height: 40),
+                            Container(
+                              width: 320, padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(color: const Color(0xFF0C1020), borderRadius: BorderRadius.circular(20), border: Border.all(color: currentPlayer.color, width: 2), boxShadow: [BoxShadow(color: currentPlayer.color.withValues(alpha: 0.2), blurRadius: 20)]),
+                              child: Column(
+                                children: [
+                                  _buildStatRow(Icons.local_bar, "Gorgées cumulées", "${currentPlayer.sipsCount}", Colors.amberAccent),
+                                  const Divider(color: Colors.white12, height: 20),
+                                  _buildStatRow(Icons.keyboard_double_arrow_up, "Échelles grimpées", "${currentPlayer.laddersClimbed}", Colors.greenAccent),
+                                  const Divider(color: Colors.white12, height: 20),
+                                  _buildStatRow(Icons.keyboard_double_arrow_down, "Serpents subis", "${currentPlayer.snakesSlid}", Colors.purpleAccent),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 50),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: currentPlayer.color.withValues(alpha: 0.2),
+                                side: BorderSide(color: currentPlayer.color, width: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              ),
+                              icon: const Icon(Icons.refresh, color: Colors.white),
+                              label: const Text("RETOURNER AU HUB", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -561,7 +614,7 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   }
 }
 
-// --- WIDGETS ANNEXES ---
+// --- WIDGETS ANNEXES (CARTES, DÉ) ---
 class FlipCard extends StatelessWidget {
   final TileAction action;
   const FlipCard({super.key, required this.action});
@@ -601,15 +654,14 @@ class DiceFace extends StatelessWidget {
   }
 }
 
+// --- PAINTER DES SERPENTS ET ÉCHELLES ---
 class LaddersPainter extends CustomPainter {
   final List<Offset> tileCenters; final List<BoardLadder> ladders;
   LaddersPainter({required this.tileCenters, required this.ladders});
-  
 
   @override
   void paint(Canvas canvas, Size size) {
     if (tileCenters.isEmpty) return;
-
     for (var ladder in ladders) {
       if (ladder.fromTile >= tileCenters.length || ladder.toTile >= tileCenters.length) continue;
       
@@ -618,7 +670,6 @@ class LaddersPainter extends CustomPainter {
       bool isLadder = ladder.toTile > ladder.fromTile;
 
       if (isLadder) {
-        // --- DESIGN ÉCHELLE (déjà validé) ---
         final paintLadder = Paint()..color = ladder.color..strokeWidth = 3.0;
         final paintRung = Paint()..color = Colors.white..strokeWidth = 2.0;
 
@@ -634,26 +685,17 @@ class LaddersPainter extends CustomPainter {
           canvas.drawLine(center - perp, center + perp, paintRung);
         }
       } else {
-        // --- DESIGN SERPENT (Double trait + Tête + Pointe) ---
         final paintSnake = Paint()..color = ladder.color..strokeWidth = 2.0..style = PaintingStyle.stroke;
-        
         Offset dir = (end - start) / (end - start).distance;
-        Offset perp = Offset(-dir.dy, dir.dx); // Vecteur de largeur
+        Offset perp = Offset(-dir.dy, dir.dx); 
 
-        // On dessine deux chemins parallèles
-        Path path1 = Path();
-        Path path2 = Path();
-        
+        Path path1 = Path(); Path path2 = Path();
         int segments = 20;
         for (int i = 0; i <= segments; i++) {
           double t = i / segments;
           Offset p = Offset.lerp(start, end, t)!;
-          
-          // Ondulation (amplitude qui diminue vers la queue)
           double wave = sin(t * pi * 4) * 15 * (1 - t); 
           Offset waveOffset = perp * wave;
-          
-          // Largeur du corps (plus large au début, fin à la queue)
           double width = 5 * (1 - t); 
           
           if (i == 0) {
@@ -668,55 +710,103 @@ class LaddersPainter extends CustomPainter {
         canvas.drawPath(path1, paintSnake);
         canvas.drawPath(path2, paintSnake);
 
-        // --- LA TÊTE (Cercle au début) ---
-        // --- LA TÊTE (Tête de Vipère agressive) ---
         canvas.save();
         canvas.translate(start.dx, start.dy);
-        
-        // Calcul de l'angle pour que la tête regarde à l'opposé du corps
         double angle = atan2(dir.dy, dir.dx);
         canvas.rotate(angle + pi); 
 
-        // 1. La forme de la tête (un diamant incurvé)
         Path headPath = Path();
-        headPath.moveTo(-6, -5); // Base du cou gauche
-        headPath.quadraticBezierTo(4, -14, 10, -6); // Joue gauche large
-        headPath.quadraticBezierTo(16, -2, 18, 0);  // Museau pointu gauche
-        headPath.quadraticBezierTo(16, 2, 10, 6);   // Museau pointu droit
-        headPath.quadraticBezierTo(4, 14, -6, 5);   // Joue droite large
-        headPath.close();
+        headPath.moveTo(-6, -5); headPath.quadraticBezierTo(4, -14, 10, -6);
+        headPath.quadraticBezierTo(16, -2, 18, 0); headPath.quadraticBezierTo(16, 2, 10, 6);
+        headPath.quadraticBezierTo(4, 14, -6, 5); headPath.close();
 
-        // Fond sombre pour masquer le corps en dessous
         canvas.drawPath(headPath, Paint()..color = const Color(0xFF0A0A14)..style = PaintingStyle.fill);
-        // Contour néon de la tête
         canvas.drawPath(headPath, Paint()..color = ladder.color..strokeWidth = 2.0..style = PaintingStyle.stroke);
 
-        // 2. Les yeux "méchants" (des traits en diagonale)
         final paintEye = Paint()..color = ladder.color..strokeWidth = 2.0..strokeCap = StrokeCap.round;
-        // Oeil gauche
         canvas.drawLine(const Offset(6, -6), const Offset(10, -3), paintEye);
-        // Oeil droit
         canvas.drawLine(const Offset(6, 6), const Offset(10, 3), paintEye);
 
-        // 3. La langue fourchue
         Path tonguePath = Path();
-        tonguePath.moveTo(18, 0); // Base de la langue au bout du museau
-        tonguePath.quadraticBezierTo(22, 0, 26, -4); // Branche gauche
-        tonguePath.moveTo(22, 0); // Milieu de la langue
-        tonguePath.quadraticBezierTo(24, 0, 26, 4);  // Branche droite
+        tonguePath.moveTo(18, 0); tonguePath.quadraticBezierTo(22, 0, 26, -4);
+        tonguePath.moveTo(22, 0); tonguePath.quadraticBezierTo(24, 0, 26, 4);  
 
-        canvas.drawPath(tonguePath, Paint()
-          ..color = Colors.redAccent 
-          ..strokeWidth = 1.5 
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-        );
-
+        canvas.drawPath(tonguePath, Paint()..color = Colors.redAccent..strokeWidth = 1.5..style = PaintingStyle.stroke..strokeCap = StrokeCap.round);
         canvas.restore();
-        // Petits yeux
-        canvas.drawCircle(start + dir * 3, 2, Paint()..color = Colors.black);
       }
     }
   }
   @override bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// --- WIDGET DES CONFETTIS DE VICTOIRE ---
+class NeonConfettiWidget extends StatefulWidget {
+  const NeonConfettiWidget({super.key});
+  @override State<NeonConfettiWidget> createState() => _NeonConfettiWidgetState();
+}
+
+class _NeonConfettiWidgetState extends State<NeonConfettiWidget> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  final List<_ConfettiParticle> _particles = [];
+  final Random _random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat();
+    List<Color> colors = [Colors.pinkAccent, Colors.cyanAccent, Colors.purpleAccent, Colors.greenAccent, Colors.amberAccent];
+    for (int i = 0; i < 80; i++) {
+      _particles.add(_ConfettiParticle(
+        x: _random.nextDouble() * 400, 
+        y: _random.nextDouble() * -600,
+        size: _random.nextDouble() * 6 + 4, 
+        speed: _random.nextDouble() * 3 + 2,
+        color: colors[_random.nextInt(colors.length)], 
+        rotationSpeed: _random.nextDouble() * 0.05,
+        rotation: _random.nextDouble() * pi * 2, 
+      ));
+    }
+  }
+
+  @override void dispose() { _controller.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final size = MediaQuery.of(context).size;
+        for (var p in _particles) {
+          p.y += p.speed;
+          p.x += sin(p.y / 30) * 0.5; 
+          p.rotation += p.rotationSpeed;
+          if (p.y > size.height) { p.y = -20; p.x = _random.nextDouble() * size.width; }
+        }
+        return CustomPaint(size: Size.infinite, painter: _ConfettiPainter(particles: _particles));
+      },
+    );
+  }
+}
+
+class _ConfettiParticle {
+  double x, y, size, speed, rotation, rotationSpeed; Color color;
+  _ConfettiParticle({required this.x, required this.y, required this.size, required this.speed, required this.color, required this.rotationSpeed, this.rotation = 0});
+}
+
+class _ConfettiPainter extends CustomPainter {
+  final List<_ConfettiParticle> particles;
+  _ConfettiPainter({required this.particles});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (var p in particles) {
+      final paint = Paint()..color = p.color..style = PaintingStyle.fill;
+      canvas.save();
+      canvas.translate(p.x.clamp(0, size.width), p.y);
+      canvas.rotate(p.rotation);
+      canvas.drawRect(Rect.fromCenter(center: Offset.zero, width: p.size * 1.5, height: p.size), paint);
+      canvas.restore();
+    }
+  }
+  @override bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
