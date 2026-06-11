@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:confetti/confetti.dart';
 import 'package:gameflix/models/player.dart';
-import 'package:gameflix/games/imposter/imp_game.dart'; // Pour récupérer ImpCard
+import 'package:gameflix/games/imposter/imp_lobby.dart'; 
+import 'package:gameflix/shared/widgets/neon_confetti.dart'; // L'import de notre super widget !
 
 class ImpScoreboardScreen extends StatefulWidget {
   final List<Player> players;
@@ -16,7 +16,6 @@ class ImpScoreboardScreen extends StatefulWidget {
 
 class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
   final Set<String> _revealedPlayers = {};
-  late ConfettiController _confettiController;
   final TextEditingController _mwGuessController = TextEditingController();
 
   int _badGuysTotal = 0;
@@ -24,16 +23,14 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
   int _badGuysFound = 0;
   int _civilsFound = 0;
 
-  // État du jeu : "VOTING" (Élimination), "MW_GUESS" (Mister White tape son mot), "FINISHED" (Scoreboard)
+  // État du jeu : "VOTING", "MW_GUESS", "FINISHED"
   String _gameState = "VOTING"; 
-  String _winner = ""; // "CIVILS", "IMPOSTERS", "MISTER_WHITE"
+  String _winner = ""; 
 
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
-
-    // Calcul du nombre de joueurs dans chaque équipe
+    // On compte les effectifs au départ
     for (String role in widget.playerRoles.values) {
       if (role == "IMPOSTER" || role == "MISTER_WHITE") {
         _badGuysTotal++;
@@ -45,12 +42,10 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
 
   @override
   void dispose() {
-    _confettiController.dispose();
     _mwGuessController.dispose();
     super.dispose();
   }
 
-  // Permet d'ignorer les accents et les majuscules pour la vérification du mot
   String _normalizeString(String str) {
     return str.toLowerCase().trim()
       .replaceAll(RegExp(r'[éèêë]'), 'e')
@@ -69,26 +64,32 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
       
       if (role == "IMPOSTER" || role == "MISTER_WHITE") {
         _badGuysFound++;
+        
+        // Si c'est Mister White, le jeu se fige pour qu'il devine
+        if (role == "MISTER_WHITE") {
+          _gameState = "MW_GUESS";
+          return; 
+        }
       } else {
         _civilsFound++;
       }
 
-      int aliveBadGuys = _badGuysTotal - _badGuysFound;
-      int aliveCivils = _civilsTotal - _civilsFound;
-
-      // CONDITIONS DE VICTOIRE
-      if (_badGuysFound == _badGuysTotal) {
-        // Les civils ont trouvé tous les méchants !
-        if (widget.playerRoles.containsValue("MISTER_WHITE")) {
-          _gameState = "MW_GUESS"; // Mister White a une chance de voler la victoire
-        } else {
-          _finishGame("CIVILS");
-        }
-      } else if (aliveBadGuys >= aliveCivils) {
-        // Trop d'erreurs, les Imposteurs prennent le contrôle
-        _finishGame("IMPOSTERS");
-      }
+      // Vérification des conditions de fin (uniquement si ce n'était pas Mister White)
+      _checkEndGameConditions();
     });
+  }
+
+  void _checkEndGameConditions() {
+    int aliveBadGuys = _badGuysTotal - _badGuysFound;
+    int aliveCivils = _civilsTotal - _civilsFound;
+
+    if (_badGuysFound == _badGuysTotal) {
+      // Tous les méchants trouvés
+      _finishGame("CIVILS");
+    } else if (aliveBadGuys >= aliveCivils) {
+      // Les imposteurs dominent
+      _finishGame("IMPOSTERS");
+    }
   }
 
   void _checkMisterWhiteGuess() {
@@ -98,7 +99,12 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     if (guess == actualWord) {
       _finishGame("MISTER_WHITE");
     } else {
-      _finishGame("CIVILS");
+      // S'il se trompe, il est éliminé et on reprend les votes
+      setState(() {
+        _gameState = "VOTING";
+        _mwGuessController.clear();
+        _checkEndGameConditions();
+      });
     }
   }
 
@@ -106,12 +112,11 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     setState(() {
       _gameState = "FINISHED";
       _winner = winner;
-      // On révèle tout le monde à la fin
+      // On révèle tout le plateau
       for (var p in widget.players) {
         _revealedPlayers.add(p.name);
       }
     });
-    _confettiController.play();
   }
 
   Widget _buildPlayerCard(Player player) {
@@ -128,7 +133,6 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
       roleColor = Colors.greenAccent; roleName = "CIVIL";
     }
 
-    // Mise en avant des gagnants
     bool isWinner = false;
     if (_gameState == "FINISHED") {
       if (_winner == "CIVILS" && role == "CIVIL") isWinner = true;
@@ -147,9 +151,7 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
           color: isRevealed ? roleColor.withValues(alpha: 0.1) : const Color(0xFF111122),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: isWinner 
-              ? Colors.amber // Bordure dorée pour les gagnants
-              : (isRevealed ? roleColor : Colors.purpleAccent.withValues(alpha: 0.3)), 
+            color: isWinner ? Colors.amber : (isRevealed ? roleColor : Colors.purpleAccent.withValues(alpha: 0.3)), 
             width: isWinner ? 4 : 2
           ),
           boxShadow: isWinner ? [BoxShadow(color: Colors.amber.withValues(alpha: 0.5), blurRadius: 15, spreadRadius: 2)] : [],
@@ -178,7 +180,6 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
   Widget build(BuildContext context) {
     bool isFinished = _gameState == "FINISHED";
 
-    // Détermination du titre principal
     String headerText = "PHASE D'ÉLIMINATION";
     Color headerColor = Colors.purpleAccent;
     if (isFinished) {
@@ -193,9 +194,10 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF050515),
       body: SafeArea(
-        child: Stack( // Le stack permet de superposer les confettis sur tout l'écran
+        child: Stack(
           alignment: Alignment.topCenter,
           children: [
+            // --- LE RESTE DU CONTENU ---
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -208,7 +210,6 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                   
                   const SizedBox(height: 20),
                   
-                  // Zone des mots : Cachée pendant le vote, révélée à la fin
                   Container(
                     width: double.infinity, padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(color: const Color(0xFF111122), borderRadius: BorderRadius.circular(15), border: Border.all(color: isFinished ? headerColor : Colors.white10, width: 2)),
@@ -225,7 +226,6 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                   
                   const SizedBox(height: 30),
 
-                  // Si c'est au tour de Mister White de deviner le mot
                   if (_gameState == "MW_GUESS") ...[
                     Expanded(
                       child: Center(
@@ -255,7 +255,6 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                       ),
                     )
                   ] 
-                  // Sinon on affiche la liste des joueurs
                   else ...[
                     Expanded(
                       child: ListView(
@@ -269,9 +268,10 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                     SizedBox(
                       width: double.infinity, height: 60,
                       child: ElevatedButton.icon(
-                        onPressed: () => Navigator.pop(context), 
-                        icon: const Icon(Icons.refresh, color: Colors.purpleAccent),
-                        label: const Text("NOUVELLE PARTIE", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purpleAccent)),
+                        // Retourne au Hub proprement !
+                        onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst), 
+                        icon: const Icon(Icons.home, color: Colors.purpleAccent),
+                        label: const Text("RETOUR AU HUB", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purpleAccent)),
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.purpleAccent.withValues(alpha: 0.1), side: const BorderSide(color: Colors.purpleAccent, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
                       ),
                     )
@@ -279,14 +279,13 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
               ),
             ),
 
-            // Le canon à confettis tout en haut de l'écran
-            ConfettiWidget(
-              confettiController: _confettiController,
-              blastDirectionality: BlastDirectionality.explosive, // Part dans tous les sens
-              shouldLoop: false,
-              colors: const [Colors.greenAccent, Colors.purpleAccent, Colors.amber, Colors.redAccent],
-              gravity: 0.2,
-            ),
+            // --- NOTRE WIDGET SHARED DE CONFETTIS ---
+            if (isFinished)
+              const Positioned.fill(
+                child: IgnorePointer( // IgnorePointer pour ne pas bloquer les clics sur les boutons en dessous
+                  child: NeonConfettiWidget(),
+                ),
+              ),
           ],
         ),
       ),

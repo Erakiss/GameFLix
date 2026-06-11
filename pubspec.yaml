@@ -14,7 +14,6 @@ dependencies:
   shared_preferences: ^2.2.3
   font_awesome_flutter: ^11.0.0
   auto_size_text: ^3.0.0
-  confetti: ^0.8.0
   audioplayers: ^6.7.1
 
 dev_dependencies:

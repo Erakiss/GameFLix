@@ -5,9 +5,9 @@ import 'dart:convert';
 
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/truth_or_dare/tod_lobby.dart';
-import 'package:gameflix/games/never_have_i_ever/nhie_game.dart';
-import 'package:gameflix/games/imposter/imp_game.dart';
-import 'package:gameflix/games/would_you_rather/wyr_game.dart';
+import 'package:gameflix/games/never_have_i_ever/nhie_lobby.dart';
+import 'package:gameflix/games/would_you_rather/wyr_lobby.dart';
+import 'package:gameflix/games/imposter/imp_lobby.dart';
 import 'package:gameflix/games/drinking_board/board_game.dart';
 
 class GameFlixHub extends StatefulWidget {
