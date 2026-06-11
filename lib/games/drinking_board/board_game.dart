@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'dart:math';
+import 'package:audioplayers/audioplayers.dart';
 
 import 'package:gameflix/models/player.dart';
 
@@ -63,6 +64,8 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   late AnimationController _cameraAnimController;
   Animation<Matrix4>? _cameraAnimation;
 
+  final AudioPlayer _sfxPlayer = AudioPlayer();
+
   // --- PARAMÈTRES DU PLATEAU ---
   final int _totalTiles = 62; // 0 = Départ, 1-60 = Jeu, 61 = Fin
   final double _tileWidth = 90.0;
@@ -116,6 +119,7 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
 
   @override
   void dispose() {
+    _sfxPlayer.dispose();
     _cameraController.dispose();
     _cameraAnimController.dispose();
     super.dispose();
