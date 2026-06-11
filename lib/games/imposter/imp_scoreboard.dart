@@ -279,7 +279,6 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
               ),
             ),
 
-            // --- NOTRE WIDGET SHARED DE CONFETTIS ---
             if (isFinished)
               const Positioned.fill(
                 child: IgnorePointer( // IgnorePointer pour ne pas bloquer les clics sur les boutons en dessous
