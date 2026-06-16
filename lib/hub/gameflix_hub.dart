@@ -9,6 +9,7 @@ import 'package:gameflix/games/never_have_i_ever/nhie_lobby.dart';
 import 'package:gameflix/games/would_you_rather/wyr_lobby.dart';
 import 'package:gameflix/games/imposter/imp_lobby.dart';
 import 'package:gameflix/games/drinking_board/board_game.dart';
+import 'package:gameflix/games/codenames/code_lobby.dart';
 
 class GameFlixHub extends StatefulWidget {
   const GameFlixHub({super.key});
@@ -134,8 +135,17 @@ class _GameFlixHubState extends State<GameFlixHub> {
       ),
       extendBodyBehindAppBar: true,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF050515), Color(0xFF111122), Color(0xFF2B003B)]),
+        decoration: BoxDecoration(
+          // On remplace le LinearGradient par ton image
+          image: DecorationImage(
+            image: const AssetImage('assets/hub_bg.png'), // Remplace par le bon nom de fichier !
+            fit: BoxFit.cover, // L'image va s'étirer pour couvrir tout l'écran sans se déformer
+            // Le petit filtre sombre magique pour garder le contraste des textes
+            colorFilter: ColorFilter.mode(
+              Colors.black.withValues(alpha: 0.6), // Ajuste l'alpha (0.0 = invisible, 1.0 = tout noir) selon ton image
+              BlendMode.darken,
+            ),
+          ),
         ),
         child: SafeArea(
           child: _buildCatalogue(),
@@ -247,6 +257,7 @@ class _GameFlixHubState extends State<GameFlixHub> {
                 }
               ),
 
+              // 4. Would You Rather
               _buildWheelCard(
                 subtitle: "Le choix impossible",
                 imagePath: 'assets/wyr_banner.png', // Si tu en as une
@@ -266,6 +277,31 @@ class _GameFlixHubState extends State<GameFlixHub> {
                 cardRenderHeight: fixedRenderHeight,
                 cardRenderWidth: calculatedCardWidth,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => BoardGameScreen(players: _globalPlayers))),
+              ),
+
+              // 6. CODENAMES
+              _buildWheelCard(
+                subtitle: "Codenames Express",
+                imagePath: 'assets/code_banner.png',
+                isNew: true,
+                cardRenderHeight: fixedRenderHeight,
+                cardRenderWidth: calculatedCardWidth,
+                onTap: () {
+                  if (_globalPlayers.length < 4) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Code Names nécessite au moins 4 joueurs !"),
+                        backgroundColor: Colors.redAccent,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  } else {
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context) => CodeLobbyScreen(players: _globalPlayers))
+                    );
+                  }
+                }
               ),
 
               // 6. UN JEU EN PRÉPARATION (On passe les mêmes dimensions pour la cohérence visuelle)
@@ -403,15 +439,33 @@ class _PlayerManagerSheetState extends State<PlayerManagerSheet> {
   String _selectedGender = 'M';
 
   void _addPlayer() {
-    if (_nameController.text.trim().isNotEmpty) {
-      setState(() {
-        widget.players.add(Player(name: _nameController.text.trim(), gender: _selectedGender));
-        _nameController.clear();
-      });
-      widget.onPlayersUpdated();
-    }
-  }
+    // 1. On récupère le texte tapé dans le TextField
+    String cleanName = _nameController.text.trim();
+    if (cleanName.isEmpty) return;
 
+    // 2. LA SÉCURITÉ ANTI-DOUBLON (On utilise widget.players ici !)
+    bool nameExists = widget.players.any((p) => p.name.toLowerCase() == cleanName.toLowerCase());
+    
+    if (nameExists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Ce nom est déjà pris ! Ajoute une initiale (ex: Test 2)."),
+          backgroundColor: Colors.redAccent,
+        )
+      );
+      return; 
+    }
+
+    // 3. On ajoute le joueur à la liste et on met à jour l'interface
+    setState(() {
+      widget.players.add(Player(name: cleanName, gender: _selectedGender));
+      _nameController.clear(); // On vide le champ pour taper le pote suivant direct
+    });
+
+    // 4. On prévient le Hub parent de sauvegarder la nouvelle liste dans le téléphone
+    widget.onPlayersUpdated();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Padding(
