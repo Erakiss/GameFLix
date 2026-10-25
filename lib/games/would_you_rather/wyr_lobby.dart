@@ -1,13 +1,12 @@
 // lib/games/would_you_rather/wyr_lobby.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:gameflix/games/would_you_rather/wyr_game.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
 import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
+import 'package:gameflix/services/pack_loader_service.dart';
 
 // --- MODÈLE ---
 class WyrCard {
@@ -49,15 +48,12 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
   }
 
   Future<void> _loadCards() async {
-    try {
-      final String response = await rootBundle.loadString('assets/data/wyr_cards.json');
-      final List<dynamic> data = json.decode(response);
-      final cards = data.map((j) => WyrCard.fromJson(j)).toList();
-      if (!mounted) return;
-      setState(() => _allCards = cards);
-    } catch (e) {
-      debugPrint("Erreur JSON wyr_cards: $e");
-    }
+    final cards = await PackLoaderService.instance.loadCardsForGame<WyrCard>(
+      'wyr',
+      WyrCard.fromJson,
+    );
+    if (!mounted) return;
+    setState(() => _allCards = cards);
   }
 
   void _startGame() {

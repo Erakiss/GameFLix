@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -7,6 +6,7 @@ import 'package:gameflix/models/player.dart';
 import 'package:gameflix/models/game_card.dart';
 import 'package:gameflix/games/truth_or_dare/tod_game.dart';
 import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
+import 'package:gameflix/services/pack_loader_service.dart';
 
 class TodLobbyScreen extends StatefulWidget {
   final List<Player> players;
@@ -36,13 +36,11 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
   }
 
   Future<void> _loadAllCards() async {
-    try {
-      final String response = await rootBundle.loadString('assets/data/cards.json');
-      final List<dynamic> data = jsonDecode(response);
-      _baseDeck.addAll(data.map((c) => GameCard.fromJson(c)));
-    } catch (e) {
-      debugPrint("Erreur JSON: $e");
-    }
+    final baseCards = await PackLoaderService.instance.loadCardsForGame<GameCard>(
+      'tod',
+      GameCard.fromJson,
+    );
+    _baseDeck.addAll(baseCards);
 
     final prefs = await SharedPreferences.getInstance();
     final String? saved = prefs.getString('saved_cards');

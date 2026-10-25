@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/shared/widgets/neon_confetti.dart';
 import 'package:gameflix/shared/navigation.dart';
+import 'package:gameflix/services/pack_loader_service.dart';
 
 // --- MACHINE D'ÉTAT ABSOLUE ---
 enum GamePhase { idle, rolling, moving, card, transition, victory }
@@ -147,16 +146,14 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   }
 
   Future<void> _loadCards() async {
-    List<TileAction> pool;
-    try {
-      final String response = await rootBundle.loadString('assets/data/board_cards.json');
-      final List<dynamic> data = json.decode(response);
-      pool = data.map((item) => TileAction.fromJson(item)).toList();
-    } catch (e) {
-      debugPrint("Erreur JSON: $e");
-      pool = [TileAction(title: "ERREUR", description: "Vérifie ton JSON", type: TileType.action)];
-    }
-    _safeSetState(() => _actionPool = pool);
+    final pool = await PackLoaderService.instance.loadCardsForGame<TileAction>(
+      'board',
+      TileAction.fromJson,
+    );
+    if (!mounted) return;
+    _safeSetState(() => _actionPool = pool.isEmpty
+        ? [TileAction(title: "ERREUR", description: "Vérifie ton JSON", type: TileType.action)]
+        : pool);
   }
 
   // --- LOGIQUE CAMÉRA ---

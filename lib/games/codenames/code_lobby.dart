@@ -1,7 +1,5 @@
 // lib/games/codenames/code_lobby.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:gameflix/models/player.dart';
@@ -9,6 +7,7 @@ import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
 import 'package:gameflix/games/codenames/code_game.dart'; 
+import 'package:gameflix/services/pack_loader_service.dart'; 
 
 class CodeWord {
   final String word;
@@ -58,14 +57,10 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
   }
 
   Future<void> _loadWords() async {
-    List<CodeWord> words = [];
-    try {
-      final String response = await rootBundle.loadString('assets/data/code_words.json');
-      final List<dynamic> data = json.decode(response);
-      words = data.map((j) => CodeWord.fromJson(j)).toList();
-    } catch (e) {
-      debugPrint("Erreur JSON code_words: $e");
-    }
+    final words = await PackLoaderService.instance.loadCardsForGame<CodeWord>(
+      'code',
+      CodeWord.fromJson,
+    );
     if (!mounted) return;
     setState(() {
       _allWords = words;
