@@ -16,6 +16,7 @@ dependencies:
   auto_size_text: ^3.0.0
   audioplayers: ^6.7.1
   provider: ^6.1.5+1
+  google_mobile_ads: ^9.2.0
 
 dev_dependencies:
   flutter_test:

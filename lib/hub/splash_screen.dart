@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gameflix/hub/gameflix_hub.dart';
+import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/shared/navigation.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
+    AdManager.instance.init();
     _pulseController = AnimationController(vsync: this, duration: const Duration(seconds: 1))..repeat(reverse: true);
     _scaleAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
 

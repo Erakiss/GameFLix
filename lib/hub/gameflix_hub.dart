@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/models/game_config.dart';
 import 'package:gameflix/services/audio_service.dart';
+import 'package:gameflix/services/ad_manager.dart';
+import 'package:gameflix/shared/widgets/hub_banner_ad.dart';
 import 'package:gameflix/shared/widgets/neon_volume_control.dart';
 import 'package:gameflix/state/players_controller.dart';
 
@@ -23,6 +25,7 @@ class _GameFlixHubState extends State<GameFlixHub> {
         AudioService.instance.playBgm();
       }
     });
+    AdManager.instance.init();
   }
 
   void _openPlayerManager() {
@@ -214,6 +217,7 @@ class _GameFlixHubState extends State<GameFlixHub> {
             }).toList(),
           ),
         ),
+        const HubBannerAd(),
       ],
     );
   }
