@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/models/game_config.dart';
+import 'package:gameflix/services/audio_service.dart';
+import 'package:gameflix/shared/widgets/neon_volume_control.dart';
 import 'package:gameflix/state/players_controller.dart';
 
 class GameFlixHub extends StatefulWidget {
@@ -13,7 +15,18 @@ class GameFlixHub extends StatefulWidget {
 }
 
 class _GameFlixHubState extends State<GameFlixHub> {
+  @override
+  void initState() {
+    super.initState();
+    AudioService.instance.init().then((_) {
+      if (mounted) {
+        AudioService.instance.playBgm();
+      }
+    });
+  }
+
   void _openPlayerManager() {
+    AudioService.instance.playSfx(SoundEffect.click);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -108,6 +121,7 @@ class _GameFlixHubState extends State<GameFlixHub> {
         ),
         centerTitle: true,
         actions: [
+          const NeonVolumeControl(),
           PopupMenuButton<String>(
             padding: EdgeInsets.zero,
             icon: const Icon(Icons.settings, color: Colors.white70, size: 26),
@@ -215,7 +229,12 @@ class _GameFlixHubState extends State<GameFlixHub> {
   }) {
     return GestureDetector(
       // Si la carte est verrouillée, on désactive le clic
-      onTap: isLocked ? null : onTap, 
+      onTap: isLocked
+          ? null
+          : () {
+              AudioService.instance.playSfx(SoundEffect.click);
+              onTap();
+            },
       child: Stack(
         clipBehavior: Clip.none, // Permet au badge NEW de dépasser légèrement
         children: [
