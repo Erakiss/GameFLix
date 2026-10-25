@@ -9,6 +9,7 @@ import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/shared/widgets/hub_banner_ad.dart';
 import 'package:gameflix/shared/widgets/neon_volume_control.dart';
 import 'package:gameflix/state/players_controller.dart';
+import 'package:gameflix/state/access_control_provider.dart';
 
 class GameFlixHub extends StatefulWidget {
   const GameFlixHub({super.key});
@@ -26,6 +27,7 @@ class _GameFlixHubState extends State<GameFlixHub> {
       }
     });
     AdManager.instance.init();
+    AccessControlProvider.instance.resetTemporaryUnlocks();
   }
 
   void _openPlayerManager() {

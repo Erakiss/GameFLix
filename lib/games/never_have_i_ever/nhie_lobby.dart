@@ -1,12 +1,15 @@
 // lib/games/never_have_i_ever/nhie_lobby.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/never_have_i_ever/nhie_game.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
 import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
+import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
+import 'package:gameflix/state/access_control_provider.dart';
 
 class NhieCard {
   final String difficulty;
@@ -59,6 +62,8 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final access = context.watch<AccessControlProvider>();
+    final bool canAccessHot = access.canAccess('nhie_hot', isPremium: true);
 
     return Scaffold(
       backgroundColor: const Color(0xFF111122),
@@ -83,7 +88,36 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
             const SizedBox(height: 30),
             NeonCategorySwitch(title: 'SOFT', color: Colors.greenAccent, value: _isSoftSelected, onChanged: (val) => setState(() => _isSoftSelected = val)),
             NeonCategorySwitch(title: 'GEEK', color: Colors.orangeAccent, value: _isGeekSelected, onChanged: (val) => setState(() => _isGeekSelected = val)),
-            NeonCategorySwitch(title: 'HOT', color: Colors.redAccent, value: _isHotSelected, onChanged: (val) => setState(() => _isHotSelected = val)),
+            NeonCategorySwitch(
+              title: 'HOT',
+              color: Colors.redAccent,
+              value: _isHotSelected,
+              isLocked: !canAccessHot,
+              onLockedTap: () {
+                UnlockPackSheet.show(
+                  context,
+                  packId: 'nhie_hot',
+                  packTitle: 'Pack Hot & Piquant',
+                  onUnlocked: () {
+                    setState(() => _isHotSelected = true);
+                  },
+                );
+              },
+              onChanged: (val) {
+                if (!canAccessHot) {
+                  UnlockPackSheet.show(
+                    context,
+                    packId: 'nhie_hot',
+                    packTitle: 'Pack Hot & Piquant',
+                    onUnlocked: () {
+                      setState(() => _isHotSelected = true);
+                    },
+                  );
+                } else {
+                  setState(() => _isHotSelected = val);
+                }
+              },
+            ),
             const Spacer(),
             SizedBox(
               width: double.infinity, height: 60,

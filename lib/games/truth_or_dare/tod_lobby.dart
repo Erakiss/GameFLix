@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -6,7 +7,9 @@ import 'package:gameflix/models/player.dart';
 import 'package:gameflix/models/game_card.dart';
 import 'package:gameflix/games/truth_or_dare/tod_game.dart';
 import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
+import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
+import 'package:gameflix/state/access_control_provider.dart';
 
 class TodLobbyScreen extends StatefulWidget {
   final List<Player> players;
@@ -127,6 +130,9 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
+    final access = context.watch<AccessControlProvider>();
+    final bool canAccessHot = access.canAccess('tod_hot', isPremium: true);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Configuration", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
@@ -160,7 +166,26 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
                   children: [
                     _buildMiniToggle("SOFT", Colors.greenAccent, _useSoft, () => _toggleDeck('SOFT', _useSoft)),
                     _buildMiniToggle("FUN", Colors.orangeAccent, _useFun, () => _toggleDeck('FUN', _useFun)),
-                    _buildMiniToggle("HOT", Colors.redAccent, _useHot, () => _toggleDeck('HOT', _useHot)),
+                    _buildMiniToggle(
+                      "HOT",
+                      Colors.redAccent,
+                      _useHot,
+                      () {
+                        if (!canAccessHot) {
+                          UnlockPackSheet.show(
+                            context,
+                            packId: 'tod_hot',
+                            packTitle: 'Pack Hot & Spicy',
+                            onUnlocked: () {
+                              _toggleDeck('HOT', false);
+                            },
+                          );
+                        } else {
+                          _toggleDeck('HOT', _useHot);
+                        }
+                      },
+                      isLocked: !canAccessHot,
+                    ),
                     _buildMiniToggle("CUSTOM", Colors.purpleAccent, _useCustom, () => _toggleDeck('CUSTOM', _useCustom)),
                   ],
                 ),
@@ -215,7 +240,13 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
   }
 
   // Composant : Les petits boutons Néon
-  Widget _buildMiniToggle(String label, Color color, bool isActive, VoidCallback onTap) {
+  Widget _buildMiniToggle(
+    String label,
+    Color color,
+    bool isActive,
+    VoidCallback onTap, {
+    bool isLocked = false,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -223,11 +254,23 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isActive ? color.withValues(alpha: 0.2) : Colors.black45,
-          border: Border.all(color: isActive ? color : Colors.white24, width: 2),
+          border: Border.all(
+            color: isLocked ? Colors.redAccent.withValues(alpha: 0.7) : (isActive ? color : Colors.white24),
+            width: 2,
+          ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: isActive ? [BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 10)] : [],
         ),
-        child: Text(label, style: TextStyle(color: isActive ? color : Colors.white54, fontWeight: FontWeight.bold, fontSize: 13)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(label, style: TextStyle(color: isActive ? color : Colors.white54, fontWeight: FontWeight.bold, fontSize: 13)),
+            if (isLocked) ...[
+              const SizedBox(width: 4),
+              const Icon(Icons.lock_rounded, size: 12, color: Colors.redAccent),
+            ],
+          ],
+        ),
       ),
     );
   }

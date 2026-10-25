@@ -8,11 +8,27 @@
     "filePath": "assets/data/cards.json"
   },
   {
+    "id": "tod_hot",
+    "gameId": "tod",
+    "title": "Pack Hot & Spicy",
+    "description": "Vérités intimes et gages torrides pour faire monter la température.",
+    "isPremium": true,
+    "filePath": "assets/data/cards.json"
+  },
+  {
     "id": "nhie_classic",
     "gameId": "nhie",
     "title": "Pack Classique",
     "description": "Questions Je n'ai jamais pour lancer la course entre potes.",
     "isPremium": false,
+    "filePath": "assets/data/nhie_cards.json"
+  },
+  {
+    "id": "nhie_hot",
+    "gameId": "nhie",
+    "title": "Pack Hot & Piquant",
+    "description": "Secrets inavouables et questions les plus croustillantes.",
+    "isPremium": true,
     "filePath": "assets/data/nhie_cards.json"
   },
   {

@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gameflix/hub/splash_screen.dart'; 
 import 'package:gameflix/state/players_controller.dart';
+import 'package:gameflix/state/access_control_provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
-    ChangeNotifierProvider(
-      // Chargé une seule fois au démarrage, pendant le splash.
-      create: (_) => PlayersController()..load(),
+    MultiProvider(
+      providers: [
+        // Chargé une seule fois au démarrage, pendant le splash.
+        ChangeNotifierProvider(create: (_) => PlayersController()..load()),
+        ChangeNotifierProvider(create: (_) => AccessControlProvider.instance..init()),
+      ],
       child: const GameFlixApp(),
     ),
   );
