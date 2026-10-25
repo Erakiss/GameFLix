@@ -8,6 +8,7 @@ import 'package:gameflix/services/audio_service.dart';
 import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/shared/widgets/hub_banner_ad.dart';
 import 'package:gameflix/shared/widgets/neon_volume_control.dart';
+import 'package:gameflix/shared/widgets/procedural_neon_background.dart';
 import 'package:gameflix/state/players_controller.dart';
 import 'package:gameflix/state/access_control_provider.dart';
 
@@ -143,19 +144,7 @@ class _GameFlixHubState extends State<GameFlixHub> {
         ],
       ),
       extendBodyBehindAppBar: true,
-      body: Container(
-        decoration: BoxDecoration(
-          // On remplace le LinearGradient par ton image
-          image: DecorationImage(
-            image: const AssetImage('assets/hub_bg.png'), // Remplace par le bon nom de fichier !
-            fit: BoxFit.cover, // L'image va s'étirer pour couvrir tout l'écran sans se déformer
-            // Le petit filtre sombre magique pour garder le contraste des textes
-            colorFilter: ColorFilter.mode(
-              Colors.black.withValues(alpha: 0.6), // Ajuste l'alpha (0.0 = invisible, 1.0 = tout noir) selon ton image
-              BlendMode.darken,
-            ),
-          ),
-        ),
+      body: ProceduralNeonBackground(
         child: SafeArea(
           child: _buildCatalogue(),
         ),
