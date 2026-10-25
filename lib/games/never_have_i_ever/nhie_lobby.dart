@@ -33,9 +33,15 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
   void initState() { super.initState(); _loadCards(); }
 
   Future<void> _loadCards() async {
-    final String response = await rootBundle.loadString('assets/data/nhie_cards.json');
-    final List<dynamic> data = json.decode(response);
-    setState(() => _allCards = data.map((j) => NhieCard.fromJson(j)).toList());
+    try {
+      final String response = await rootBundle.loadString('assets/data/nhie_cards.json');
+      final List<dynamic> data = json.decode(response);
+      final cards = data.map((j) => NhieCard.fromJson(j)).toList();
+      if (!mounted) return;
+      setState(() => _allCards = cards);
+    } catch (e) {
+      debugPrint("Erreur JSON nhie_cards: $e");
+    }
   }
 
   void _startGame() {
@@ -64,7 +70,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            NeonLobbyBanner(imagePath: 'assets/wyr_banner.png', borderColor: Colors.purpleAccent,),
+            NeonLobbyBanner(imagePath: 'assets/nhie_banner.png', borderColor: Colors.purpleAccent,),
             const SizedBox(height: 30),
             NeonCategorySwitch(title: 'SOFT', color: Colors.greenAccent, value: _isSoftSelected, onChanged: (val) => setState(() => _isSoftSelected = val)),
             NeonCategorySwitch(title: 'GEEK', color: Colors.orangeAccent, value: _isGeekSelected, onChanged: (val) => setState(() => _isGeekSelected = val)),

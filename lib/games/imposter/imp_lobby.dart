@@ -53,9 +53,15 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
   }
 
   Future<void> _loadCards() async {
-    final String response = await rootBundle.loadString('assets/data/imp_cards.json');
-    final List<dynamic> data = json.decode(response);
-    setState(() => _allCards = data.map((j) => ImpCard.fromJson(j)).toList());
+    try {
+      final String response = await rootBundle.loadString('assets/data/imp_cards.json');
+      final List<dynamic> data = json.decode(response);
+      final cards = data.map((j) => ImpCard.fromJson(j)).toList();
+      if (!mounted) return;
+      setState(() => _allCards = cards);
+    } catch (e) {
+      debugPrint("Erreur JSON imp_cards: $e");
+    }
   }
 
   void _startGame() {
@@ -118,7 +124,7 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
-              NeonLobbyBanner(imagePath: 'assets/wyr_banner.png', borderColor: Colors.purpleAccent,),
+              NeonLobbyBanner(imagePath: 'assets/imp_banner.png', borderColor: Colors.purpleAccent,),
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(15),
