@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/models/game_card.dart';
 import 'package:gameflix/games/truth_or_dare/tod_game.dart';
+import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
 
 class TodLobbyScreen extends StatefulWidget {
   final List<Player> players;
@@ -129,7 +130,19 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
     if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Configuration", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)), backgroundColor: Colors.transparent, elevation: 0),
+      appBar: AppBar(
+        title: const Text("Configuration", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline_rounded, color: Colors.purpleAccent, size: 26),
+            tooltip: 'Règles du jeu',
+            onPressed: () => GameRulesSheet.show(context, DefaultGameRules.getRules('tod')),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       extendBodyBehindAppBar: true,
       body: Container(
         decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF050515), Color(0xFF111122), Color(0xFF2B003B)])),

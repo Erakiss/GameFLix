@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:gameflix/games/would_you_rather/wyr_game.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
+import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
 
 // --- MODÈLE ---
 class WyrCard {
@@ -79,7 +80,20 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF111122),
-      appBar: AppBar(title: const Text("TU PRÉFÈRES ?", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)), backgroundColor: Colors.transparent, elevation: 0, iconTheme: const IconThemeData(color: Colors.white)),
+      appBar: AppBar(
+        title: const Text("TU PRÉFÈRES ?", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline_rounded, color: Colors.blueAccent, size: 26),
+            tooltip: 'Règles du jeu',
+            onPressed: () => GameRulesSheet.show(context, DefaultGameRules.getRules('wyr')),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),

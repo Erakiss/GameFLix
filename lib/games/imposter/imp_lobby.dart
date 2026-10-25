@@ -8,6 +8,7 @@ import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/imposter/imp_game.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
+import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
 
 // --- MODÈLE ---
 class ImpCard {
@@ -118,7 +119,20 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF111122),
-      appBar: AppBar(title: const Text("L'IMPOSTEUR", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)), backgroundColor: Colors.transparent, elevation: 0, iconTheme: const IconThemeData(color: Colors.white)),
+      appBar: AppBar(
+        title: const Text("L'IMPOSTEUR", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline_rounded, color: Colors.orangeAccent, size: 26),
+            tooltip: 'Règles du jeu',
+            onPressed: () => GameRulesSheet.show(context, DefaultGameRules.getRules('imp')),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),

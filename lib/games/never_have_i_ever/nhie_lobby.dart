@@ -7,6 +7,7 @@ import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/never_have_i_ever/nhie_game.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
+import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
 
 class NhieCard {
   final String difficulty;
@@ -65,7 +66,19 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF111122),
-      appBar: AppBar(title: const Text("JE N'AI JAMAIS", style: TextStyle(fontWeight: FontWeight.bold)), backgroundColor: Colors.transparent, elevation: 0),
+      appBar: AppBar(
+        title: const Text("JE N'AI JAMAIS", style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline_rounded, color: Colors.cyanAccent, size: 26),
+            tooltip: 'Règles du jeu',
+            onPressed: () => GameRulesSheet.show(context, DefaultGameRules.getRules('nhie')),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

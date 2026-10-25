@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
+import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
 import 'package:gameflix/games/codenames/code_game.dart'; 
 
 class CodeWord {
@@ -194,7 +195,15 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
         title: const Text("NOM DE CODE", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)), 
         backgroundColor: Colors.transparent, 
         elevation: 0, 
-        iconTheme: const IconThemeData(color: Colors.white)
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline_rounded, color: Colors.cyanAccent, size: 26),
+            tooltip: 'Règles du jeu',
+            onPressed: () => GameRulesSheet.show(context, DefaultGameRules.getRules('code')),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         child: _isLoading 
