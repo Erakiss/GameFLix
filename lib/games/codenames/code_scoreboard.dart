@@ -1,5 +1,6 @@
 // lib/games/codenames/code_scoreboard.dart
 import 'package:flutter/material.dart';
+import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/shared/widgets/neon_confetti.dart';
 
@@ -68,7 +69,7 @@ class CodeScoreboardScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity, height: 60,
                     child: ElevatedButton.icon(
-                      onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                      onPressed: () => goToHub(context),
                       icon: Icon(Icons.home, color: winColor),
                       label: Text("RETOUR AU HUB", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: winColor)),
                       style: ElevatedButton.styleFrom(backgroundColor: winColor.withValues(alpha: 0.1), side: BorderSide(color: winColor, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),

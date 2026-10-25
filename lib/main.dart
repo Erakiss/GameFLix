@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:gameflix/hub/splash_screen.dart'; 
+import 'package:gameflix/state/players_controller.dart';
+
 void main() {
-  runApp(const GameFlixApp());
+  runApp(
+    ChangeNotifierProvider(
+      // Chargé une seule fois au démarrage, pendant le splash.
+      create: (_) => PlayersController()..load(),
+      child: const GameFlixApp(),
+    ),
+  );
 }
 
 class GameFlixApp extends StatelessWidget {

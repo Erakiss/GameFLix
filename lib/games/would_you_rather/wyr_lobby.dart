@@ -48,9 +48,15 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
   }
 
   Future<void> _loadCards() async {
-    final String response = await rootBundle.loadString('assets/data/wyr_cards.json');
-    final List<dynamic> data = json.decode(response);
-    setState(() => _allCards = data.map((j) => WyrCard.fromJson(j)).toList());
+    try {
+      final String response = await rootBundle.loadString('assets/data/wyr_cards.json');
+      final List<dynamic> data = json.decode(response);
+      final cards = data.map((j) => WyrCard.fromJson(j)).toList();
+      if (!mounted) return;
+      setState(() => _allCards = cards);
+    } catch (e) {
+      debugPrint("Erreur JSON wyr_cards: $e");
+    }
   }
 
   void _startGame() {

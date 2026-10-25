@@ -57,16 +57,19 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
   }
 
   Future<void> _loadWords() async {
+    List<CodeWord> words = [];
     try {
       final String response = await rootBundle.loadString('assets/data/code_words.json');
       final List<dynamic> data = json.decode(response);
-      setState(() {
-        _allWords = data.map((j) => CodeWord.fromJson(j)).toList();
-        _isLoading = false;
-      });
+      words = data.map((j) => CodeWord.fromJson(j)).toList();
     } catch (e) {
-      setState(() => _isLoading = false);
+      debugPrint("Erreur JSON code_words: $e");
     }
+    if (!mounted) return;
+    setState(() {
+      _allWords = words;
+      _isLoading = false;
+    });
   }
 
   void _startGame() {

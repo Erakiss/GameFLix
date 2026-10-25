@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:gameflix/models/player.dart';
-import 'package:gameflix/hub/gameflix_hub.dart';
+import 'package:gameflix/shared/navigation.dart';
 
 class NhieScoreboardScreen extends StatelessWidget {
   final List<Player> players;
@@ -30,7 +30,7 @@ class NhieScoreboardScreen extends StatelessWidget {
               )),
               const SizedBox(height: 40),
               ElevatedButton.icon(
-                onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const GameFlixHub()), (route) => false),
+                onPressed: () => goToHub(context),
                 icon: const Icon(Icons.home, color: Colors.black), label: const Text("RETOUR AU MENU", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.cyanAccent, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
               )

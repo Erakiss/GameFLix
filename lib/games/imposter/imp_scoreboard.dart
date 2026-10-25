@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/imposter/imp_lobby.dart'; 
 import 'package:gameflix/shared/widgets/neon_confetti.dart'; // L'import de notre super widget !
@@ -269,7 +270,7 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                       width: double.infinity, height: 60,
                       child: ElevatedButton.icon(
                         // Retourne au Hub proprement !
-                        onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst), 
+                        onPressed: () => goToHub(context), 
                         icon: const Icon(Icons.home, color: Colors.purpleAccent),
                         label: const Text("RETOUR AU HUB", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purpleAccent)),
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.purpleAccent.withValues(alpha: 0.1), side: const BorderSide(color: Colors.purpleAccent, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),

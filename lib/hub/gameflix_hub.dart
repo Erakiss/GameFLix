@@ -1,15 +1,10 @@
 // lib/hub/gameflix_hub.dart
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:provider/provider.dart';
 
 import 'package:gameflix/models/player.dart';
-import 'package:gameflix/games/truth_or_dare/tod_lobby.dart';
-import 'package:gameflix/games/never_have_i_ever/nhie_lobby.dart';
-import 'package:gameflix/games/would_you_rather/wyr_lobby.dart';
-import 'package:gameflix/games/imposter/imp_lobby.dart';
-import 'package:gameflix/games/drinking_board/board_game.dart';
-import 'package:gameflix/games/codenames/code_lobby.dart';
+import 'package:gameflix/models/game_config.dart';
+import 'package:gameflix/state/players_controller.dart';
 
 class GameFlixHub extends StatefulWidget {
   const GameFlixHub({super.key});
@@ -18,32 +13,6 @@ class GameFlixHub extends StatefulWidget {
 }
 
 class _GameFlixHubState extends State<GameFlixHub> {
-  final List<Player> _globalPlayers = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPlayers();
-  }
-
-  Future<void> _loadPlayers() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? saved = prefs.getString('saved_players');
-    if (saved != null) {
-      final List<dynamic> decoded = jsonDecode(saved);
-      setState(() {
-        _globalPlayers.clear();
-        _globalPlayers.addAll(decoded.map((p) => Player.fromJson(p)));
-      });
-    }
-  }
-
-  Future<void> _savePlayers() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String encodedData = jsonEncode(_globalPlayers.map((p) => p.toJson()).toList());
-    prefs.setString('saved_players', encodedData);
-  }
-
   void _openPlayerManager() {
     showModalBottomSheet(
       context: context,
@@ -54,20 +23,41 @@ class _GameFlixHubState extends State<GameFlixHub> {
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.70, // Prend 70% de l'écran
-          child: PlayerManagerSheet(
-            players: _globalPlayers,
-            onPlayersUpdated: () {
-              setState(() {}); 
-              _savePlayers(); 
-            },
-          ),
+          child: const PlayerManagerSheet(),
         ),
       ),
     );
   }
 
+  /// Point d'entrée unique pour lancer un jeu :
+  /// vérifie le nombre de joueurs puis passe des copies "session" au jeu.
+  void _launchGame({
+    int minPlayers = 0,
+    int? maxPlayers,
+    required Widget Function(List<Player> sessionPlayers) builder,
+  }) {
+    final controller = context.read<PlayersController>();
+    final int count = controller.count;
+    final bool tooFew = count < minPlayers;
+    final bool tooMany = maxPlayers != null && count > maxPlayers;
+
+    if (tooFew || tooMany) {
+      final String message = maxPlayers == null
+          ? "⚠️ Il faut au moins $minPlayers joueurs pour ce jeu !"
+          : "⚠️ Il faut entre $minPlayers et $maxPlayers joueurs pour ce jeu !";
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.redAccent));
+      _openPlayerManager();
+      return;
+    }
+
+    Navigator.push(context, MaterialPageRoute(builder: (_) => builder(controller.sessionPlayers())));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final int playerCount = context.watch<PlayersController>().count;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -90,13 +80,13 @@ class _GameFlixHubState extends State<GameFlixHub> {
                 clipBehavior: Clip.none,
                 children: [
                   const Icon(Icons.people_alt, color: Colors.cyanAccent, size: 26),
-                  if (_globalPlayers.isNotEmpty)
+                  if (playerCount > 0)
                     Positioned(
                       right: -5, top: -5,
                       child: Container(
                         padding: const EdgeInsets.all(3),
                         decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                        child: Text('${_globalPlayers.length}', style: const TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.white)),
+                        child: Text('$playerCount', style: const TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.white)),
                       ),
                     )
                 ],
@@ -193,128 +183,21 @@ class _GameFlixHubState extends State<GameFlixHub> {
             perspective: 0.005, 
             diameterRatio: 2.0, 
             squeeze: 1.05, 
-            children: [
-              // 1. TRUTH OR DARE
-              _buildWheelCard(
-                subtitle: "Action ou Vérité revisité",
-                imagePath: 'assets/tod_banner.png', 
-                cardRenderHeight: fixedRenderHeight, // Empreinte verticale
-                cardRenderWidth: calculatedCardWidth, // Largeur calculée pour l'image
-                onTap: () {
-                  if (_globalPlayers.length < 2) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("⚠️ Ajoute au moins 2 joueurs !"), backgroundColor: Colors.redAccent));
-                    _openPlayerManager();
-                    return;
-                  }
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => TodLobbyScreen(players: _globalPlayers)));
-                }
-              ),
-
-              // 2. Never Have I Ever
-              _buildWheelCard(
-                subtitle: "Je n'ai jamais... mais en course !",
-                imagePath: 'assets/nhie_banner.png', 
+            children: GameRegistry.games.map((game) {
+              return _buildWheelCard(
+                subtitle: game.subtitle,
+                imagePath: game.bannerPath,
+                isNew: game.isNew,
+                isLocked: game.isLocked,
                 cardRenderHeight: fixedRenderHeight,
                 cardRenderWidth: calculatedCardWidth,
-                isNew: true,
-                onTap: () {
-                  // --- MISE À JOUR : Limite entre 2 et 5 joueurs ---
-                  if (_globalPlayers.length < 2 || _globalPlayers.length > 5) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("⚠️ Il faut entre 2 et 5 joueurs pour ce jeu !"), 
-                        backgroundColor: Colors.redAccent
-                      )
-                    );
-                    _openPlayerManager();
-                    return;
-                  }
-                  // ------------------------------------------------
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => NhieLobbyScreen(players: _globalPlayers)));
-                }
-              ),
-
-              // 3. Imposter
-              _buildWheelCard(
-                subtitle: "Imposteur ou Mister White ?",
-                imagePath: 'assets/imp_banner.png', 
-                cardRenderHeight: fixedRenderHeight,
-                cardRenderWidth: calculatedCardWidth,
-                isNew: true,
-                onTap: () {
-                  if (_globalPlayers.length < 3) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("⚠️ Il faut au moins 3 joueurs pour ce jeu !"), 
-                        backgroundColor: Colors.redAccent
-                      )
-                    );
-                    _openPlayerManager();
-                    return;
-                  }
-                  // ------------------------------------------------
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ImpLobbyScreen(players: _globalPlayers)));
-                }
-              ),
-
-              // 4. Would You Rather
-              _buildWheelCard(
-                subtitle: "Le choix impossible",
-                imagePath: 'assets/wyr_banner.png', // Si tu en as une
-                isNew: true,
-                cardRenderHeight: fixedRenderHeight,
-                cardRenderWidth: calculatedCardWidth,
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const WyrLobbyScreen()));
-                }
-              ),
-
-              // 5. LE JEU DE PLATEAU (PROTOTYPE)
-              _buildWheelCard(
-                subtitle: "Le plateau de l'enfer",
-                imagePath: 'assets/board_banner.png',
-                isNew: true,
-                cardRenderHeight: fixedRenderHeight,
-                cardRenderWidth: calculatedCardWidth,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => BoardGameScreen(players: _globalPlayers))),
-              ),
-
-              // 6. CODENAMES
-              _buildWheelCard(
-                subtitle: "Codenames Express",
-                imagePath: 'assets/code_banner.png',
-                isNew: true,
-                cardRenderHeight: fixedRenderHeight,
-                cardRenderWidth: calculatedCardWidth,
-                onTap: () {
-                  if (_globalPlayers.length < 4) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Code Names nécessite au moins 4 joueurs !"),
-                        backgroundColor: Colors.redAccent,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  } else {
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(builder: (context) => CodeLobbyScreen(players: _globalPlayers))
-                    );
-                  }
-                }
-              ),
-
-              // 6. UN JEU EN PRÉPARATION (On passe les mêmes dimensions pour la cohérence visuelle)
-              _buildWheelCard(
-                subtitle: "Le code chauffe...",
-                imagePath: null, 
-                isLocked: true,
-                cardRenderHeight: fixedRenderHeight,
-                cardRenderWidth: calculatedCardWidth,
-                onTap: () {}
-              ),
-
-            ],
+                onTap: () => _launchGame(
+                  minPlayers: game.minPlayers,
+                  maxPlayers: game.maxPlayers,
+                  builder: game.builder,
+                ),
+              );
+            }).toList(),
           ),
         ),
       ],
@@ -424,11 +307,9 @@ class _GameFlixHubState extends State<GameFlixHub> {
 }
 
 // --- Player Manager Pop-up ---
+// Lit et modifie le roster uniquement via PlayersController.
 class PlayerManagerSheet extends StatefulWidget {
-  final List<Player> players;
-  final VoidCallback onPlayersUpdated;
-
-  const PlayerManagerSheet({super.key, required this.players, required this.onPlayersUpdated});
+  const PlayerManagerSheet({super.key});
 
   @override
   State<PlayerManagerSheet> createState() => _PlayerManagerSheetState();
@@ -438,36 +319,35 @@ class _PlayerManagerSheetState extends State<PlayerManagerSheet> {
   final TextEditingController _nameController = TextEditingController();
   String _selectedGender = 'M';
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
   void _addPlayer() {
-    // 1. On récupère le texte tapé dans le TextField
-    String cleanName = _nameController.text.trim();
-    if (cleanName.isEmpty) return;
+    final result = context.read<PlayersController>().add(_nameController.text, _selectedGender);
 
-    // 2. LA SÉCURITÉ ANTI-DOUBLON (On utilise widget.players ici !)
-    bool nameExists = widget.players.any((p) => p.name.toLowerCase() == cleanName.toLowerCase());
-    
-    if (nameExists) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Ce nom est déjà pris ! Ajoute une initiale (ex: Test 2)."),
-          backgroundColor: Colors.redAccent,
-        )
-      );
-      return; 
+    switch (result) {
+      case AddPlayerResult.added:
+        _nameController.clear(); // On vide le champ pour taper le pote suivant direct
+      case AddPlayerResult.duplicate:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Ce nom est déjà pris ! Ajoute une initiale (ex: Test 2)."),
+            backgroundColor: Colors.redAccent,
+          )
+        );
+      case AddPlayerResult.emptyName:
+        break;
     }
-
-    // 3. On ajoute le joueur à la liste et on met à jour l'interface
-    setState(() {
-      widget.players.add(Player(name: cleanName, gender: _selectedGender));
-      _nameController.clear(); // On vide le champ pour taper le pote suivant direct
-    });
-
-    // 4. On prévient le Hub parent de sauvegarder la nouvelle liste dans le téléphone
-    widget.onPlayersUpdated();
   }
   
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<PlayersController>();
+    final players = controller.players;
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -489,26 +369,22 @@ class _PlayerManagerSheetState extends State<PlayerManagerSheet> {
           const SizedBox(height: 20),
           
           Expanded(
-            child: widget.players.isEmpty 
+            child: players.isEmpty 
               ? const Center(child: Text("Aucun joueur pour le moment.\nAjoute tes potes pour commencer !", textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontStyle: FontStyle.italic)))
               : ListView.builder(
-                  itemCount: widget.players.length,
+                  itemCount: players.length,
                   itemBuilder: (context, i) => Container(
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                     decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.white10)),
                     child: Row(
                       children: [
-                        Text(widget.players[i].gender == 'M' ? '♂' : '♀', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: widget.players[i].gender == 'M' ? Colors.blueAccent : Colors.pinkAccent)),
+                        Text(players[i].gender == 'M' ? '♂' : '♀', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: players[i].gender == 'M' ? Colors.blueAccent : Colors.pinkAccent)),
                         const SizedBox(width: 15),
-                        Text(widget.players[i].name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                        const Spacer(),
+                        Expanded(child: Text(players[i].name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white))),
                         IconButton(
                           icon: const Icon(Icons.delete_outline, color: Colors.redAccent), 
-                          onPressed: () {
-                            setState(() => widget.players.removeAt(i)); 
-                            widget.onPlayersUpdated();
-                          }
+                          onPressed: () => controller.removeAt(i),
                         ),
                       ],
                     ),

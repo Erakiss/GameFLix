@@ -50,6 +50,7 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
       _customCards.addAll(decoded.map((c) => GameCard.fromJson(c)));
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = false);
   }
 

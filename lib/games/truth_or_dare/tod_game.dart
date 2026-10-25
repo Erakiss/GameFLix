@@ -4,7 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/models/game_card.dart';
-import 'package:gameflix/hub/gameflix_hub.dart';
+import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/games/truth_or_dare/tod_scoreboard.dart';
 
 class TurnRecord {
@@ -246,7 +246,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
               children: [
                 Row(
                   children: [
-                    IconButton(icon: const Icon(Icons.home, size: 32, color: Colors.white70), onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const GameFlixHub()), (route) => false)),
+                    IconButton(icon: const Icon(Icons.home, size: 32, color: Colors.white70), onPressed: () => goToHub(context)),
                     if (_history.isNotEmpty && _currentCard == null)
                       IconButton(icon: const Icon(Icons.undo, size: 30, color: Colors.cyanAccent), onPressed: _undoTurn),
                   ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gameflix/hub/gameflix_hub.dart';
+import 'package:gameflix/shared/navigation.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,6 +21,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Navigator.pushReplacement(context, PageRouteBuilder(
+          settings: const RouteSettings(name: kHubRouteName),
           transitionDuration: const Duration(milliseconds: 800),
           pageBuilder: (_, _, _) => const GameFlixHub(), // Redirige vers le HUB
           transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),

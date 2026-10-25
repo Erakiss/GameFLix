@@ -23,21 +23,25 @@ class _ImpDistributionScreenState extends State<ImpDistributionScreen> {
   bool _isRevealed = false; 
 
   void _toggleReveal() {
+    final bool wasRevealed = _isRevealed;
+    final bool isLastPlayer = _currentPlayerIndex >= widget.players.length - 1;
+
+    // Dernier joueur qui cache son rôle -> on passe au débat, sans setState.
+    if (wasRevealed && isLastPlayer) {
+      Navigator.pushReplacement(
+        context, 
+        MaterialPageRoute(builder: (context) => ImpDebateScreen(
+          players: widget.players,
+          playerRoles: widget.playerRoles,
+          selectedCard: widget.selectedCard,
+        ))
+      );
+      return;
+    }
+
     setState(() {
-      _isRevealed = !_isRevealed;
-      if (!_isRevealed) {
-        _currentPlayerIndex++;
-        if (_currentPlayerIndex >= widget.players.length) {
-          Navigator.pushReplacement(
-            context, 
-            MaterialPageRoute(builder: (context) => ImpDebateScreen(
-              players: widget.players,
-              playerRoles: widget.playerRoles,
-              selectedCard: widget.selectedCard,
-            ))
-          );
-        }
-      }
+      _isRevealed = !wasRevealed;
+      if (wasRevealed) _currentPlayerIndex++;
     });
   }
 
@@ -150,11 +154,11 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_timeLeft > 0) {
-        setState(() => _timeLeft--);
-      } else {
-        _timer?.cancel();
+      if (!mounted || _timeLeft <= 0) {
+        timer.cancel();
+        return;
       }
+      setState(() => _timeLeft--);
     });
   }
 

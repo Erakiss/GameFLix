@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/shared/widgets/neon_confetti.dart';
+import 'package:gameflix/shared/navigation.dart';
 
 // --- MACHINE D'ÉTAT ABSOLUE ---
 enum GamePhase { idle, rolling, moving, card, transition, victory }
@@ -88,6 +90,9 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   List<TileAction> _actionPool = [];
   TileAction? _currentAction;
 
+  // Remplace l'ancienne boucle while : complété quand le joueur ferme la carte.
+  Completer<void>? _cardDismissed;
+
   // 4 Ladders (Montée) et 4 Snakes (Descente)
   final List<BoardLadder> _ladders = [
     const BoardLadder(fromTile: 8, toTile: 25, color: Colors.greenAccent),
@@ -114,32 +119,49 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
     _loadCards();
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_boardPlayers.isNotEmpty) _focusCameraOnTile(0, scale: 0.7, animate: false);
+      if (mounted && _boardPlayers.isNotEmpty) _focusCameraOnTile(0, scale: 0.7, animate: false);
     });
   }
 
   @override
   void dispose() {
+    // Débloque un éventuel `await` de carte en cours (il verra mounted == false).
+    if (_cardDismissed != null && !_cardDismissed!.isCompleted) _cardDismissed!.complete();
+    _cameraAnimation?.removeListener(_updateCamera);
     _sfxPlayer.dispose();
     _cameraController.dispose();
     _cameraAnimController.dispose();
     super.dispose();
   }
 
+  // --- HELPERS ASYNC SÉCURISÉS ---
+  /// Attend [ms] millisecondes puis indique si l'écran est toujours affiché.
+  /// Usage : `if (!await _wait(300)) return;`
+  Future<bool> _wait(int ms) async {
+    await Future.delayed(Duration(milliseconds: ms));
+    return mounted;
+  }
+
+  void _safeSetState(VoidCallback fn) {
+    if (mounted) setState(fn);
+  }
+
   Future<void> _loadCards() async {
+    List<TileAction> pool;
     try {
       final String response = await rootBundle.loadString('assets/data/board_cards.json');
       final List<dynamic> data = json.decode(response);
-      setState(() => _actionPool = data.map((item) => TileAction.fromJson(item)).toList());
+      pool = data.map((item) => TileAction.fromJson(item)).toList();
     } catch (e) {
       debugPrint("Erreur JSON: $e");
-      setState(() => _actionPool = [TileAction(title: "ERREUR", description: "Vérifie ton JSON", type: TileType.action)]);
+      pool = [TileAction(title: "ERREUR", description: "Vérifie ton JSON", type: TileType.action)];
     }
+    _safeSetState(() => _actionPool = pool);
   }
 
   // --- LOGIQUE CAMÉRA ---
   void _focusCameraOnTile(int tileIndex, {required double scale, required bool animate, Duration duration = const Duration(milliseconds: 1000)}) {
-    if (_tileCenters.isEmpty) return;
+    if (!mounted || _tileCenters.isEmpty) return;
     Offset target = _tileCenters[tileIndex];
     final size = MediaQuery.of(context).size;
     
@@ -178,7 +200,10 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
         if (playerIndexOnTile == 2) return const Offset(-10, 10);
         return const Offset(10, 10);
       default:
-        return const Offset(0, 0);
+        if (totalPlayersOnTile <= 1) return const Offset(0, 0);
+        // 5+ pions : répartition en cercle pour qu'aucun ne soit masqué.
+        final double angle = (2 * pi * playerIndexOnTile) / totalPlayersOnTile;
+        return Offset(cos(angle) * 14, sin(angle) * 14);
     }
   }
 
@@ -276,6 +301,8 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
   }
 
   // --- LOGIQUE SÉCURISÉE DU JEU ---
+  // Chaque `await` est suivi d'un contrôle `mounted` (via _wait) : si le joueur
+  // quitte l'écran en plein tour, la séquence s'arrête proprement.
   Future<void> _rollDiceAndMove() async {
     if (_phase != GamePhase.idle || _boardPlayers.isEmpty) return;
 
@@ -283,24 +310,24 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
 
     _focusCameraOnTile(_boardPlayers[_currentPlayerIndex].currentTileIndex, scale: 1.0, animate: true, duration: const Duration(milliseconds: 600));
     
+    final random = Random();
     for (int i = 0; i < 10; i++) {
-      await Future.delayed(const Duration(milliseconds: 60));
-      setState(() { _diceValue = Random().nextInt(6) + 1; _diceRotation += 0.35; });
+      if (!await _wait(60)) return;
+      setState(() { _diceValue = random.nextInt(6) + 1; _diceRotation += 0.35; });
     }
     
-    int steps = Random().nextInt(6) + 1;
+    final int steps = random.nextInt(6) + 1;
     setState(() { _diceValue = steps; _diceRotation = 0.0; });
-    await Future.delayed(const Duration(milliseconds: 800));
+    if (!await _wait(800)) return;
 
     setState(() => _phase = GamePhase.moving);
 
-    BoardPlayer currentPlayer = _boardPlayers[_currentPlayerIndex];
+    final BoardPlayer currentPlayer = _boardPlayers[_currentPlayerIndex];
     for (int i = 0; i < steps; i++) {
-      if (currentPlayer.currentTileIndex < _totalTiles - 1) {
-        setState(() => currentPlayer.currentTileIndex++);
-        _focusCameraOnTile(currentPlayer.currentTileIndex, scale: 1.0, animate: true, duration: const Duration(milliseconds: 250));
-        await Future.delayed(const Duration(milliseconds: 300));
-      }
+      if (currentPlayer.currentTileIndex >= _totalTiles - 1) break;
+      setState(() => currentPlayer.currentTileIndex++);
+      _focusCameraOnTile(currentPlayer.currentTileIndex, scale: 1.0, animate: true, duration: const Duration(milliseconds: 250));
+      if (!await _wait(300)) return;
     }
 
     // Victoire immédiate
@@ -310,8 +337,8 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
     }
 
     // Serpents et Échelles
-    try {
-      var ladder = _ladders.firstWhere((l) => l.fromTile == currentPlayer.currentTileIndex);
+    final BoardLadder? ladder = _ladders.where((l) => l.fromTile == currentPlayer.currentTileIndex).firstOrNull;
+    if (ladder != null) {
       setState(() {
         currentPlayer.currentTileIndex = ladder.toTile;
         if (ladder.toTile > ladder.fromTile) {
@@ -321,10 +348,10 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
         }
       });
       _focusCameraOnTile(currentPlayer.currentTileIndex, scale: 1.0, animate: true, duration: const Duration(milliseconds: 400));
-      await Future.delayed(const Duration(milliseconds: 500));
-    } catch (_) {}
+      if (!await _wait(500)) return;
+    }
 
-    await _triggerTileAction(currentPlayer.currentTileIndex);
+    if (!await _triggerTileAction(currentPlayer.currentTileIndex)) return;
 
     // Si victoire post-carte
     if (currentPlayer.currentTileIndex == _totalTiles - 1) {
@@ -333,23 +360,25 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
     }
 
     // --- TRANSITION DU TOUR ---
-    setState(() => _phase = GamePhase.transition);
-    
-    int nextIndex = (_currentPlayerIndex + 1) % _boardPlayers.length;
-    setState(() => _currentPlayerIndex = nextIndex);
+    setState(() {
+      _phase = GamePhase.transition;
+      _currentPlayerIndex = (_currentPlayerIndex + 1) % _boardPlayers.length;
+    });
 
     _focusCameraOnTile(_boardPlayers[_currentPlayerIndex].currentTileIndex, scale: 1.5, animate: true, duration: const Duration(milliseconds: 800));
-    await Future.delayed(const Duration(milliseconds: 1200));
+    if (!await _wait(1200)) return;
 
     _focusCameraOnTile(_boardPlayers[_currentPlayerIndex].currentTileIndex, scale: 0.8, animate: true, duration: const Duration(milliseconds: 600));
-    await Future.delayed(const Duration(milliseconds: 600));
+    if (!await _wait(600)) return;
 
     setState(() => _phase = GamePhase.idle);
   }
 
-  Future<void> _triggerTileAction(int index) async {
-    if (index == 0 || index == _totalTiles - 1) return;
-    if (_actionPool.isEmpty) return;
+  /// Affiche la carte de la case et attend que le joueur la ferme.
+  /// Retourne `false` si l'écran a été démonté entre-temps.
+  Future<bool> _triggerTileAction(int index) async {
+    if (index == 0 || index == _totalTiles - 1) return mounted;
+    if (_actionPool.isEmpty) return mounted;
 
     bool isSpecial = index % 6 == 0;
     bool isQuestion = !isSpecial && index % 2 != 0;
@@ -362,29 +391,42 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
 
     if (possibleCards.isEmpty) possibleCards = _actionPool;
 
+    final TileAction action = possibleCards[Random().nextInt(possibleCards.length)];
+    final completer = Completer<void>();
+    _cardDismissed = completer;
+
     setState(() {
-      _currentAction = possibleCards[Random().nextInt(possibleCards.length)];
-      
-      if (_currentAction!.type == TileType.drink) {
+      _currentAction = action;
+      if (action.type == TileType.drink) {
         _boardPlayers[_currentPlayerIndex].sipsCount += 3;
-      } else if (_currentAction!.type == TileType.action) {
+      } else if (action.type == TileType.action) {
         _boardPlayers[_currentPlayerIndex].sipsCount += 1;
       }
-      
       _phase = GamePhase.card;
     });
 
-    while (_phase == GamePhase.card) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
+    // Plus de polling : on attend l'événement "carte fermée".
+    await completer.future;
+    _cardDismissed = null;
+    if (!mounted) return false;
 
-    if (_currentAction!.movement != 0) {
-      setState(() => _phase = GamePhase.moving); 
-      int newIndex = (_boardPlayers[_currentPlayerIndex].currentTileIndex + _currentAction!.movement).clamp(0, _totalTiles - 1);
-      setState(() => _boardPlayers[_currentPlayerIndex].currentTileIndex = newIndex);
+    if (action.movement != 0) {
+      final int newIndex = (_boardPlayers[_currentPlayerIndex].currentTileIndex + action.movement).clamp(0, _totalTiles - 1);
+      setState(() {
+        _phase = GamePhase.moving;
+        _boardPlayers[_currentPlayerIndex].currentTileIndex = newIndex;
+      });
       _focusCameraOnTile(newIndex, scale: 1.0, animate: true, duration: const Duration(milliseconds: 500));
-      await Future.delayed(const Duration(milliseconds: 1500)); 
+      if (!await _wait(1500)) return false;
     }
+    return true;
+  }
+
+  void _dismissCard() {
+    if (_phase != GamePhase.card) return;
+    setState(() => _phase = GamePhase.moving);
+    final completer = _cardDismissed;
+    if (completer != null && !completer.isCompleted) completer.complete();
   }
 
   // --- WIDGET UTILITAIRE (STATS) ---
@@ -539,9 +581,7 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
             if (_phase == GamePhase.card && _currentAction != null)
               Positioned.fill(
                 child: GestureDetector(
-                  onTap: () {
-                    if (_phase == GamePhase.card) setState(() => _phase = GamePhase.moving); 
-                  },
+                  onTap: _dismissCard,
                   child: Container(
                     color: Colors.black.withValues(alpha: 0.7),
                     child: Center(
@@ -603,7 +643,7 @@ class _BoardGameScreenState extends State<BoardGameScreen> with TickerProviderSt
                               ),
                               icon: const Icon(Icons.refresh, color: Colors.white),
                               label: const Text("RETOURNER AU HUB", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () => goToHub(context),
                             ),
                           ],
                         ),

@@ -28,21 +28,20 @@ class _NhieRaceScreenState extends State<NhieRaceScreen> {
   }
 
   void _nextCard() {
-    bool hasWinner = false;
+    for (var p in widget.players) {
+      if (_currentTurnSelections[p.name] == true) p.score += 1;
+    }
+    final bool hasWinner = widget.players.any((p) => p.score >= 10);
+
+    if (hasWinner) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NhieScoreboardScreen(players: widget.players)));
+      return;
+    }
+
     setState(() {
-      for (var p in widget.players) {
-        if (_currentTurnSelections[p.name] == true) {
-          p.score += 1;
-          if (p.score >= 10) hasWinner = true;
-        }
-      }
-      if (hasWinner) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NhieScoreboardScreen(players: widget.players)));
-      } else {
-        _currentTurnSelections.clear();
-        _cardIndex = (_cardIndex + 1) % widget.deck.length;
-        if (_cardIndex == 0) widget.deck.shuffle(); 
-      }
+      _currentTurnSelections.clear();
+      _cardIndex = (_cardIndex + 1) % widget.deck.length;
+      if (_cardIndex == 0) widget.deck.shuffle(); 
     });
   }
 

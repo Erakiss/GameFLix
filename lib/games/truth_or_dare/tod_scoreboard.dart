@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gameflix/models/player.dart';
-import 'package:gameflix/hub/gameflix_hub.dart';
+import 'package:gameflix/shared/navigation.dart';
 
 class TodScoreboardScreen extends StatelessWidget {
   final List<Player> players;
@@ -62,7 +62,7 @@ class TodScoreboardScreen extends StatelessWidget {
                   icon: const Icon(Icons.home, size: 28), 
                   label: const Text('RETOUR AU HUB', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), 
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.cyanAccent, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))), 
-                  onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const GameFlixHub()), (route) => false)
+                  onPressed: () => goToHub(context)
                 ),
               ),
             ],

@@ -33,6 +33,7 @@ class _WyrGameScreenState extends State<WyrGameScreen> with SingleTickerProvider
     if (_swipeController.isAnimating) return;
 
     _swipeController.forward().then((_) {
+      if (!mounted) return;
       if (_currentIndex < widget.deck.length - 1) {
         setState(() => _currentIndex++);
         _swipeController.reset();
