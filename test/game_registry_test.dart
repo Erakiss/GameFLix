@@ -28,7 +28,7 @@ void main() {
       expect(imp.maxPlayers, isNull);
 
       final wyr = GameRegistry.games.firstWhere((g) => g.id == 'wyr');
-      expect(wyr.minPlayers, 0);
+      expect(wyr.minPlayers, 2);
       expect(wyr.maxPlayers, isNull);
 
       final board = GameRegistry.games.firstWhere((g) => g.id == 'board');

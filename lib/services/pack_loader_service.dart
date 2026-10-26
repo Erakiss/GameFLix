@@ -2,9 +2,12 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:gameflix/l10n/locale_controller.dart';
 import 'package:gameflix/models/game_pack.dart';
 
 /// Service centralisé de chargement et gestion des packs de données JSON.
+/// Supporte le chargement multilingue par sous-dossier (`assets/data/<lang>/`)
+/// avec fallback automatique sur le français (`assets/data/fr/` puis `assets/data/`).
 class PackLoaderService {
   /// Instance singleton par défaut pour l'application
   static final PackLoaderService instance = PackLoaderService();
@@ -13,6 +16,59 @@ class PackLoaderService {
   List<GamePack>? _cachedManifest;
 
   PackLoaderService({AssetBundle? bundle}) : _bundle = bundle ?? rootBundle;
+
+  // --- RÉSOLUTION DES CHEMINS MULTILINGUES ---
+
+  /// Construit la liste ordonnée des chemins candidats selon la langue active :
+  /// 1. `assets/data/<lang>/<fichier>.json`
+  /// 2. `assets/data/fr/<fichier>.json` (fallback français)
+  /// 3. Le chemin d'origine (ex: `assets/data/<fichier>.json`)
+  List<String> resolveLocalizedPaths(String originalPath, {String? languageCode}) {
+    final String lang = (languageCode ?? LocaleController.instance.languageCode).toLowerCase();
+    const String prefix = 'assets/data/';
+
+    if (!originalPath.startsWith(prefix)) {
+      return [originalPath];
+    }
+
+    // Extraction du nom de fichier relatif (en retirant un éventuel sous-dossier de langue déjà présent)
+    String relativeName = originalPath.substring(prefix.length);
+    for (final loc in AppLocale.values) {
+      if (relativeName.startsWith('${loc.code}/')) {
+        relativeName = relativeName.substring(loc.code.length + 1);
+        break;
+      }
+    }
+
+    final List<String> candidates = <String>[
+      '$prefix$lang/$relativeName',
+      '${prefix}fr/$relativeName',
+      originalPath,
+    ];
+
+    // Déduplication tout en préservant l'ordre de priorité
+    final Set<String> seen = <String>{};
+    return candidates.where((p) => seen.add(p)).toList();
+  }
+
+  /// Charge une chaîne JSON depuis le premier chemin disponible dans la liste de priorité.
+  Future<String> _loadStringWithFallback(String originalPath, {String? languageCode}) async {
+    final candidates = resolveLocalizedPaths(originalPath, languageCode: languageCode);
+    Object? lastError;
+
+    for (final candidate in candidates) {
+      try {
+        final content = await _bundle.loadString(candidate);
+        if (content.trim().isNotEmpty) {
+          return content;
+        }
+      } catch (e) {
+        lastError = e;
+      }
+    }
+
+    throw lastError ?? Exception('Asset introuvable : $originalPath');
+  }
 
   // --- CHARGEMENT DU MANIFESTE CENTRAL ---
 
@@ -24,8 +80,8 @@ class PackLoaderService {
     }
 
     try {
-      // 1. Lecture du fichier JSON dans les assets
-      final String jsonString = await _bundle.loadString('assets/data/packs_manifest.json');
+      // 1. Lecture du fichier JSON dans les assets (avec support sous-dossier ou racine)
+      final String jsonString = await _loadStringWithFallback('assets/data/packs_manifest.json');
 
       // 2. Décodage de la liste
       final List<dynamic> jsonList = jsonDecode(jsonString) as List<dynamic>;
@@ -60,14 +116,18 @@ class PackLoaderService {
 
   // --- CHARGEMENT DU CONTENU DES CARTES ---
 
-  /// Charge et désérialise les cartes d'un pack spécifique.
+  /// Charge et désérialise les cartes d'un pack spécifique selon la langue active (avec fallback FR).
   Future<List<T>> loadCards<T>(
     GamePack pack,
-    T Function(Map<String, dynamic> json) fromJson,
-  ) async {
+    T Function(Map<String, dynamic> json) fromJson, {
+    String? languageCode,
+  }) async {
     try {
-      // 1. Lecture du fichier de données
-      final String rawJson = await _bundle.loadString(pack.filePath);
+      // 1. Lecture du fichier de données localisé (ou fallback FR)
+      final String rawJson = await _loadStringWithFallback(
+        pack.filePath,
+        languageCode: languageCode,
+      );
 
       // 2. Décodage du tableau d'éléments
       final List<dynamic> data = jsonDecode(rawJson) as List<dynamic>;
@@ -87,6 +147,7 @@ class PackLoaderService {
     String gameId,
     T Function(Map<String, dynamic> json) fromJson, {
     bool includePremium = false,
+    String? languageCode,
   }) async {
     // 1. Récupération des packs enregistrés pour ce jeu
     final packs = await getPacksForGame(gameId);
@@ -95,7 +156,7 @@ class PackLoaderService {
     // 2. Chargement séquentiel de chaque pack éligible
     for (final pack in packs) {
       if (!includePremium && pack.isPremium) continue;
-      final cards = await loadCards(pack, fromJson);
+      final cards = await loadCards(pack, fromJson, languageCode: languageCode);
       allCards.addAll(cards);
     }
 

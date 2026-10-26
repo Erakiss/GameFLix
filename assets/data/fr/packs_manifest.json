@@ -1,0 +1,66 @@
+[
+  {
+    "id": "tod_classic",
+    "gameId": "tod",
+    "title": "Pack Classique",
+    "description": "Cartes Action et Vérité pour démarrer la soirée (Soft, Fun et Hot).",
+    "isPremium": false,
+    "filePath": "assets/data/cards.json"
+  },
+  {
+    "id": "tod_hot",
+    "gameId": "tod",
+    "title": "Pack Hot & Spicy",
+    "description": "Vérités intimes et gages torrides pour faire monter la température.",
+    "isPremium": true,
+    "filePath": "assets/data/cards.json"
+  },
+  {
+    "id": "nhie_classic",
+    "gameId": "nhie",
+    "title": "Pack Classique",
+    "description": "Questions Je n'ai jamais pour lancer la course entre potes.",
+    "isPremium": false,
+    "filePath": "assets/data/nhie_cards.json"
+  },
+  {
+    "id": "nhie_hot",
+    "gameId": "nhie",
+    "title": "Pack Hot & Piquant",
+    "description": "Secrets inavouables et questions les plus croustillantes.",
+    "isPremium": true,
+    "filePath": "assets/data/nhie_cards.json"
+  },
+  {
+    "id": "imp_classic",
+    "gameId": "imp",
+    "title": "Pack Classique",
+    "description": "Mots secrets par catégories (Animaux, Sport, Lieux, etc.).",
+    "isPremium": false,
+    "filePath": "assets/data/imp_cards.json"
+  },
+  {
+    "id": "wyr_classic",
+    "gameId": "wyr",
+    "title": "Pack Classique",
+    "description": "Dilemmes corsés pour alimenter les débats de soirée.",
+    "isPremium": false,
+    "filePath": "assets/data/wyr_cards.json"
+  },
+  {
+    "id": "code_classic",
+    "gameId": "code",
+    "title": "Pack Classique",
+    "description": "Mots de code pour faire s'affronter les deux équipes.",
+    "isPremium": false,
+    "filePath": "assets/data/code_words.json"
+  },
+  {
+    "id": "board_classic",
+    "gameId": "board",
+    "title": "Plateau Classique",
+    "description": "Gages et cartes pour le plateau de l'enfer.",
+    "isPremium": false,
+    "filePath": "assets/data/board_cards.json"
+  }
+]

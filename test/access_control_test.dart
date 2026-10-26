@@ -2,15 +2,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gameflix/state/access_control_provider.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('AccessControlProvider Unit Tests', () {
     final access = AccessControlProvider.instance;
 
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       access.clearForTest();
     });
 
@@ -59,6 +63,22 @@ void main() {
       expect(access.canAccess('nhie_hot', isPremium: true), isFalse);
       expect(access.canAccess('tod_hot', isPremium: true), isFalse);
       expect(access.temporarilyUnlockedPacks, isEmpty);
+    });
+
+    test('redeemPromoCode avec ErakissLeBon débloque le mode pro éternellement', () async {
+      expect(access.isSubscribed, isFalse);
+
+      // 1. Code invalide
+      final bool failed = await access.redeemPromoCode('MauvaisCode');
+      expect(failed, isFalse);
+      expect(access.isSubscribed, isFalse);
+
+      // 2. Code valide (insensible à la casse)
+      final bool success = await access.redeemPromoCode('ErakissLeBon');
+      expect(success, isTrue);
+      expect(access.isSubscribed, isTrue);
+      expect(access.isPromoUnlocked, isTrue);
+      expect(access.canAccess('tod_hot', isPremium: true), isTrue);
     });
   });
 

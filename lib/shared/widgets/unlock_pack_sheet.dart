@@ -105,8 +105,8 @@ class UnlockPackSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 25),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -263,9 +263,20 @@ class UnlockPackSheet extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 12),
 
-            // 4. Bouton Annuler
+            // 4. Espace Cadeau
+            _GiftCodeRow(
+              onSuccess: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+                onUnlocked();
+              },
+            ),
+            const SizedBox(height: 10),
+
+            // 5. Bouton Annuler
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
@@ -275,6 +286,126 @@ class UnlockPackSheet extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _GiftCodeRow extends StatefulWidget {
+  final VoidCallback onSuccess;
+
+  const _GiftCodeRow({required this.onSuccess});
+
+  @override
+  State<_GiftCodeRow> createState() => _GiftCodeRowState();
+}
+
+class _GiftCodeRowState extends State<_GiftCodeRow> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _redeem() async {
+    final code = _controller.text.trim();
+    if (code.isEmpty) return;
+
+    final success = await AccessControlProvider.instance.redeemPromoCode(code);
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text("✨ Code validé ! Le mode Pro est débloqué à vie ! 👑"),
+            backgroundColor: Colors.pinkAccent,
+          ),
+        );
+      widget.onSuccess();
+    } else {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text("Code cadeau invalide ou expiré."),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black38,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.amberAccent.withValues(alpha: 0.5), width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.card_giftcard_rounded, color: Colors.amberAccent, size: 18),
+              SizedBox(width: 6),
+              Text(
+                "ESPACE CADEAU 🎁",
+                style: TextStyle(
+                  color: Colors.amberAccent,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  textCapitalization: TextCapitalization.characters,
+                  onSubmitted: (_) => _redeem(),
+                  decoration: InputDecoration(
+                    hintText: "Code cadeau...",
+                    hintStyle: const TextStyle(fontSize: 13, color: Colors.white38),
+                    filled: true,
+                    fillColor: const Color(0xFF101024),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: _redeem,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amberAccent,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  "Activer",
+                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

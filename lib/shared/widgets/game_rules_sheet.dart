@@ -133,21 +133,26 @@ class DefaultGameRules {
           steps: [
             GameRuleStep(
               title: '1. Les deux options',
-              description: 'Deux choix s\'affichent à l\'écran : l\'Option Bleue vs l\'Option Rouge.',
+              description: 'Deux choix s\'affichent à l\'écran : l\'Option Rose vs l\'Option Cyan.',
               icon: Icons.compare_arrows,
             ),
             GameRuleStep(
-              title: '2. Vote du groupe',
-              description: 'Au signal, chaque joueur vote pour l\'option qu\'il préfère.',
+              title: '2. Débat & Vote du groupe',
+              description: 'Au signal, chaque joueur vote à main levée pour l\'option qu\'il préfère.',
               icon: Icons.thumb_up_alt_outlined,
             ),
             GameRuleStep(
-              title: '3. Règle de la minorité',
-              description: 'Ceux qui ont voté pour l\'option minoritaire boivent une gorgée de punition !',
-              icon: Icons.sports_bar,
+              title: '3. Révélation & Pénalités',
+              description: 'Appuyez pour révéler les pourcentages mondiaux. La minorité de la table prend +2 pts (+1 pt si choix impopulaire <35%).',
+              icon: Icons.pie_chart_outline_rounded,
+            ),
+            GameRuleStep(
+              title: '4. Hall of Shame & Shots',
+              description: 'En fin de partie, le joueur avec le plus de points boit 1 shot + 1 shot bonus par tranche de 5 pts d\'écart !',
+              icon: Icons.local_bar_rounded,
             ),
           ],
-          endCondition: 'Enchaînez les cartes pour déclencher les meilleurs débats de la soirée.',
+          endCondition: 'Cumulez le moins de points possible pour échapper aux shots du Hall of Shame !',
         );
 
       case 'code':

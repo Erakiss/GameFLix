@@ -97,14 +97,15 @@ class GameRegistry {
       builder: (players) => ImpLobbyScreen(players: players),
     ),
 
-    // 4. Tu préfères (aucun joueur requis)
+    // 4. Tu préfères (2 joueurs minimum)
     GameConfig(
       id: 'wyr',
       title: 'Tu préfères',
       subtitle: 'Le choix impossible',
       bannerPath: 'assets/wyr_banner.png',
+      minPlayers: 2,
       isNew: true,
-      builder: (_) => const WyrLobbyScreen(),
+      builder: (players) => WyrLobbyScreen(players: players),
     ),
 
     // 5. Le Jeu de Plateau (2 à 6 joueurs)

@@ -2,6 +2,7 @@
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // --- GESTIONNAIRE D'ACCÈS ET D'ABONNEMENTS (REVENUECAT & ADS) ---
 
@@ -9,7 +10,10 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 /// 1. Gestion de l'abonnement RevenueCat (accès permanent et illimité).
 /// 2. Gestion des déblocages temporaires via Rewarded Ad (valable pour la session de jeu active).
 /// 3. Réinitialisation automatique des déblocages temporaires lors du retour au Hub.
+/// 4. Déblocage permanent par code cadeau (ex: 'ErakissLeBon').
 class AccessControlProvider extends ChangeNotifier {
+  static const String _promoCodePrefsKey = 'promo_code_pro_unlocked';
+
   /// Instance singleton pour accès direct hors BuildContext (ex: goToHub)
   static final AccessControlProvider instance = AccessControlProvider._();
 
@@ -17,6 +21,7 @@ class AccessControlProvider extends ChangeNotifier {
 
   bool _isInitialized = false;
   bool _isSubscribed = false;
+  bool _isPromoUnlocked = false;
 
   /// Ensemble des identifiants de packs débloqués temporairement pour la session en cours
   final Set<String> _temporarilyUnlockedPacks = {};
@@ -24,7 +29,8 @@ class AccessControlProvider extends ChangeNotifier {
   // --- GETTERS D'ÉTAT ---
 
   bool get isInitialized => _isInitialized;
-  bool get isSubscribed => _isSubscribed;
+  bool get isSubscribed => _isSubscribed || _isPromoUnlocked;
+  bool get isPromoUnlocked => _isPromoUnlocked;
   Set<String> get temporarilyUnlockedPacks => Set.unmodifiable(_temporarilyUnlockedPacks);
 
   /// Vérifie si la plateforme actuelle supporte RevenueCat
@@ -34,11 +40,18 @@ class AccessControlProvider extends ChangeNotifier {
     return Platform.isAndroid || Platform.isIOS;
   }
 
-  // --- INITIALISATION REVENUECAT ---
+  // --- INITIALISATION REVENUECAT & PROMO CODES ---
 
-  /// Initialise le SDK RevenueCat avec gestion d'erreur hors-ligne
+  /// Initialise le SDK RevenueCat et charge l'éventuel déblocage par code cadeau
   Future<void> init({String? apiKey}) async {
     if (_isInitialized) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _isPromoUnlocked = prefs.getBool(_promoCodePrefsKey) ?? false;
+    } catch (e) {
+      debugPrint('Avertissement chargement code promo : $e');
+    }
 
     if (!isSupportedPlatform) {
       _isInitialized = true;
@@ -83,6 +96,22 @@ class AccessControlProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- GESTION DU CODE CADEAU / PROMO ---
+
+  /// Valide et applique un code cadeau.
+  /// Le code 'ErakissLeBon' (insensible à la casse/espaces) débloque le mode Pro pour toujours.
+  Future<bool> redeemPromoCode(String rawCode) async {
+    final code = rawCode.trim();
+    if (code.toLowerCase() == 'erakisslebon'.toLowerCase()) {
+      _isPromoUnlocked = true;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_promoCodePrefsKey, true);
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
   // --- VÉRIFICATION DES DROITS D'ACCÈS ---
 
   /// Vérifie si l'utilisateur peut accéder au pack spécifié :
@@ -93,8 +122,8 @@ class AccessControlProvider extends ChangeNotifier {
     // 1. Les packs gratuits sont toujours accessibles
     if (!isPremium) return true;
 
-    // 2. Les abonnés ont accès à l'ensemble du catalogue
-    if (_isSubscribed) return true;
+    // 2. Les abonnés VIP ou détenteurs du code cadeau ont accès à l'ensemble du catalogue
+    if (isSubscribed) return true;
 
     // 3. Vérification du déblocage temporaire pour la session
     return _temporarilyUnlockedPacks.contains(packId);
@@ -175,6 +204,7 @@ class AccessControlProvider extends ChangeNotifier {
   @visibleForTesting
   void clearForTest() {
     _isSubscribed = false;
+    _isPromoUnlocked = false;
     _temporarilyUnlockedPacks.clear();
     notifyListeners();
   }

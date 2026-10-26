@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gameflix/hub/splash_screen.dart'; 
+import 'package:gameflix/hub/splash_screen.dart';
+import 'package:gameflix/l10n/locale_controller.dart';
 import 'package:gameflix/state/players_controller.dart';
 import 'package:gameflix/state/access_control_provider.dart';
 
@@ -9,9 +10,10 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        // Chargé une seule fois au démarrage, pendant le splash.
+        // Chargés une seule fois au démarrage, pendant le splash.
         ChangeNotifierProvider(create: (_) => PlayersController()..load()),
-        ChangeNotifierProvider(create: (_) => AccessControlProvider.instance..init()),
+        ChangeNotifierProvider.value(value: LocaleController.instance..load()),
+        ChangeNotifierProvider.value(value: AccessControlProvider.instance..init()),
       ],
       child: const GameFlixApp(),
     ),
@@ -32,7 +34,7 @@ class GameFlixApp extends StatelessWidget {
         colorScheme: const ColorScheme.dark(
           primary: Colors.cyanAccent,
           secondary: Colors.pinkAccent,
-        )
+        ),
       ),
       home: const SplashScreen(), // Lance le chargement qui redirigera vers le Hub
       debugShowCheckedModeBanner: false,

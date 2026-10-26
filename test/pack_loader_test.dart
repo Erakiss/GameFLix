@@ -3,11 +3,18 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gameflix/l10n/locale_controller.dart';
 import 'package:gameflix/models/game_pack.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    LocaleController.instance.resetForTest();
+  });
 
   group('GamePack Model', () {
     test('sérialisation et désérialisation JSON', () {
@@ -33,8 +40,8 @@ void main() {
     });
   });
 
-  group('Manifest JSON File Integrity', () {
-    test('le fichier packs_manifest.json est valide et recense les 6 jeux', () {
+  group('Manifest JSON File Integrity & Localized Samples', () {
+    test('le fichier packs_manifest.json est valide et les échantillons FR/EN/ES existent', () {
       final file = File('assets/data/packs_manifest.json');
       expect(file.existsSync(), isTrue, reason: 'Le manifeste doit exister sur le disque');
 
@@ -49,10 +56,15 @@ void main() {
         final filePath = item['filePath'] as String;
         expect(File(filePath).existsSync(), isTrue, reason: 'Le fichier $filePath doit exister');
       }
+
+      // Vérifie la présence des sous-dossiers FR / EN / ES et des échantillons
+      expect(File('assets/data/fr/cards.json').existsSync(), isTrue);
+      expect(File('assets/data/en/cards.json').existsSync(), isTrue);
+      expect(File('assets/data/es/cards.json').existsSync(), isTrue);
     });
   });
 
-  group('PackLoaderService', () {
+  group('PackLoaderService & i18n Fallback', () {
     test('charge le manifeste et filtre par gameId avec bundle personnalisé', () async {
       final mockManifestJson = jsonEncode([
         {'id': 'tod_1', 'gameId': 'tod', 'title': 'T1', 'filePath': 'path1'},
@@ -75,13 +87,18 @@ void main() {
       expect(nhiePacks.first.id, 'nhie_1');
     });
 
-    test('loadCards parse le contenu JSON vers des objets typés', () async {
-      final mockCardsJson = jsonEncode([
-        {'word': 'TEST1'},
-        {'word': 'TEST2'},
+    test('loadCards charge la langue demandée (en/es) et fait un fallback automatique sur fr/', () async {
+      final frCardsJson = jsonEncode([
+        {'word': 'FR_MOT'},
+      ]);
+      final enCardsJson = jsonEncode([
+        {'word': 'EN_WORD'},
       ]);
 
-      final mockBundle = _MockAssetBundle({'assets/data/test_cards.json': mockCardsJson});
+      final mockBundle = _MockAssetBundle({
+        'assets/data/fr/test_cards.json': frCardsJson,
+        'assets/data/en/test_cards.json': enCardsJson,
+      });
       final service = PackLoaderService(bundle: mockBundle);
 
       const testPack = GamePack(
@@ -91,12 +108,35 @@ void main() {
         filePath: 'assets/data/test_cards.json',
       );
 
-      final cards = await service.loadCards<String>(
+      // 1. Chargement en anglais (fichier existant dans assets/data/en/)
+      final enCards = await service.loadCards<String>(
         testPack,
         (json) => json['word'] as String,
+        languageCode: 'en',
       );
+      expect(enCards, ['EN_WORD']);
 
-      expect(cards, ['TEST1', 'TEST2']);
+      // 2. Chargement en espagnol (fichier absent dans assets/data/es/ -> fallback sur assets/data/fr/)
+      final esFallbackCards = await service.loadCards<String>(
+        testPack,
+        (json) => json['word'] as String,
+        languageCode: 'es',
+      );
+      expect(esFallbackCards, ['FR_MOT']);
+    });
+
+    test('LocaleController persiste la langue choisie dans SharedPreferences', () async {
+      final ctrl = LocaleController.instance;
+      await ctrl.load();
+      expect(ctrl.currentLocale, AppLocale.fr);
+
+      await ctrl.setLocale(AppLocale.es);
+      expect(ctrl.currentLocale, AppLocale.es);
+      expect(ctrl.flag, '🇪🇸');
+
+      ctrl.resetForTest();
+      await ctrl.load();
+      expect(ctrl.currentLocale, AppLocale.es);
     });
   });
 }

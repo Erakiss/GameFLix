@@ -38,34 +38,56 @@ void main() {
       }
     });
 
-    test('gestion du Mute et du volume', () async {
+    test('gestion du Volume maître et des 2 toggles indépendants BGM / SFX', () async {
       final service = AudioService.instance;
       await service.init();
 
       expect(service.volume, greaterThan(0.0));
       expect(service.isMuted, isFalse);
+      expect(service.isBgmMuted, isFalse);
+      expect(service.isSfxMuted, isFalse);
 
-      // 1. Toggle Mute
-      await service.toggleMute();
+      // 1. Toggle BGM seul
+      await service.toggleBgmMute();
+      expect(service.isBgmMuted, isTrue);
+      expect(service.isSfxMuted, isFalse);
+      expect(service.isMuted, isFalse, reason: 'SFX est encore actif');
+
+      // 2. Toggle SFX seul -> les deux sont coupés donc isMuted devient true
+      await service.toggleSfxMute();
+      expect(service.isBgmMuted, isTrue);
+      expect(service.isSfxMuted, isTrue);
       expect(service.isMuted, isTrue);
 
-      // 2. Réglage du volume par palier (1 à 5)
+      // 3. Réglage du volume maître par palier (1 à 5) réactive le son
       await service.setVolumeLevel(4);
       expect(service.isMuted, isFalse, reason: 'Changer le volume doit réactiver le son');
       expect(service.volumeLevel, 4);
       expect(service.volume, closeTo(0.8, 0.01));
+    });
 
-      // 3. Toggle Mute à nouveau
-      await service.toggleMute();
-      expect(service.isMuted, isTrue);
+    test('cycle de vie WidgetsBindingObserver : pause auto en arrière-plan et reprise au retour', () async {
+      final service = AudioService.instance;
+      await service.init();
+      await service.playBgm();
+      expect(service.isBgmPlaying, isTrue);
 
-      await service.toggleMute();
-      expect(service.isMuted, isFalse);
+      // 1. Passage en arrière-plan (paused)
+      service.didChangeAppLifecycleState(AppLifecycleState.paused);
+      await Future<void>.delayed(Duration.zero);
+      expect(service.isBgmPlaying, isFalse);
+      expect(service.wasBgmPlayingBeforePause, isTrue);
+
+      // 2. Retour au premier plan (resumed) -> relance automatiquement le BGM
+      service.didChangeAppLifecycleState(AppLifecycleState.resumed);
+      await Future<void>.delayed(Duration.zero);
+      expect(service.isBgmPlaying, isTrue);
+      expect(service.wasBgmPlayingBeforePause, isFalse);
     });
   });
 
   group('NeonVolumeControl Widget Tests', () {
-    testWidgets('affiche l\'icône de son et les 5 barres verticales de volume', (tester) async {
+    testWidgets('affiche le bouton néon et ouvre le mini-popover avec Slider et toggles BGM/SFX', (tester) async {
       final service = AudioService.instance;
       await service.init();
       await service.setVolumeLevel(3);
@@ -82,18 +104,17 @@ void main() {
         ),
       );
 
-      // 1. Vérification de l'icône de volume
-      expect(find.byIcon(Icons.volume_up), findsOneWidget);
-
-      // 2. Vérification des 5 barres (détectées par clé ou layout)
+      // 1. Vérification du bouton NeonVolumeControl dans l'AppBar
       expect(find.byType(NeonVolumeControl), findsOneWidget);
+      expect(find.byIcon(Icons.volume_up_rounded), findsOneWidget);
 
-      // 3. Clic sur le bouton de volume pour muter
-      await tester.tap(find.byIcon(Icons.volume_up));
+      // 2. Clic sur NeonVolumeControl pour ouvrir le mini-popover
+      await tester.tap(find.byType(NeonVolumeControl));
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.volume_off), findsOneWidget);
-      expect(service.isMuted, isTrue);
+      expect(find.byType(NeonVolumePopoverDialog), findsOneWidget);
+      expect(find.byType(Slider), findsOneWidget);
+      expect(find.byType(SwitchListTile), findsNWidgets(2));
     });
   });
 }

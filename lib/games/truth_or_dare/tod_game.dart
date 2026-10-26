@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/models/game_card.dart';
+import 'package:gameflix/state/players_controller.dart';
 import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/games/truth_or_dare/tod_scoreboard.dart';
 
@@ -115,12 +116,38 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
     });
   }
 
-  String _processCardContent(String content, Player currentPlayer) {
+  String _processCardContent(GameCard card, Player currentPlayer) {
+    final String content = card.content;
     if (!content.contains('{TARGET}')) return content;
-    List<Player> validTargets = widget.players.where((p) => p.name != currentPlayer.name && p.gender != currentPlayer.gender).toList();
-    if (validTargets.isEmpty) validTargets = widget.players.where((p) => p.name != currentPlayer.name).toList();
-    validTargets.shuffle();
-    return content.replaceAll('{TARGET}', validTargets.isNotEmpty ? validTargets.first.name : "quelqu'un");
+
+    // 1. Sélection d'un partenaire selon que la carte est tactile/Hot ou amicale
+    final bool requireCompatibility = card.requiresCompatibleTarget;
+    Player? target = PlayersController.pickTargetFor(
+      currentPlayer,
+      widget.players,
+      requireCompatibility: requireCompatibility,
+    );
+
+    // 2. Fallback étape 1 : chercher une paire compatible dans le groupe si le joueur actif n'en a pas
+    if (target == null && requireCompatibility) {
+      final pair = PlayersController.pickCompatiblePair(
+        widget.players,
+        primary: currentPlayer,
+        requireCompatibility: true,
+      );
+      if (pair != null) {
+        target = pair.$2;
+      }
+    }
+
+    // 3. Fallback amical si aucune cible trouvée
+    target ??= PlayersController.pickTargetFor(
+      currentPlayer,
+      widget.players,
+      requireCompatibility: false,
+    );
+
+    return content.replaceAll('{TARGET}', target != null ? target.name : "quelqu'un");
   }
 
   void _recordTurn(bool failed) => _history.add(TurnRecord(_currentPlayerIndex, _currentCard!, _currentDisplayContent!, failed, _currentTurnCount));
@@ -171,7 +198,32 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
 
   void _drawRandomCard() {
     final player = widget.players[_currentPlayerIndex];
-    final allCategoryCards = widget.deck.where((c) => c.type == _chosenType && (c.targetGender == null || c.targetGender == player.gender) && !_hiddenCards.contains(c)).toList();
+    final bool playerHasCompatiblePartner = PlayersController.pickTargetFor(
+          player,
+          widget.players,
+          requireCompatibility: true,
+        ) !=
+        null;
+
+    // 1. Filtrage des cartes du type choisi et du genre du joueur
+    var allCategoryCards = widget.deck
+        .where((c) =>
+            c.type == _chosenType &&
+            (c.targetGender == null || c.targetGender == player.gender) &&
+            !_hiddenCards.contains(c))
+        .toList();
+
+    // 2. Fallback étape 2 : si le joueur n'a aucun partenaire compatible pour un gage tactile/Hot,
+    // on privilégie les cartes solo ou non-tactiles pour ne jamais bloquer la partie.
+    if (!playerHasCompatiblePartner) {
+      final nonTactileOrSolo = allCategoryCards
+          .where((c) => !(c.hasTargetPlaceholder && c.requiresCompatibleTarget))
+          .toList();
+      if (nonTactileOrSolo.isNotEmpty) {
+        allCategoryCards = nonTactileOrSolo;
+      }
+    }
+
     var availableCards = allCategoryCards.where((c) => !_playedCards.contains(c)).toList();
 
     if (availableCards.isEmpty) {
@@ -183,7 +235,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
       availableCards.shuffle();
       setState(() {
         _currentCard = availableCards.first;
-        _currentDisplayContent = _processCardContent(_currentCard!.content, player);
+        _currentDisplayContent = _processCardContent(_currentCard!, player);
         _playedCards.add(_currentCard!);
         _drawController.forward(from: 0.0);
       });

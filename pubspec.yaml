@@ -38,4 +38,7 @@ flutter:
   assets:
       - assets/
       - assets/data/
+      - assets/data/fr/
+      - assets/data/en/
+      - assets/data/es/
       - assets/audio/
