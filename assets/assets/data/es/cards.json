@@ -1,0 +1,5 @@
+[
+  {"type": "ACTION", "difficulty": "SOFT", "content": "Da una vuelta a la habitación a la pata coja."},
+  {"type": "ACTION", "difficulty": "FUN", "content": "Dale a {TARGET} un masaje en los hombros durante 20 segundos.", "isTactile": true},
+  {"type": "VERITE", "difficulty": "HOT", "content": "¿Cuál es tu fantasía más secreta con alguien de esta sala?"}
+]

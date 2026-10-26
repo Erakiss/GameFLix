@@ -1,0 +1,5 @@
+[
+  {"type": "ACTION", "difficulty": "SOFT", "content": "Hop around the room on one foot."},
+  {"type": "ACTION", "difficulty": "FUN", "content": "Give {TARGET} a slow, dramatic shoulder massage for 20 seconds.", "isTactile": true},
+  {"type": "VERITE", "difficulty": "HOT", "content": "What is your wildest fantasy involving someone in this room?"}
+]
