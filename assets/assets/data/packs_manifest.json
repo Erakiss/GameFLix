@@ -56,11 +56,11 @@
     "filePath": "assets/data/code_words.json"
   },
   {
-    "id": "board_classic",
-    "gameId": "board",
+    "id": "viper_classic",
+    "gameId": "viper",
     "title": "Plateau Classique",
     "description": "Gages et cartes pour le plateau de l'enfer.",
     "isPremium": false,
-    "filePath": "assets/data/board_cards.json"
+    "filePath": "assets/data/viper_card.json"
   }
 ]
