@@ -44,7 +44,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF050515), Color(0xFF1A1A40), Color(0xFFE50914)]),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF050510),
+              Color(0xFF120924),
+              Color(0xFF1F0E3A),
+            ],
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -52,16 +60,44 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             ScaleTransition(
               scale: _scaleAnimation,
               child: Container(
-                width: 180, height: 180,
-                decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.redAccent.withValues(alpha: 0.3), blurRadius: 40, spreadRadius: 10)]),
-                // Si tu n'as pas encore d'image, ça affichera juste un cercle stylé pour le moment
-                child: ClipOval(child: Image.asset('assets/app_icon.png', fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.gamepad, size: 80, color: Colors.white))),
+                width: 180,
+                height: 180,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(42),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFFF2E7E).withValues(alpha: 0.28),
+                      blurRadius: 36,
+                      spreadRadius: 4,
+                      offset: const Offset(-6, -4),
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFF00E5FF).withValues(alpha: 0.25),
+                      blurRadius: 36,
+                      spreadRadius: 4,
+                      offset: const Offset(6, 4),
+                    ),
+                  ],
+                ),
+                child: Image.asset(
+                  'assets/app_logo.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.gamepad_outlined, size: 80, color: Colors.white),
+                ),
               ),
             ),
-            const SizedBox(height: 50),
-            const Text("GAMEFLIX", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 4, shadows: [Shadow(color: Colors.redAccent, blurRadius: 15)])),
-            const SizedBox(height: 20),
-            const CircularProgressIndicator(color: Colors.redAccent, strokeWidth: 3),
+            const SizedBox(height: 44),
+            const GameFlixTextLogo(fontSize: 38),
+            const SizedBox(height: 28),
+            const SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(
+                color: Color(0xFF00E5FF),
+                strokeWidth: 2.2,
+              ),
+            ),
           ],
         ),
       ),

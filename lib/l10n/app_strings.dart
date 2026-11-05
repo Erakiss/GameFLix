@@ -89,7 +89,7 @@ class AppStrings {
             AppLocale.en => 'The impossible choice',
             AppLocale.es => 'La elección imposible',
           },
-        'board' => switch (locale) {
+        'viper' || 'board' => switch (locale) {
             AppLocale.fr => "Le plateau de l'enfer",
             AppLocale.en => 'The board of hell',
             AppLocale.es => 'El tablero del infierno',
@@ -129,10 +129,10 @@ class AppStrings {
             AppLocale.en => 'Would You Rather',
             AppLocale.es => '¿Qué Prefieres?',
           },
-        'board' => switch (locale) {
-            AppLocale.fr => 'Jeu de Plateau',
-            AppLocale.en => 'Board Game',
-            AppLocale.es => 'Juego de Mesa',
+        'viper' || 'board' => switch (locale) {
+            AppLocale.fr => 'Viper',
+            AppLocale.en => 'Viper',
+            AppLocale.es => 'Viper',
           },
         'code' => switch (locale) {
             AppLocale.fr => 'Codenames',

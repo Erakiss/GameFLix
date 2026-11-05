@@ -565,13 +565,15 @@ class _SettingsOverlayDialogState extends State<SettingsOverlayDialog> {
             children: [
               Icon(icon, color: accentColor, size: 20),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  color: accentColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.3,
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: accentColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.3,
+                  ),
                 ),
               ),
             ],

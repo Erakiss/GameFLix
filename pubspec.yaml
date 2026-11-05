@@ -42,3 +42,10 @@ flutter:
       - assets/data/en/
       - assets/data/es/
       - assets/audio/
+  fonts:
+    - family: Orbitron
+      fonts:
+        - asset: assets/fonts/Orbitron.ttf
+          weight: 800
+        - asset: assets/fonts/Orbitron.ttf
+          weight: 900

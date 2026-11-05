@@ -245,7 +245,7 @@ class AudioService extends ChangeNotifier with WidgetsBindingObserver {
       case SoundEffect.victory:
         return 'audio/sfx_victory.ogg';
       case SoundEffect.dice:
-        return 'audio/sfx_dice.ogg';
+        return 'audio/sfx_dice.wav';
       case SoundEffect.suspense:
         return 'audio/sfx_suspense.ogg';
       case SoundEffect.cardSlide:

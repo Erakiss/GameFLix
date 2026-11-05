@@ -48,28 +48,43 @@ void main() {
     );
   }
 
-  testWidgets('Hub AppBar : affiche Drapeau, Joueurs, Logo compact, Badge PRO et ouvre Settings Overlay plein écran', (tester) async {
+  testWidgets('Hub AppBar : affiche Drapeau, Joueurs, Logo/Titre responsive, Icône Couronne PRO minimaliste et ouvre Settings Overlay plein écran', (tester) async {
     final playersCtrl = PlayersController();
     await playersCtrl.load();
     await LocaleController.instance.load();
 
+    // 1. Test sur grand écran (>= 600px, défaut 800x600 dans flutter_test) -> affiche le titre textuel "gameflix"
     await tester.pumpWidget(buildTestApp(playersCtrl));
     await tester.pump(const Duration(milliseconds: 100));
 
-    // 1. Vérification des éléments de l'AppBar
     expect(find.byKey(const Key('hub_language_selector')), findsOneWidget);
     expect(find.byKey(const Key('hub_players_button')), findsOneWidget);
-    expect(find.text('GAMEFLIX'), findsOneWidget);
+    expect(find.byKey(const Key('hub_header_title_text')), findsOneWidget);
+    expect(find.text('game'), findsOneWidget);
+    expect(find.text('flix'), findsOneWidget);
+    expect(find.byKey(const Key('hub_header_logo')), findsNothing);
     expect(find.byKey(const Key('hub_pro_badge')), findsOneWidget);
-    expect(find.text('🔥 PRO'), findsOneWidget);
+    expect(find.byType(ProCrownIcon), findsOneWidget);
+    expect(tester.widget<ProCrownIcon>(find.byType(ProCrownIcon)).isSubscribed, isFalse);
     expect(find.byKey(const Key('hub_settings_button')), findsOneWidget);
 
-    // 2. Passage en abonné VIP -> le badge devient 👑 PRO ACTIF
+    // 2. Passage en abonné VIP -> l'icône ProCrownIcon passe en état actif (sans texte)
     AccessControlProvider.instance.setSubscribedForTest(true);
     await tester.pump();
-    expect(find.text('👑 PRO ACTIF'), findsOneWidget);
+    expect(tester.widget<ProCrownIcon>(find.byType(ProCrownIcon)).isSubscribed, isTrue);
 
-    // 3. Ouverture de l'Overlay Réglages plein écran et fermeture via la croix ✕
+    // 3. Test responsive sur petit écran mobile (< 600px) -> affiche uniquement le nouveau logo "G"
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    await tester.pump();
+    expect(find.byKey(const Key('hub_header_logo')), findsOneWidget);
+    expect(find.byKey(const Key('hub_header_title_text')), findsNothing);
+
+    // 4. Ouverture de l'Overlay Réglages plein écran et fermeture via la croix ✕
     await tester.tap(find.byKey(const Key('hub_settings_button')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));

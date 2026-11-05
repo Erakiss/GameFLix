@@ -101,19 +101,40 @@ class _GameFlixHubState extends State<GameFlixHub> {
     final localeCtrl = context.watch<LocaleController>();
     final bool isSubscribed = context.watch<AccessControlProvider>().isSubscribed;
     final strings = AppStrings.of(context);
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final bool isWideScreen = screenWidth >= 600;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         elevation: 0,
-        leadingWidth: 105,
+        toolbarHeight: 62,
+        flexibleSpace: IgnorePointer(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  const Color(0xFF050510).withValues(alpha: 0.68),
+                  const Color(0xFF050510).withValues(alpha: 0.22),
+                  Colors.transparent,
+                ],
+                stops: const [0.0, 0.65, 1.0],
+              ),
+            ),
+          ),
+        ),
+        leadingWidth: 108,
         leading: FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(width: 10),
+              const SizedBox(width: 14),
               // 1. Le sélecteur de langue (Drapeau FR / EN / ES)
               PopupMenuButton<AppLocale>(
                 key: const Key('hub_language_selector'),
@@ -151,40 +172,60 @@ class _GameFlixHubState extends State<GameFlixHub> {
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
                   child: Text(
                     localeCtrl.flag,
-                    style: const TextStyle(fontSize: 22),
+                    style: const TextStyle(fontSize: 21),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              // 2. Le bouton joueurs
+              const SizedBox(width: 12),
+              // 2. Le bouton joueurs (style lignes fines sans boîte + micro-halo)
               IconButton(
                 key: const Key('hub_players_button'),
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.all(4),
                 constraints: const BoxConstraints(),
                 style: IconButton.styleFrom(
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   minimumSize: Size.zero,
-                  padding: EdgeInsets.zero,
+                  padding: const EdgeInsets.all(4),
                 ),
                 icon: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    const Icon(Icons.people_alt_rounded, color: Colors.cyanAccent, size: 26),
+                    Icon(
+                      Icons.people_outline_rounded,
+                      color: Colors.cyanAccent,
+                      size: 25,
+                      shadows: [
+                        Shadow(
+                          color: Colors.cyanAccent.withValues(alpha: 0.45),
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
                     if (playerCount > 0)
                       Positioned(
-                        right: -5,
+                        right: -6,
                         top: -5,
                         child: Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: const BoxDecoration(
-                            color: Colors.redAccent,
-                            shape: BoxShape.circle,
+                          padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0E0E24),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: const Color(0xFFFF2E7E),
+                              width: 1.1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFF2E7E).withValues(alpha: 0.45),
+                                blurRadius: 6,
+                              ),
+                            ],
                           ),
                           child: Text(
                             '$playerCount',
                             style: const TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w800,
                               color: Colors.white,
                             ),
                           ),
@@ -197,108 +238,82 @@ class _GameFlixHubState extends State<GameFlixHub> {
             ],
           ),
         ),
-        // 3. Logo GAMEFLIX compact au centre (évite tout débordement sur petits écrans)
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFF141428).withValues(alpha: 0.75),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.redAccent.withValues(alpha: 0.6),
-                width: 1.2,
-              ),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.play_circle_fill_rounded, color: Colors.redAccent, size: 18),
-                SizedBox(width: 5),
-                Text(
-                  "GAMEFLIX",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: 1.5,
-                    shadows: [Shadow(color: Colors.redAccent, blurRadius: 8)],
-                  ),
+        // 3. Responsive Header : Icône "G" détourée sur mobile (< 600px), titre textuel "gameflix" sur grand écran (>= 600px)
+        title: isWideScreen
+            ? const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: GameFlixTextLogo(
+                  key: Key('hub_header_title_text'),
+                  fontSize: 24,
                 ),
-              ],
-            ),
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          // 4. Badge pillule néon 🔥 PRO / 👑 PRO ACTIF
-          Center(
-            child: GestureDetector(
-              key: const Key('hub_pro_badge'),
-              onTap: _openProPaywall,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              )
+            : Container(
+                key: const Key('hub_header_logo'),
+                height: 36,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isSubscribed
-                        ? [Colors.amber.shade700, Colors.orangeAccent]
-                        : [Colors.pinkAccent, Colors.deepOrangeAccent],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white70, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: (isSubscribed ? Colors.amberAccent : Colors.pinkAccent)
-                          .withValues(alpha: 0.45),
-                      blurRadius: 10,
+                      color: const Color(0xFFFF2E7E).withValues(alpha: 0.18),
+                      blurRadius: 18,
+                      spreadRadius: 1,
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
+                      blurRadius: 18,
                       spreadRadius: 1,
                     ),
                   ],
                 ),
-                child: Text(
-                  isSubscribed ? strings.proActiveBadge : strings.proBadge,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 11,
-                    letterSpacing: 0.8,
-                  ),
+                child: Image.asset(
+                  'assets/header_logo.png',
+                  height: 36,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const GameFlixTextLogo(fontSize: 20),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // 5. Bouton Réglages (roue crantée arrondie/cartoon néon -> Overlay 100% plein écran)
+        centerTitle: true,
+        actions: [
+          // 4. Élément Pro / Pro-actif ultra-minimaliste : Couronne à lignes fines sans texte ni boîte
           Center(
             child: GestureDetector(
-              key: const Key('hub_settings_button'),
-              onTap: () => SettingsOverlayDialog.show(context),
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A34),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.cyanAccent.withValues(alpha: 0.7),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.cyanAccent.withValues(alpha: 0.25),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.settings_rounded,
-                  color: Colors.cyanAccent,
-                  size: 20,
+              key: const Key('hub_pro_badge'),
+              behavior: HitTestBehavior.opaque,
+              onTap: _openProPaywall,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                child: ProCrownIcon(
+                  isSubscribed: isSubscribed,
+                  size: 24,
                 ),
               ),
             ),
           ),
           const SizedBox(width: 10),
+
+          // 5. Bouton Réglages (icône engrenage à lignes fines sans boîte + micro-halo)
+          Center(
+            child: GestureDetector(
+              key: const Key('hub_settings_button'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => SettingsOverlayDialog.show(context),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                child: Icon(
+                  Icons.settings_outlined,
+                  color: Colors.cyanAccent,
+                  size: 23,
+                  shadows: [
+                    Shadow(
+                      color: Colors.cyanAccent.withValues(alpha: 0.45),
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
         ],
       ),
       extendBodyBehindAppBar: true,
@@ -858,5 +873,199 @@ class _PlayerManagerSheetState extends State<PlayerManagerSheet> {
         ],
       ),
     );
+  }
+}
+
+/// Titre textuel de la nouvelle identité visuelle : "game" en blanc pur et "flix"
+/// en dégradé néon (Rose -> Violet -> Cyan) avec la police géométrique étendue Orbitron.
+class GameFlixTextLogo extends StatelessWidget {
+  final double fontSize;
+
+  const GameFlixTextLogo({
+    super.key,
+    this.fontSize = 24,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final baseStyle = TextStyle(
+      fontFamily: 'Orbitron',
+      fontSize: fontSize,
+      fontWeight: FontWeight.w900,
+      letterSpacing: fontSize * 0.06,
+      height: 1.0,
+    );
+
+    return Transform.scale(
+      scaleX: 1.08,
+      scaleY: 1.0,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Text(
+            'game',
+            style: baseStyle.copyWith(
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+          ),
+          ShaderMask(
+            blendMode: BlendMode.srcIn,
+            shaderCallback: (bounds) => const LinearGradient(
+              begin: Alignment.bottomLeft,
+              end: Alignment.topRight,
+              colors: [
+                Color(0xFFFF2E7E),
+                Color(0xFFC850FF),
+                Color(0xFF00E5FF),
+              ],
+              stops: [0.0, 0.52, 1.0],
+            ).createShader(bounds),
+            child: Text(
+              'flix',
+              style: baseStyle.copyWith(
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    color: const Color(0xFFC850FF).withValues(alpha: 0.35),
+                    blurRadius: 12,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Icône minimaliste "Pro / Pro-actif" dessinée exclusivement en lignes fines,
+/// sans texte ni conteneur-pilule.
+///
+/// - Non-abonné ([isSubscribed] == false) : contour fin blanc/rose discret.
+/// - Abonné ([isSubscribed] == true) : contour fin en dégradé néon lumineux avec
+///   micro-halo et éclat supérieur.
+class ProCrownIcon extends StatelessWidget {
+  final bool isSubscribed;
+  final double size;
+
+  const ProCrownIcon({
+    super.key,
+    required this.isSubscribed,
+    this.size = 24,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _FineLineCrownPainter(isSubscribed: isSubscribed),
+      ),
+    );
+  }
+}
+
+class _FineLineCrownPainter extends CustomPainter {
+  final bool isSubscribed;
+
+  const _FineLineCrownPainter({required this.isSubscribed});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final rect = Offset.zero & size;
+
+    // Tracés géométriques de la couronne minimaliste à lignes fines
+    final crownPath = Path()
+      ..moveTo(w * 0.16, h * 0.74)
+      ..lineTo(w * 0.10, h * 0.36)
+      ..lineTo(w * 0.33, h * 0.54)
+      ..lineTo(w * 0.50, h * 0.22)
+      ..lineTo(w * 0.67, h * 0.54)
+      ..lineTo(w * 0.90, h * 0.36)
+      ..lineTo(w * 0.84, h * 0.74)
+      ..close();
+
+    // Ligne de base fine détachée sous la couronne
+    final baseLinePath = Path()
+      ..moveTo(w * 0.19, h * 0.86)
+      ..lineTo(w * 0.81, h * 0.86);
+
+    final shader = isSubscribed
+        ? const LinearGradient(
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
+            colors: [
+              Color(0xFFFF2E7E),
+              Color(0xFFFFD54F),
+              Color(0xFF00E5FF),
+            ],
+            stops: [0.0, 0.5, 1.0],
+          ).createShader(rect)
+        : LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withValues(alpha: 0.88),
+              const Color(0xFFFF6EC7).withValues(alpha: 0.82),
+            ],
+          ).createShader(rect);
+
+    // 1. Micro-halo lumineux
+    final glowPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = isSubscribed ? 2.6 : 1.8
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..shader = shader
+      ..maskFilter = MaskFilter.blur(
+        BlurStyle.normal,
+        isSubscribed ? 4.5 : 2.0,
+      );
+
+    canvas.drawPath(crownPath, glowPaint);
+    canvas.drawPath(baseLinePath, glowPaint);
+
+    // 2. Trait fin principal
+    final strokePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = isSubscribed ? 1.75 : 1.55
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..shader = shader;
+
+    canvas.drawPath(crownPath, strokePaint);
+    canvas.drawPath(baseLinePath, strokePaint);
+
+    // 3. Si Pro Actif : petit éclat minimaliste à 4 branches au sommet central
+    if (isSubscribed) {
+      final cx = w * 0.50;
+      final cy = h * 0.10;
+      final r = w * 0.065;
+      final sparklePaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.25
+        ..strokeCap = StrokeCap.round
+        ..color = const Color(0xFF00E5FF);
+
+      canvas.drawLine(Offset(cx - r, cy), Offset(cx + r, cy), sparklePaint);
+      canvas.drawLine(Offset(cx, cy - r), Offset(cx, cy + r), sparklePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _FineLineCrownPainter oldDelegate) {
+    return oldDelegate.isSubscribed != isSubscribed;
   }
 }

@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:gameflix/hub/splash_screen.dart';
 import 'package:gameflix/l10n/locale_controller.dart';
 import 'package:gameflix/state/players_controller.dart';
 import 'package:gameflix/state/access_control_provider.dart';
 
-void main() {
+/// Verrouille l'orientation de l'application exclusivement en mode portrait.
+Future<void> lockPortraitOrientation() {
+  return SystemChrome.setPreferredOrientations(const [
+    DeviceOrientation.portraitUp,
+  ]);
+}
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await lockPortraitOrientation();
   runApp(
     MultiProvider(
       providers: [

@@ -2,15 +2,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gameflix/hub/widgets/settings_overlay_dialog.dart';
+import 'package:gameflix/l10n/locale_controller.dart';
 import 'package:gameflix/services/audio_service.dart';
-import 'package:gameflix/shared/widgets/neon_volume_control.dart';
+import 'package:gameflix/shared/widgets/global_settings_button.dart';
+import 'package:gameflix/state/access_control_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    LocaleController.instance.resetForTest();
+    AccessControlProvider.instance.clearForTest();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('xyz.luan/audioplayers.global'),
@@ -34,7 +40,12 @@ void main() {
         final path = service.getSfxAssetPath(effect);
         expect(path.isNotEmpty, isTrue);
         expect(path.startsWith('audio/sfx_'), isTrue);
-        expect(path.endsWith('.ogg') || path.endsWith('.wav') || path.endsWith('.mp3'), isTrue);
+        expect(
+          path.endsWith('.ogg') ||
+              path.endsWith('.wav') ||
+              path.endsWith('.mp3'),
+          isTrue,
+        );
       }
     });
 
@@ -61,7 +72,11 @@ void main() {
 
       // 3. Réglage du volume maître par palier (1 à 5) réactive le son
       await service.setVolumeLevel(4);
-      expect(service.isMuted, isFalse, reason: 'Changer le volume doit réactiver le son');
+      expect(
+        service.isMuted,
+        isFalse,
+        reason: 'Changer le volume doit réactiver le son',
+      );
       expect(service.volumeLevel, 4);
       expect(service.volume, closeTo(0.8, 0.01));
     });
@@ -86,35 +101,42 @@ void main() {
     });
   });
 
-  group('NeonVolumeControl Widget Tests', () {
-    testWidgets('affiche le bouton néon et ouvre le mini-popover avec Slider et toggles BGM/SFX', (tester) async {
+  group('GlobalSettingsButton & Audio Settings Widget Tests', () {
+    testWidgets('affiche la roue crantée globale et ouvre SettingsOverlayDialog avec le Slider de volume', (tester) async {
       final service = AudioService.instance;
       await service.init();
       await service.setVolumeLevel(3);
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            appBar: AppBar(
-              actions: const [
-                NeonVolumeControl(),
-              ],
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<LocaleController>.value(
+              value: LocaleController.instance,
+            ),
+            ChangeNotifierProvider<AccessControlProvider>.value(
+              value: AccessControlProvider.instance,
+            ),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              appBar: AppBar(
+                actions: const [
+                  GlobalSettingsButton(),
+                ],
+              ),
             ),
           ),
         ),
       );
 
-      // 1. Vérification du bouton NeonVolumeControl dans l'AppBar
-      expect(find.byType(NeonVolumeControl), findsOneWidget);
-      expect(find.byIcon(Icons.volume_up_rounded), findsOneWidget);
+      expect(find.byType(GlobalSettingsButton), findsOneWidget);
+      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
 
-      // 2. Clic sur NeonVolumeControl pour ouvrir le mini-popover
-      await tester.tap(find.byType(NeonVolumeControl));
+      await tester.tap(find.byType(GlobalSettingsButton));
       await tester.pumpAndSettle();
 
-      expect(find.byType(NeonVolumePopoverDialog), findsOneWidget);
+      expect(find.byType(SettingsOverlayDialog), findsOneWidget);
       expect(find.byType(Slider), findsOneWidget);
-      expect(find.byType(SwitchListTile), findsNWidgets(2));
     });
   });
 }
