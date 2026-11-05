@@ -6,8 +6,7 @@ import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/would_you_rather/wyr_game.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
-import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
-import 'package:gameflix/shared/widgets/neon_volume_control.dart';
+import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
 import 'package:gameflix/services/audio_service.dart';
 
@@ -250,113 +249,96 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF111122),
-      appBar: AppBar(
-        title: const Text(
-          "TU PRÉFÈRES ?",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          const NeonVolumeControl(),
-          IconButton(
-            icon: const Icon(
-              Icons.help_outline_rounded,
-              color: Colors.blueAccent,
-              size: 26,
-            ),
-            tooltip: 'Règles du jeu',
-            onPressed: () => GameRulesSheet.show(
-              context,
-              DefaultGameRules.getRules('wyr'),
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
+      extendBodyBehindAppBar: true,
+      appBar: buildUnifiedLobbyAppBar(
+        context: context,
+        gameId: 'wyr',
+        accentColor: Colors.orangeAccent,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const NeonLobbyBanner(
-                        imagePath: 'assets/wyr_banner.png',
-                        borderColor: Colors.orangeAccent,
-                      ),
-                      const SizedBox(height: 20),
+      body: Container(
+        decoration: kLobbyBackgroundDecoration,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const NeonLobbyBanner(
+                          imagePath: 'assets/wyr_banner.png',
+                          borderColor: Colors.orangeAccent,
+                        ),
+                        const SizedBox(height: 20),
 
-                      // Sélecteur de nombre de tours
-                      _buildRoundSelector(),
-                      const SizedBox(height: 20),
+                        // Sélecteur de nombre de tours
+                        _buildRoundSelector(),
+                        const SizedBox(height: 20),
 
-                      // Catégories
-                      NeonCategorySwitch(
-                        title: 'SOFT',
-                        color: Colors.greenAccent,
-                        value: _isSoftSelected,
-                        onChanged: (val) =>
-                            setState(() => _isSoftSelected = val),
+                        // Catégories
+                        NeonCategorySwitch(
+                          title: 'SOFT',
+                          color: Colors.greenAccent,
+                          value: _isSoftSelected,
+                          onChanged: (val) =>
+                              setState(() => _isSoftSelected = val),
+                        ),
+                        NeonCategorySwitch(
+                          title: 'GEEK',
+                          color: Colors.blueAccent,
+                          value: _isGeekSelected,
+                          onChanged: (val) =>
+                              setState(() => _isGeekSelected = val),
+                        ),
+                        NeonCategorySwitch(
+                          title: 'HARD',
+                          color: Colors.orangeAccent,
+                          value: _isHardSelected,
+                          onChanged: (val) =>
+                              setState(() => _isHardSelected = val),
+                        ),
+                        NeonCategorySwitch(
+                          title: 'HOT',
+                          color: Colors.redAccent,
+                          value: _isHotSelected,
+                          onChanged: (val) =>
+                              setState(() => _isHotSelected = val),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _startGame,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.orangeAccent.withValues(alpha: 0.15),
+                      side: const BorderSide(
+                          color: Colors.orangeAccent, width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      NeonCategorySwitch(
-                        title: 'GEEK',
-                        color: Colors.blueAccent,
-                        value: _isGeekSelected,
-                        onChanged: (val) =>
-                            setState(() => _isGeekSelected = val),
-                      ),
-                      NeonCategorySwitch(
-                        title: 'HARD',
+                    ),
+                    child: const Text(
+                      "LANCER LE JEU",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                         color: Colors.orangeAccent,
-                        value: _isHardSelected,
-                        onChanged: (val) =>
-                            setState(() => _isHardSelected = val),
+                        letterSpacing: 2,
                       ),
-                      NeonCategorySwitch(
-                        title: 'HOT',
-                        color: Colors.redAccent,
-                        value: _isHotSelected,
-                        onChanged: (val) =>
-                            setState(() => _isHotSelected = val),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _startGame,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Colors.orangeAccent.withValues(alpha: 0.15),
-                    side: const BorderSide(
-                        color: Colors.orangeAccent, width: 2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  child: const Text(
-                    "LANCER LE JEU",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orangeAccent,
-                      letterSpacing: 2,
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-            ],
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
         ),
       ),

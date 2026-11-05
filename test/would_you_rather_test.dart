@@ -5,7 +5,7 @@ import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/would_you_rather/wyr_lobby.dart';
 import 'package:gameflix/games/would_you_rather/wyr_game.dart';
 import 'package:gameflix/games/would_you_rather/wyr_scoreboard.dart';
-import 'package:gameflix/shared/widgets/neon_volume_control.dart';
+import 'package:gameflix/shared/widgets/global_settings_button.dart';
 
 void main() {
   group('WyrCard Model Tests', () {
@@ -69,7 +69,7 @@ void main() {
       expect(find.text('💀 HALL OF SHAME 💀'), findsOneWidget);
       expect(find.text('BOB'), findsOneWidget);
       expect(find.textContaining('3 SHOTS'), findsOneWidget);
-      expect(find.byType(NeonVolumeControl), findsOneWidget);
+      expect(find.byType(GlobalSettingsButton), findsOneWidget);
       expect(find.text('REJOUER'), findsOneWidget);
       expect(find.text('HUB'), findsOneWidget);
     });
@@ -115,7 +115,7 @@ void main() {
       expect(find.text('Pouvoir voler'), findsOneWidget);
       expect(find.text('Être invisible'), findsOneWidget);
       expect(find.text('RÉVÉLER LES POURCENTAGES'), findsOneWidget);
-      expect(find.byType(NeonVolumeControl), findsOneWidget);
+      expect(find.byType(GlobalSettingsButton), findsOneWidget);
 
       // Tap pour révéler
       await tester.tap(find.text('RÉVÉLER LES POURCENTAGES'));
@@ -169,8 +169,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('TU PRÉFÈRES ?'), findsOneWidget);
-      expect(find.byType(NeonVolumeControl), findsOneWidget);
+      expect(find.text('LOBBY'), findsOneWidget);
+      expect(find.byType(GlobalSettingsButton), findsOneWidget);
       expect(find.text('DURÉE DE LA PARTIE'), findsOneWidget);
       expect(find.text('15'), findsOneWidget);
       expect(find.text('LANCER LE JEU'), findsOneWidget);

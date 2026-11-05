@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/services/audio_service.dart';
-import 'package:gameflix/shared/widgets/neon_volume_control.dart';
+import 'package:gameflix/shared/widgets/global_settings_button.dart';
 
 /// Écran de fin de partie et Hall of Shame pour le mini-jeu "Tu préfères".
 ///
@@ -81,7 +81,7 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
         ),
         centerTitle: true,
         actions: const [
-          NeonVolumeControl(),
+          GlobalSettingsButton(),
           SizedBox(width: 10),
         ],
       ),

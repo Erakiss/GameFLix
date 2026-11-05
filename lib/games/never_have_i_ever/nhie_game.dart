@@ -5,8 +5,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:gameflix/models/player.dart';
-import 'package:gameflix/games/never_have_i_ever/nhie_lobby.dart'; // Pour NhieCard
+import 'package:gameflix/games/never_have_i_ever/nhie_lobby.dart';
 import 'package:gameflix/games/never_have_i_ever/nhie_scoreboard.dart';
+import 'package:gameflix/shared/widgets/global_settings_button.dart';
 
 class NhieRaceScreen extends StatefulWidget {
   final List<Player> players;
@@ -24,7 +25,9 @@ class _NhieRaceScreenState extends State<NhieRaceScreen> {
   @override
   void initState() {
     super.initState();
-    for (var p in widget.players) { p.score = 0; }
+    for (var p in widget.players) {
+      p.score = 0;
+    }
   }
 
   void _nextCard() {
@@ -34,59 +37,107 @@ class _NhieRaceScreenState extends State<NhieRaceScreen> {
     final bool hasWinner = widget.players.any((p) => p.score >= 10);
 
     if (hasWinner) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NhieScoreboardScreen(players: widget.players)));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NhieScoreboardScreen(players: widget.players),
+        ),
+      );
       return;
     }
 
     setState(() {
       _currentTurnSelections.clear();
       _cardIndex = (_cardIndex + 1) % widget.deck.length;
-      if (_cardIndex == 0) widget.deck.shuffle(); 
+      if (_cardIndex == 0) widget.deck.shuffle();
     });
   }
 
   Widget _buildRaceTrack(Player player, int index) {
     bool isSelected = _currentTurnSelections[player.name] ?? false;
     int visualScore = player.score + (isSelected ? 1 : 0);
-    double progress = min(visualScore / 10.0, 1.0); 
+    double progress = min(visualScore / 10.0, 1.0);
 
-    final List<Color> playerColors = [Colors.redAccent, Colors.lightBlueAccent, Colors.orangeAccent, Colors.purpleAccent, Colors.greenAccent];
+    final List<Color> playerColors = [
+      Colors.redAccent,
+      Colors.lightBlueAccent,
+      Colors.orangeAccent,
+      Colors.purpleAccent,
+      Colors.greenAccent,
+    ];
     Color trackColor = playerColors[index % playerColors.length];
 
     return GestureDetector(
-      onTap: () => setState(() => _currentTurnSelections[player.name] = !isSelected),
+      onTap: () =>
+          setState(() => _currentTurnSelections[player.name] = !isSelected),
       child: Container(
-        color: Colors.transparent, 
+        color: Colors.transparent,
         child: Column(
           children: [
             Expanded(
               child: Container(
-                width: 45, 
-                decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(25), border: Border.all(color: isSelected ? trackColor : Colors.white10, width: 2)),
+                width: 45,
+                decoration: BoxDecoration(
+                  color: Colors.black45,
+                  borderRadius: BorderRadius.circular(25),
+                  border: Border.all(
+                    color: isSelected ? trackColor : Colors.white10,
+                    width: 2,
+                  ),
+                ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    double avatarSize = 35.0; double maxTop = constraints.maxHeight - avatarSize; 
+                    double avatarSize = 35.0;
+                    double maxTop = constraints.maxHeight - avatarSize;
                     return Stack(
                       alignment: Alignment.topCenter,
                       children: [
                         AnimatedPositioned(
-                          duration: const Duration(milliseconds: 500), curve: Curves.easeOutBack,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeOutBack,
                           top: maxTop * (1.0 - progress),
                           child: Container(
-                            width: avatarSize, height: avatarSize, margin: const EdgeInsets.symmetric(vertical: 2), 
-                            decoration: BoxDecoration(shape: BoxShape.circle, color: isSelected ? trackColor : Colors.white24),
-                            child: Center(child: visualScore >= 10 ? const Icon(Icons.emoji_events, color: Colors.amber, size: 18) : const FaIcon(FontAwesomeIcons.horse, color: Colors.white, size: 18)),
+                            width: avatarSize,
+                            height: avatarSize,
+                            margin: const EdgeInsets.symmetric(vertical: 2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelected ? trackColor : Colors.white24,
+                            ),
+                            child: Center(
+                              child: visualScore >= 10
+                                  ? const Icon(
+                                      Icons.emoji_events,
+                                      color: Colors.amber,
+                                      size: 18,
+                                    )
+                                  : const FaIcon(
+                                      FontAwesomeIcons.horse,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                            ),
                           ),
-                        )
+                        ),
                       ],
                     );
-                  }
+                  },
                 ),
               ),
             ),
             const SizedBox(height: 10),
-            Text(player.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
-            Text("$visualScore", style: TextStyle(color: trackColor, fontWeight: FontWeight.w900)),
+            Text(
+              player.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              "$visualScore",
+              style: TextStyle(color: trackColor, fontWeight: FontWeight.w900),
+            ),
           ],
         ),
       ),
@@ -96,48 +147,126 @@ class _NhieRaceScreenState extends State<NhieRaceScreen> {
   @override
   Widget build(BuildContext context) {
     NhieCard card = widget.deck[_cardIndex];
-    Color accentColor = card.difficulty == 'SOFT' ? Colors.greenAccent : card.difficulty == 'GEEK' ? Colors.orangeAccent : Colors.redAccent;
+    Color accentColor = card.difficulty == 'SOFT'
+        ? Colors.greenAccent
+        : card.difficulty == 'GEEK'
+            ? Colors.orangeAccent
+            : Colors.redAccent;
 
     return Scaffold(
       backgroundColor: const Color(0xFF050515),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: const [
+          GlobalSettingsButton(),
+          SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(25), margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: BoxDecoration(color: const Color(0xFF111122), borderRadius: BorderRadius.circular(20), border: Border.all(color: accentColor.withValues(alpha: 0.6), width: 2), boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.3), blurRadius: 20, spreadRadius: 2)]),
+              padding: const EdgeInsets.all(25),
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF111122),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: accentColor.withValues(alpha: 0.6),
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: accentColor.withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("JE N'AI JAMAIS", style: TextStyle(color: accentColor, fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 18)),
+                  Text(
+                    "JE N'AI JAMAIS",
+                    style: TextStyle(
+                      color: accentColor,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 2,
+                      fontSize: 18,
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   SizedBox(
-                    height: 120, 
-                    child: Center(child: AutoSizeText(card.content, textAlign: TextAlign.center, maxLines: 5, minFontSize: 12, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white, height: 1.3))),
+                    height: 120,
+                    child: Center(
+                      child: AutoSizeText(
+                        card.content,
+                        textAlign: TextAlign.center,
+                        maxLines: 5,
+                        minFontSize: 12,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-            const Text("Appuyez sur votre ligne si vous l'avez fait 👇", style: TextStyle(color: Colors.white54, fontStyle: FontStyle.italic)),
+            const Text(
+              "Appuyez sur votre ligne si vous l'avez fait 👇",
+              style: TextStyle(
+                color: Colors.white54,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
             const SizedBox(height: 10),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Row(
-                  children: widget.players.asMap().entries.map((entry) => Expanded(child: _buildRaceTrack(entry.value, entry.key))).toList(),
+                  children: widget.players
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => Expanded(
+                          child: _buildRaceTrack(entry.value, entry.key),
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(20),
               child: SizedBox(
-                width: double.infinity, height: 60,
+                width: double.infinity,
+                height: 60,
                 child: ElevatedButton(
-                  onPressed: _nextCard, style: ElevatedButton.styleFrom(backgroundColor: Colors.white10, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
-                  child: const Text("CARTE SUIVANTE", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2)),
+                  onPressed: _nextCard,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  child: const Text(
+                    "CARTE SUIVANTE",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 2,
+                    ),
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

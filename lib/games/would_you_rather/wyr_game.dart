@@ -7,7 +7,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/would_you_rather/wyr_lobby.dart';
 import 'package:gameflix/games/would_you_rather/wyr_scoreboard.dart';
-import 'package:gameflix/shared/widgets/neon_volume_control.dart';
+import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/services/audio_service.dart';
 
 class WyrGameScreen extends StatefulWidget {
@@ -355,7 +355,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
               tooltip: 'Classement en direct',
               onPressed: _showLiveLeaderboard,
             ),
-            const NeonVolumeControl(),
+            const GlobalSettingsButton(),
             const SizedBox(width: 8),
           ],
         ),

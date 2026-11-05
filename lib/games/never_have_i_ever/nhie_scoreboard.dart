@@ -1,7 +1,8 @@
-
+// lib/games/never_have_i_ever/nhie_scoreboard.dart
 import 'package:flutter/material.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/shared/navigation.dart';
+import 'package:gameflix/shared/widgets/global_settings_button.dart';
 
 class NhieScoreboardScreen extends StatelessWidget {
   final List<Player> players;
@@ -9,31 +10,77 @@ class NhieScoreboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Player> sortedPlayers = List.from(players)..sort((a, b) => b.score.compareTo(a.score));
-    
+    List<Player> sortedPlayers = List.from(players)
+      ..sort((a, b) => b.score.compareTo(a.score));
+
     return Scaffold(
       backgroundColor: const Color(0xFF050515),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        actions: const [
+          GlobalSettingsButton(),
+          SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("🏁 LA COURSE EST FINIE ! 🏁", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.cyanAccent)),
+              const Text(
+                "🏁 LA COURSE EST FINIE ! 🏁",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.cyanAccent,
+                ),
+              ),
               const SizedBox(height: 30),
-              const Text("Le pire joueur de la soirée est...", style: TextStyle(color: Colors.white70, fontSize: 18)),
+              const Text(
+                "Le pire joueur de la soirée est...",
+                style: TextStyle(color: Colors.white70, fontSize: 18),
+              ),
               const SizedBox(height: 10),
-              Text(sortedPlayers.first.name.toUpperCase(), style: const TextStyle(fontSize: 50, fontWeight: FontWeight.w900, color: Colors.redAccent, shadows: [Shadow(color: Colors.red, blurRadius: 20)])),
+              Text(
+                sortedPlayers.first.name.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.redAccent,
+                  shadows: [Shadow(color: Colors.red, blurRadius: 20)],
+                ),
+              ),
               const SizedBox(height: 40),
-              ...sortedPlayers.map((p) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Text("${p.name} : ${p.score} points", style: const TextStyle(fontSize: 20, color: Colors.white)),
-              )),
+              ...sortedPlayers.map(
+                (p) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Text(
+                    "${p.name} : ${p.score} points",
+                    style: const TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                ),
+              ),
               const SizedBox(height: 40),
               ElevatedButton.icon(
                 onPressed: () => goToHub(context),
-                icon: const Icon(Icons.home, color: Colors.black), label: const Text("RETOUR AU MENU", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.cyanAccent, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
-              )
+                icon: const Icon(Icons.home, color: Colors.black),
+                label: const Text(
+                  "RETOUR AU MENU",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.cyanAccent,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 15,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

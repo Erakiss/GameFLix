@@ -6,6 +6,7 @@ import 'package:gameflix/models/player.dart';
 import 'package:gameflix/models/game_card.dart';
 import 'package:gameflix/state/players_controller.dart';
 import 'package:gameflix/shared/navigation.dart';
+import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/games/truth_or_dare/tod_scoreboard.dart';
 
 class TurnRecord {
@@ -308,6 +309,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
                   decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white24)),
                   child: Text("Tour $_currentTurnCount / ${widget.maxTurns}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.cyanAccent)),
                 ),
+                const GlobalSettingsButton(),
               ],
             ),
           ),

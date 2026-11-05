@@ -1,15 +1,22 @@
+// lib/games/imposter/imp_scoreboard.dart
 import 'package:flutter/material.dart';
 import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/models/player.dart';
-import 'package:gameflix/games/imposter/imp_lobby.dart'; 
-import 'package:gameflix/shared/widgets/neon_confetti.dart'; // L'import de notre super widget !
+import 'package:gameflix/games/imposter/imp_lobby.dart';
+import 'package:gameflix/shared/widgets/global_settings_button.dart';
+import 'package:gameflix/shared/widgets/neon_confetti.dart';
 
 class ImpScoreboardScreen extends StatefulWidget {
   final List<Player> players;
   final Map<String, String> playerRoles;
   final ImpCard selectedCard;
 
-  const ImpScoreboardScreen({super.key, required this.players, required this.playerRoles, required this.selectedCard});
+  const ImpScoreboardScreen({
+    super.key,
+    required this.players,
+    required this.playerRoles,
+    required this.selectedCard,
+  });
 
   @override
   State<ImpScoreboardScreen> createState() => _ImpScoreboardScreenState();
@@ -25,13 +32,12 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
   int _civilsFound = 0;
 
   // État du jeu : "VOTING", "MW_GUESS", "FINISHED"
-  String _gameState = "VOTING"; 
-  String _winner = ""; 
+  String _gameState = "VOTING";
+  String _winner = "";
 
   @override
   void initState() {
     super.initState();
-    // On compte les effectifs au départ
     for (String role in widget.playerRoles.values) {
       if (role == "IMPOSTER" || role == "MISTER_WHITE") {
         _badGuysTotal++;
@@ -48,12 +54,14 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
   }
 
   String _normalizeString(String str) {
-    return str.toLowerCase().trim()
-      .replaceAll(RegExp(r'[éèêë]'), 'e')
-      .replaceAll(RegExp(r'[àâä]'), 'a')
-      .replaceAll(RegExp(r'[îï]'), 'i')
-      .replaceAll(RegExp(r'[ôö]'), 'o')
-      .replaceAll(RegExp(r'[ûü]'), 'u');
+    return str
+        .toLowerCase()
+        .trim()
+        .replaceAll(RegExp(r'[éèêë]'), 'e')
+        .replaceAll(RegExp(r'[àâä]'), 'a')
+        .replaceAll(RegExp(r'[îï]'), 'i')
+        .replaceAll(RegExp(r'[ôö]'), 'o')
+        .replaceAll(RegExp(r'[ûü]'), 'u');
   }
 
   void _revealPlayer(String playerName) {
@@ -62,20 +70,18 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     setState(() {
       _revealedPlayers.add(playerName);
       String role = widget.playerRoles[playerName]!;
-      
+
       if (role == "IMPOSTER" || role == "MISTER_WHITE") {
         _badGuysFound++;
-        
-        // Si c'est Mister White, le jeu se fige pour qu'il devine
+
         if (role == "MISTER_WHITE") {
           _gameState = "MW_GUESS";
-          return; 
+          return;
         }
       } else {
         _civilsFound++;
       }
 
-      // Vérification des conditions de fin (uniquement si ce n'était pas Mister White)
       _checkEndGameConditions();
     });
   }
@@ -85,10 +91,8 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     int aliveCivils = _civilsTotal - _civilsFound;
 
     if (_badGuysFound == _badGuysTotal) {
-      // Tous les méchants trouvés
       _finishGame("CIVILS");
     } else if (aliveBadGuys >= aliveCivils) {
-      // Les imposteurs dominent
       _finishGame("IMPOSTERS");
     }
   }
@@ -100,7 +104,6 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     if (guess == actualWord) {
       _finishGame("MISTER_WHITE");
     } else {
-      // S'il se trompe, il est éliminé et on reprend les votes
       setState(() {
         _gameState = "VOTING";
         _mwGuessController.clear();
@@ -113,7 +116,6 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     setState(() {
       _gameState = "FINISHED";
       _winner = winner;
-      // On révèle tout le plateau
       for (var p in widget.players) {
         _revealedPlayers.add(p.name);
       }
@@ -123,21 +125,27 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
   Widget _buildPlayerCard(Player player) {
     bool isRevealed = _revealedPlayers.contains(player.name);
     String role = widget.playerRoles[player.name]!;
-    
+
     Color roleColor = Colors.white;
     String roleName = "";
     if (role == "MISTER_WHITE") {
-      roleColor = Colors.white; roleName = "MISTER WHITE";
+      roleColor = Colors.white;
+      roleName = "MISTER WHITE";
     } else if (role == "IMPOSTER") {
-      roleColor = Colors.redAccent; roleName = "IMPOSTEUR";
+      roleColor = Colors.redAccent;
+      roleName = "IMPOSTEUR";
     } else {
-      roleColor = Colors.greenAccent; roleName = "CIVIL";
+      roleColor = Colors.greenAccent;
+      roleName = "CIVIL";
     }
 
     bool isWinner = false;
     if (_gameState == "FINISHED") {
       if (_winner == "CIVILS" && role == "CIVIL") isWinner = true;
-      if (_winner == "IMPOSTERS" && (role == "IMPOSTER" || role == "MISTER_WHITE")) isWinner = true;
+      if (_winner == "IMPOSTERS" &&
+          (role == "IMPOSTER" || role == "MISTER_WHITE")) {
+        isWinner = true;
+      }
       if (_winner == "MISTER_WHITE" && role == "MISTER_WHITE") isWinner = true;
     }
 
@@ -149,24 +157,60 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
         margin: const EdgeInsets.only(bottom: 15),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isRevealed ? roleColor.withValues(alpha: 0.1) : const Color(0xFF111122),
+          color: isRevealed
+              ? roleColor.withValues(alpha: 0.1)
+              : const Color(0xFF111122),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: isWinner ? Colors.amber : (isRevealed ? roleColor : Colors.purpleAccent.withValues(alpha: 0.3)), 
-            width: isWinner ? 4 : 2
+            color: isWinner
+                ? Colors.amber
+                : (isRevealed
+                    ? roleColor
+                    : Colors.purpleAccent.withValues(alpha: 0.3)),
+            width: isWinner ? 4 : 2,
           ),
-          boxShadow: isWinner ? [BoxShadow(color: Colors.amber.withValues(alpha: 0.5), blurRadius: 15, spreadRadius: 2)] : [],
+          boxShadow: isWinner
+              ? [
+                  BoxShadow(
+                    color: Colors.amber.withValues(alpha: 0.5),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ]
+              : [],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(player.name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: isWinner ? Colors.amber : (isRevealed ? roleColor : Colors.white))),
+            Text(
+              player.name,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: isWinner
+                    ? Colors.amber
+                    : (isRevealed ? roleColor : Colors.white),
+              ),
+            ),
             if (isRevealed)
               Row(
                 children: [
-                  if (isWinner) const Icon(Icons.emoji_events, color: Colors.amber, size: 24),
+                  if (isWinner)
+                    const Icon(
+                      Icons.emoji_events,
+                      color: Colors.amber,
+                      size: 24,
+                    ),
                   const SizedBox(width: 8),
-                  Text(roleName, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: isWinner ? Colors.amber : roleColor, letterSpacing: 1)),
+                  Text(
+                    roleName,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: isWinner ? Colors.amber : roleColor,
+                      letterSpacing: 1,
+                    ),
+                  ),
                 ],
               )
             else
@@ -184,9 +228,18 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     String headerText = "PHASE D'ÉLIMINATION";
     Color headerColor = Colors.purpleAccent;
     if (isFinished) {
-      if (_winner == "CIVILS") { headerText = "VICTOIRE DES CIVILS !"; headerColor = Colors.greenAccent; }
-      if (_winner == "IMPOSTERS") { headerText = "VICTOIRE DES IMPOSTEURS !"; headerColor = Colors.redAccent; }
-      if (_winner == "MISTER_WHITE") { headerText = "MISTER WHITE A TROUVÉ LE MOT !"; headerColor = Colors.white; }
+      if (_winner == "CIVILS") {
+        headerText = "VICTOIRE DES CIVILS !";
+        headerColor = Colors.greenAccent;
+      }
+      if (_winner == "IMPOSTERS") {
+        headerText = "VICTOIRE DES IMPOSTEURS !";
+        headerColor = Colors.redAccent;
+      }
+      if (_winner == "MISTER_WHITE") {
+        headerText = "MISTER WHITE A TROUVÉ LE MOT !";
+        headerColor = Colors.white;
+      }
     } else if (_gameState == "MW_GUESS") {
       headerText = "MISTER WHITE, SAUVE TOI !";
       headerColor = Colors.white;
@@ -194,95 +247,226 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF050515),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        actions: const [
+          GlobalSettingsButton(),
+          SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
-            // --- LE RESTE DU CONTENU ---
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Column(
                 children: [
-                  Text(headerText, textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: headerColor, letterSpacing: 2)),
-                  const SizedBox(height: 10),
-                  
-                  if (!isFinished && _gameState != "MW_GUESS")
-                    const Text("Appuyez sur un joueur éliminé par le groupe.", textAlign: TextAlign.center, style: TextStyle(color: Colors.white70)),
-                  
-                  const SizedBox(height: 20),
-                  
-                  Container(
-                    width: double.infinity, padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(color: const Color(0xFF111122), borderRadius: BorderRadius.circular(15), border: Border.all(color: isFinished ? headerColor : Colors.white10, width: 2)),
-                    child: isFinished 
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(children: [const Text("CIVIL", style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)), Text(widget.selectedCard.word, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))]),
-                            Column(children: [const Text("IMPOSTEUR", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)), Text(widget.selectedCard.imposterWord, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))]),
-                          ],
-                        )
-                      : const Center(child: Text("LES MOTS SONT CACHÉS", style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold, letterSpacing: 3))),
+                  Text(
+                    headerText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: headerColor,
+                      letterSpacing: 2,
+                    ),
                   ),
-                  
+                  const SizedBox(height: 10),
+                  if (!isFinished && _gameState != "MW_GUESS")
+                    const Text(
+                      "Appuyez sur un joueur éliminé par le groupe.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF111122),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: isFinished ? headerColor : Colors.white10,
+                        width: 2,
+                      ),
+                    ),
+                    child: isFinished
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                children: [
+                                  const Text(
+                                    "CIVIL",
+                                    style: TextStyle(
+                                      color: Colors.greenAccent,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    widget.selectedCard.word,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  const Text(
+                                    "IMPOSTEUR",
+                                    style: TextStyle(
+                                      color: Colors.redAccent,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    widget.selectedCard.imposterWord,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        : const Center(
+                            child: Text(
+                              "LES MOTS SONT CACHÉS",
+                              style: TextStyle(
+                                color: Colors.white54,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 3,
+                              ),
+                            ),
+                          ),
+                  ),
                   const SizedBox(height: 30),
-
                   if (_gameState == "MW_GUESS") ...[
                     Expanded(
                       child: Center(
                         child: Container(
                           padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white, width: 2)),
+                          decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text("Tu as été démasqué... Mais tu as une dernière chance !", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 16)),
+                              const Text(
+                                "Tu as été démasqué... Mais tu as une dernière chance !",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
                               const SizedBox(height: 20),
                               TextField(
                                 controller: _mwGuessController,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                                decoration: InputDecoration(hintText: "Écris le mot ici...", hintStyle: const TextStyle(color: Colors.white38), filled: true, fillColor: Colors.black45, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none)),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: "Écris le mot ici...",
+                                  hintStyle: const TextStyle(
+                                    color: Colors.white38,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.black45,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
                               ),
                               const SizedBox(height: 20),
                               ElevatedButton(
                                 onPressed: _checkMisterWhiteGuess,
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
-                                child: const Text("VALIDER MON MOT", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
-                              )
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 40,
+                                    vertical: 15,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "VALIDER MON MOT",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ),
-                    )
-                  ] 
-                  else ...[
+                    ),
+                  ] else ...[
                     Expanded(
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
-                        children: widget.players.map((p) => _buildPlayerCard(p)).toList(),
+                        children: widget.players
+                            .map((p) => _buildPlayerCard(p))
+                            .toList(),
                       ),
                     ),
                   ],
-
                   if (isFinished)
                     SizedBox(
-                      width: double.infinity, height: 60,
+                      width: double.infinity,
+                      height: 60,
                       child: ElevatedButton.icon(
-                        // Retourne au Hub proprement !
-                        onPressed: () => goToHub(context), 
-                        icon: const Icon(Icons.home, color: Colors.purpleAccent),
-                        label: const Text("RETOUR AU HUB", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purpleAccent)),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.purpleAccent.withValues(alpha: 0.1), side: const BorderSide(color: Colors.purpleAccent, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+                        onPressed: () => goToHub(context),
+                        icon: const Icon(
+                          Icons.home,
+                          color: Colors.purpleAccent,
+                        ),
+                        label: const Text(
+                          "RETOUR AU HUB",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purpleAccent,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purpleAccent.withValues(
+                            alpha: 0.1,
+                          ),
+                          side: const BorderSide(
+                            color: Colors.purpleAccent,
+                            width: 2,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
                       ),
-                    )
+                    ),
                 ],
               ),
             ),
-
             if (isFinished)
               const Positioned.fill(
-                child: IgnorePointer( // IgnorePointer pour ne pas bloquer les clics sur les boutons en dessous
+                child: IgnorePointer(
                   child: NeonConfettiWidget(),
                 ),
               ),
