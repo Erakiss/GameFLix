@@ -1,0 +1,190 @@
+[
+  {
+    "title": "TRUTH",
+    "description": "Quelle est la chose la plus honteuse que tu as faite en soirée ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Si tu devais échanger ta vie avec l'un des joueurs autour de la table, qui ce serait et pourquoi ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Quel est ton pire tue-l'amour chez quelqu'un ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "As-tu déjà menti pour échapper à une soirée avec des amis ? Si oui, quel était le mensonge ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Quelle est la pire manie ou habitude d'un des joueurs présents ici ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Quel est le pire mensonge qu'on t'ait jamais raconté ? Raconte en détail !",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Y a-t-il quelqu'un dans cette pièce que tu détestais au début et que tu adores maintenant ?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Fais un câlin au joueur en dernière place pour le réconforter de son classement.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Fais un massage de 30 secondes au joueur à ta droite.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE (LE MIXOLOGUE)",
+    "description": "C'est l'heure de montrer tes talents ! Prépare le prochain cocktail (ou shot) pour le joueur de ton choix.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Tu deviens le serveur de la table pendant les 2 prochains tours. Tu dois resservir tout le monde à la demande.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Imite le joueur le plus proche de toi jusqu'à ton prochain tour.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Montre la dernière photo enregistrée dans ta galerie ou bois 2 gorgées.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Le joueur en première place doit boire 2 gorgées avec toi !",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Buddy Shot ! Choisis un partenaire de boisson : vous trinquez et buvez 2 gorgées ensemble.",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Fais boire 2 gorgées à la personne la plus bruyante de la table !",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Distribue 2 gorgées au joueur que tu connais depuis le plus longtemps !",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Tournée générale ! Tout le monde boit 1 gorgée.",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Si tu as plus de 100 notifications non lues sur ton téléphone, bois 2 gorgées !",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "Qui dans cette pièce a le plus de sex-appeal selon toi ? Fais-le boire 2 gorgées.",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "Quel est ton fantasme le plus inavouable ? Réponds honnêtement ou bois 3 gorgées.",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "Embrasse dans le cou le joueur de ton choix (ou buvez chacun 2 gorgées).",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "Avec quelle personne présente ici pourrais-tu passer une nuit sans lendemain ?",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "Fais un compliment ultra-séduisant en regardant dans les yeux le joueur à ta gauche pendant 10 secondes.",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "GLITCH",
+    "description": "Overclocking réussi ! Avance de 3 cases.",
+    "type": "special",
+    "movement": 3
+  },
+  {
+    "title": "GLITCH",
+    "description": "Court-circuit système... Recule de 3 cases.",
+    "type": "special",
+    "movement": -3
+  },
+  {
+    "title": "GLITCH",
+    "description": "Brèche temporelle ! Propulse-toi de 5 cases en avant.",
+    "type": "special",
+    "movement": 5
+  },
+  {
+    "title": "GLITCH",
+    "description": "Rollback serveur. Recule de 4 cases.",
+    "type": "special",
+    "movement": -4
+  },
+  {
+    "title": "GLITCH",
+    "description": "Téléportation quantique ! Échange ta position sur le plateau avec le joueur le plus en retard.",
+    "type": "special",
+    "movement": 0
+  },
+  {
+    "title": "GLITCH",
+    "description": "Double Tour ! Bois 1 gorgée et relance immédiatement le dé !",
+    "type": "special",
+    "movement": 0,
+    "reroll": true
+  },
+  {
+    "title": "GLITCH",
+    "description": "Sérum Anti-Venin activé ! Tu es immunisé contre la prochaine descente (Serpent ou Portail Down).",
+    "type": "special",
+    "movement": 0,
+    "shield": true
+  }
+]

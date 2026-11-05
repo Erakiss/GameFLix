@@ -7,7 +7,7 @@ import 'package:gameflix/games/truth_or_dare/tod_lobby.dart';
 import 'package:gameflix/games/never_have_i_ever/nhie_lobby.dart';
 import 'package:gameflix/games/imposter/imp_lobby.dart';
 import 'package:gameflix/games/would_you_rather/wyr_lobby.dart';
-import 'package:gameflix/games/drinking_board/board_game.dart';
+import 'package:gameflix/games/viper/viper_lobby.dart';
 import 'package:gameflix/games/codenames/code_lobby.dart';
 
 /// Configuration déclarative d'un mini-jeu disponible dans GameFlix.
@@ -108,16 +108,16 @@ class GameRegistry {
       builder: (players) => WyrLobbyScreen(players: players),
     ),
 
-    // 5. Le Jeu de Plateau (2 à 6 joueurs)
+    // 5. Viper - Le Jeu de Plateau (2 à 6 joueurs)
     GameConfig(
-      id: 'board',
-      title: 'Jeu de Plateau',
+      id: 'viper',
+      title: 'Viper',
       subtitle: "Le plateau de l'enfer",
       bannerPath: 'assets/board_banner.png',
       minPlayers: 2,
       maxPlayers: 6,
       isNew: true,
-      builder: (players) => BoardGameScreen(players: players),
+      builder: (players) => ViperLobbyScreen(players: players),
     ),
 
     // 6. Codenames Express (4 joueurs minimum)

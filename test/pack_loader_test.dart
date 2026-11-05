@@ -50,7 +50,7 @@ void main() {
       expect(list.length, greaterThanOrEqualTo(6));
 
       final gameIds = list.map((item) => item['gameId']).toSet();
-      expect(gameIds.containsAll(['tod', 'nhie', 'imp', 'wyr', 'code', 'board']), isTrue);
+      expect(gameIds.containsAll(['tod', 'nhie', 'imp', 'wyr', 'code', 'viper']), isTrue);
 
       for (final item in list) {
         final filePath = item['filePath'] as String;

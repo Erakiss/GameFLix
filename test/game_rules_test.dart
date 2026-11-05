@@ -6,7 +6,7 @@ import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
 void main() {
   group('GameRules & GameRulesSheet', () {
     test('les 6 jeux possèdent des règles prédéfinies et complètes', () {
-      final gamesWithRules = ['tod', 'nhie', 'imp', 'wyr', 'code', 'board'];
+      final gamesWithRules = ['tod', 'nhie', 'imp', 'wyr', 'code', 'viper'];
       for (final gameId in gamesWithRules) {
         final rules = DefaultGameRules.getRules(gameId);
         expect(rules, isNotNull, reason: 'Règles manquantes pour $gameId');

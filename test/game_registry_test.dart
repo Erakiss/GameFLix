@@ -11,7 +11,7 @@ void main() {
 
       final ids = games.map((g) => g.id).toSet();
       expect(ids.length, 7, reason: 'Chaque jeu doit posséder un identifiant unique');
-      expect(ids.containsAll(['tod', 'nhie', 'imp', 'wyr', 'board', 'code', 'coming_soon']), isTrue);
+      expect(ids.containsAll(['tod', 'nhie', 'imp', 'wyr', 'viper', 'code', 'coming_soon']), isTrue);
     });
 
     test('respecte les contraintes de joueurs pour chaque jeu', () {
@@ -31,9 +31,9 @@ void main() {
       expect(wyr.minPlayers, 2);
       expect(wyr.maxPlayers, isNull);
 
-      final board = GameRegistry.games.firstWhere((g) => g.id == 'board');
-      expect(board.minPlayers, 2);
-      expect(board.maxPlayers, 6);
+      final viper = GameRegistry.games.firstWhere((g) => g.id == 'viper');
+      expect(viper.minPlayers, 2);
+      expect(viper.maxPlayers, 6);
 
       final code = GameRegistry.games.firstWhere((g) => g.id == 'code');
       expect(code.minPlayers, 4);

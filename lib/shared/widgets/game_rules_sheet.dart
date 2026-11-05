@@ -180,29 +180,35 @@ class DefaultGameRules {
           endCondition: 'La première équipe qui découvre toutes ses cartes gagne. Toucher la carte Assassin provoque une défaite immédiate !',
         );
 
+      case 'viper':
       case 'board':
         return const GameRules(
-          gameTitle: 'Jeu de Plateau',
-          objective: 'Avancer son pion sur le plateau et survivre aux cases pièges jusqu\'à la ligne d\'arrivée.',
+          gameTitle: 'Viper',
+          objective: 'Lancer le dé à tour de rôle et franchir le premier la case finale du plateau.',
           accentColor: Colors.amberAccent,
           steps: [
             GameRuleStep(
-              title: '1. Lancer de dé',
-              description: 'Chaque joueur lance le dé à son tour pour faire progresser son pion.',
+              title: '1. Déplacement & Rebond (Lacets)',
+              description: 'En Mode Express et Normal, tu avances en serpentin avec rebond si tu dépasses la fin. En Mode Spirale (3 anneaux), tu tournes en boucle sur ton anneau jusqu\'à atteindre le centre sans rebond !',
               icon: Icons.casino_outlined,
             ),
             GameRuleStep(
-              title: '2. Les cases spéciales',
-              description: 'Cases gages, cartes bonus, défis collectifs ou pénalités de gorgées selon la couleur de la case.',
-              icon: Icons.alt_route_rounded,
+              title: '2. Échelles (LADDER), Serpents (SNAKE) & Portails',
+              description: 'Pour monter (Échelles ou Portails UP), offre 1 gorgée ou donne un gage ! Pour descendre (Serpents ou Portails DOWN), bois 1 gorgée et glisse (la case d\'atterrissage est neutre, évitant toute double peine).',
+              icon: Icons.swap_vert_rounded,
             ),
             GameRuleStep(
-              title: '3. Les duels',
-              description: 'Si deux pions se croisent, défiez votre adversaire pour l\'obliger à reculer !',
-              icon: Icons.sports_mma_outlined,
+              title: '3. Gages DARE 😈, Vérités & Mode Hot 🌶️',
+              description: 'Les cases Truth, Dare (démon 😈) et Drink rythment la partie. Les cartes Spicy n\'apparaissent que si le mode Hot 🌶️ est activé !',
+              icon: Icons.local_bar_rounded,
+            ),
+            GameRuleStep(
+              title: '4. Cases GLITCH (Double Tour & Anti-Venin)',
+              description: 'Ces cases piratent le jeu : relance immédiatement le dé (Double Tour), avance, recule, échange ta place ou active un sérum Anti-Venin qui annule ta prochaine descente !',
+              icon: Icons.bolt_rounded,
             ),
           ],
-          endCondition: 'Le premier joueur qui atteint exactement la dernière case du plateau remporte la partie.',
+          endCondition: 'Le premier joueur qui atteint la case finale remporte la partie !',
         );
 
       default:
