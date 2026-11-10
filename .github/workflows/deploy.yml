@@ -16,7 +16,10 @@ jobs:
           channel: 'stable'
           
       - run: flutter pub get
-      - run: flutter build web --release --base-href /GameFLix/ 
+      - run: flutter build web --release --base-href /GameFLix/
+      - run: |
+          cp docs/index.html build/web/privacy.html
+          cp docs/app-ads.txt build/web/app-ads.txt
 
       - uses: peaceiris/actions-gh-pages@v3
         with:
