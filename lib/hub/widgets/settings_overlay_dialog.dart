@@ -14,7 +14,7 @@ import 'package:gameflix/state/access_control_provider.dart';
 // --- CONSTANTE SUPPORT CENTRALISÉE ---
 
 /// Adresse email officielle de support et de suggestions (facilement modifiable).
-const String kSupportEmail = 'contact@gameflix.app';
+const String kSupportEmail = 'contact.erakiss@gmail.com';
 
 /// Overlay de réglages plein écran (100% de l'écran) centré au milieu,
 /// avec bouton de fermeture `✕` en haut à gauche et 5 sections :
