@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:gameflix/l10n/app_strings.dart';
 import 'package:gameflix/l10n/locale_controller.dart';
 import 'package:gameflix/models/game_config.dart';
+import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/services/audio_service.dart';
 import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 import 'package:gameflix/state/access_control_provider.dart';
@@ -505,6 +506,26 @@ class _SettingsOverlayDialogState extends State<SettingsOverlayDialog> {
                           ),
                         ),
                       ),
+                      if (AdManager.instance.isPrivacyOptionsRequired) ...[
+                        const SizedBox(height: 12),
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () {
+                              AudioService.instance.playSfx(SoundEffect.click);
+                              AdManager.instance.showPrivacyOptionsForm();
+                            },
+                            icon: const Icon(
+                              Icons.privacy_tip_outlined,
+                              color: Colors.white60,
+                              size: 18,
+                            ),
+                            label: const Text(
+                              'Préférences de confidentialité (RGPD)',
+                              style: TextStyle(color: Colors.white60, fontSize: 12),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

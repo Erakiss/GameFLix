@@ -14,8 +14,8 @@ class MonetizationConfig {
   // 1. REVENUECAT (ACHATS IN-APP & ABONNEMENTS)
   // ===========================================================================
 
-  /// Clé API publique RevenueCat pour Android (remplacez par votre clé de production commençant par goog_)
-  static const String revenueCatAndroidApiKey = 'goog_sample_gameflix_revcat_key';
+  /// Clé API publique RevenueCat pour Android (GameFlix Play Store)
+  static const String revenueCatAndroidApiKey = 'goog_BYKZbAiEsMtLGSgKRejcvaMxGTh';
 
   /// Clé API publique RevenueCat pour iOS (remplacez par votre clé de production commençant par appl_)
   static const String revenueCatIosApiKey = 'appl_sample_gameflix_revcat_key';
@@ -57,14 +57,14 @@ class MonetizationConfig {
   // --- Mode Production (passez à true ou utilisez --dart-define=IS_PROD=true) ---
   static const bool isProductionAds = bool.fromEnvironment('IS_PROD', defaultValue: false);
 
-  // --- IDs Production (Placeholders prêts à accueillir vos vrais blocs d'annonces) ---
-  static const String prodBannerAndroid = 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY';
+  // --- IDs Production ---
+  static const String prodBannerAndroid = 'ca-app-pub-8546144812971039/4188148590';
   static const String prodBannerIos = 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY';
 
-  static const String prodInterstitialAndroid = 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY';
+  static const String prodInterstitialAndroid = 'ca-app-pub-8546144812971039/7079916140';
   static const String prodInterstitialIos = 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY';
 
-  static const String prodRewardedAndroid = 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY';
+  static const String prodRewardedAndroid = 'ca-app-pub-8546144812971039/5246738536';
   static const String prodRewardedIos = 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY';
 
   /// Ad Unit ID pour la bannière

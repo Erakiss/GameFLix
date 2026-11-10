@@ -1,4 +1,4 @@
-package com.example.gameflix
+package com.erakiss.gameflix
 
 import io.flutter.embedding.android.FlutterActivity
 
