@@ -100944,7 +100944,7 @@ return A.n(A.vB(B.J_),$async$Az)
 case 3:if(a.e==null){s=1
 break}p=a.ad(t.J).f
 p.mJ()
-p.eq(A.pa(null,null,null,B.q5,null,B.z,null,A.U(b.awe("contact@gameflix.app"),null,null,null,null,null,null,null,null,null,null,null),null,B.b_,null,null,null,null,null,null,null,null,null,null))
+p.eq(A.pa(null,null,null,B.q5,null,B.z,null,A.U(b.awe("contact.erakiss@gmail.com"),null,null,null,null,null,null,null,null,null,null,null),null,B.b_,null,null,null,null,null,null,null,null,null,null))
 case 1:return A.q(q,r)}})
 return A.r($async$Az,r)},
 aoG(a){$.cF().cz(B.b1)
@@ -100972,7 +100972,7 @@ r=i.vw(B.a_,A.aN(p,B.cl,B.m,B.n),B.tb,r)
 q=g.ga7K()
 q=i.vw(B.M,A.RF(B.Re,A.U(g.ga7J(),h,h,h,h,h,h,h,B.dE,h,h,h),new A.aCH(i,a0),A.RG(h,h,h,h,h,h,h,h,h,h,h,h,B.hd,h,new A.br(A.a5(12),B.r),B.Gk,h,h,h,h)),B.PW,q)
 p=g.gawf()
-p=A.b([b,B.a2y,a,B.fq,s,B.fq,r,B.fq,q,B.fq,i.vw(B.aq,A.RF(B.QI,A.U(g.gawd()+" (contact@gameflix.app)",h,h,h,h,h,h,h,B.dE,h,h,h),new A.aCI(i,a0,g),A.RG(h,h,h,h,h,h,h,h,h,h,h,h,B.hd,h,new A.br(A.a5(12),B.r),B.Gq,h,h,h,h)),B.PZ,p)],o)
+p=A.b([b,B.a2y,a,B.fq,s,B.fq,r,B.fq,q,B.fq,i.vw(B.aq,A.RF(B.QI,A.U(g.gawd()+" (contact.erakiss@gmail.com)",h,h,h,h,h,h,h,B.dE,h,h,h),new A.aCI(i,a0,g),A.RG(h,h,h,h,h,h,h,h,h,h,h,h,B.hd,h,new A.br(A.a5(12),B.r),B.Gq,h,h,h,h)),B.PZ,p)],o)
 if($.q3().c)B.b.O(p,A.b([B.cu,A.bT(A.apq(B.Rf,B.ab0,new A.aCJ()),h,h,h)],o))
 return A.el(h,c,A.dk(!0,A.cC(B.aA,A.b([A.bT(A.xE(new A.eM(B.Gy,A.aN(p,B.cl,B.m,B.a3),h),B.NY),h,h,h),A.dO(h,A.f4(h,h,h,B.R7,h,B.adh,new A.aCK(a0),h,h,A.oe(h,B.bc,h,h,h,h,h,h,h,h,h,h,h,h,B.Gp,h,h),h),h,h,16,h,12,h)],o),B.z,B.ab,h),h,B.X,!0),!1)},
 vw(a,b,c,d){var s=null,r=A.a5(18),q=A.aJ(a.L(0.45),1.4),p=A.b([new A.av(1,B.t,a.L(0.12),B.f,12)],t.V),o=t.p
@@ -101058,7 +101058,7 @@ break}o=p.c
 o.toString
 n=A.aK5(o)
 s=3
-return A.n(A.vB(new A.nR("To: contact@gameflix.app\nSubject: [SUGGESTION GAMEFLIX] ("+p.e+")\n\n"+m)),$async$BJ)
+return A.n(A.vB(new A.nR("To: contact.erakiss@gmail.com\nSubject: [SUGGESTION GAMEFLIX] ("+p.e+")\n\n"+m)),$async$BJ)
 case 3:o=p.c
 if(o==null){s=1
 break}A.cj(o,!1).dh()
@@ -108774,7 +108774,7 @@ B.i=new A.vw(0,"none")
 B.z=new A.vw(1,"hardEdge")
 B.c6=new A.vw(2,"antiAlias")
 B.cR=new A.vw(3,"antiAliasWithSaveLayer")
-B.J_=new A.nR("contact@gameflix.app")
+B.J_=new A.nR("contact.erakiss@gmail.com")
 B.lq=new A.vA(0,"pasteable")
 B.lr=new A.vA(1,"unknown")
 B.a38=new A.tI(1,"closeButton")
