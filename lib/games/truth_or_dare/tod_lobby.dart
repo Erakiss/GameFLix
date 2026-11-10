@@ -8,6 +8,7 @@ import 'package:gameflix/models/game_card.dart';
 import 'package:gameflix/games/truth_or_dare/tod_game.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
+import 'package:gameflix/shared/widgets/neon_table_mat.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
 import 'package:gameflix/state/access_control_provider.dart';
 
@@ -273,13 +274,11 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         double width = constraints.maxWidth;
-        // --- NOUVEAU : On calcule la hauteur pour forcer le ratio 1000x400 (soit 2.5) ---
         double height = width / 2.5; 
         
         double cardWidth = 55; 
         double cardHeight = 85;
 
-        // On crée la liste des decks actifs pour calculer les positions
         List<String> activeDecks = [];
         if (_useSoft) activeDecks.add('SOFT');
         if (_useFun) activeDecks.add('FUN');
@@ -290,30 +289,20 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
           tag: 'tapis_hero', 
           child: Material(
             color: Colors.transparent,
-            child: Container(
-              height: height, // Utilise la hauteur mathématique parfaite
+            child: NeonTableMat(
               width: width,
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(13),
-                border: Border.all(color: Colors.white24, width: 2),
-                // --- NOUVEAU : Ton image dédiée au lobby ---
-                image: const DecorationImage(image: AssetImage('assets/tapis_lobby.png'), fit: BoxFit.cover),
-                boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 15, offset: Offset(0, 5))]
-              ),
+              height: height,
               child: Stack(
                 children: ['SOFT', 'FUN', 'HOT', 'CUSTOM'].map((deck) {
                   bool isActive = activeDecks.contains(deck);
                   int activeIndex = activeDecks.indexOf(deck);
                   
-                  // Calcul de la position X
                   double leftPos = isActive 
                     ? ((width / (activeDecks.length + 1)) * (activeIndex + 1)) - (cardWidth / 2)
                     : (width / 2) - (cardWidth / 2); 
                   
-                  // --- NOUVEAU : Centrage vertical parfait selon la nouvelle hauteur ---
                   double activeTopPos = (height - cardHeight) / 2;
-                  double inactiveTopPos = height + 50.0; // Sort par le bas
+                  double inactiveTopPos = height + 50.0;
                   
                   double topPos = isActive ? activeTopPos : inactiveTopPos;
 

@@ -30,6 +30,7 @@ class NhieLobbyScreen extends StatefulWidget {
 class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
   List<NhieCard> _allCards = [];
   bool _isSoftSelected = true;
+  bool _isFunSelected = true;
   bool _isGeekSelected = true;
   bool _isHotSelected = false;
 
@@ -52,6 +53,9 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
     List<NhieCard> deck = [];
     if (_isSoftSelected) {
       deck.addAll(_allCards.where((c) => c.difficulty == 'SOFT'));
+    }
+    if (_isFunSelected) {
+      deck.addAll(_allCards.where((c) => c.difficulty == 'FUN'));
     }
     if (_isGeekSelected) {
       deck.addAll(_allCards.where((c) => c.difficulty == 'GEEK'));
@@ -110,8 +114,14 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                   onChanged: (val) => setState(() => _isSoftSelected = val),
                 ),
                 NeonCategorySwitch(
+                  title: 'FUN',
+                  color: Colors.amberAccent,
+                  value: _isFunSelected,
+                  onChanged: (val) => setState(() => _isFunSelected = val),
+                ),
+                NeonCategorySwitch(
                   title: 'GEEK',
-                  color: Colors.orangeAccent,
+                  color: Colors.purpleAccent,
                   value: _isGeekSelected,
                   onChanged: (val) => setState(() => _isGeekSelected = val),
                 ),

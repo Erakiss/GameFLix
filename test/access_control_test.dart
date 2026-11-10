@@ -65,6 +65,41 @@ void main() {
       expect(access.temporarilyUnlockedPacks, isEmpty);
     });
 
+    test('activateOneHourPass active le pass 1H et respecte la règle d\'unicité par appareil', () async {
+      expect(access.isPass1hActive, isFalse);
+      expect(access.hasUsedOneHourTrial, isFalse);
+      expect(access.canAccess('tod_hot', isPremium: true), isFalse);
+
+      // 1. Activation initiale du pass 1H
+      final bool activated = await access.activateOneHourPass();
+      expect(activated, isTrue);
+      expect(access.isPass1hActive, isTrue);
+      expect(access.hasUsedOneHourTrial, isTrue);
+      expect(access.canAccess('tod_hot', isPremium: true), isTrue);
+      expect(access.canAccess('nhie_hot', isPremium: true), isTrue);
+
+      // 2. Simulation de l'expiration du pass
+      access.setPass1hForTest(
+        expiresAt: DateTime.now().subtract(const Duration(minutes: 1)),
+        hasUsed: true,
+      );
+      expect(access.isPass1hActive, isFalse);
+      expect(access.hasUsedOneHourTrial, isTrue);
+      expect(access.canAccess('tod_hot', isPremium: true), isFalse);
+
+      // 3. Tentative de réactivation sur le même appareil : doit échouer
+      final bool secondAttempt = await access.activateOneHourPass();
+      expect(secondAttempt, isFalse);
+      expect(access.isPass1hActive, isFalse);
+    });
+
+    test('purchasePlan simule l\'abonnement en environnement de test', () async {
+      expect(access.isSubscribed, isFalse);
+      final success = await access.purchasePlan(isAnnual: true);
+      expect(success, isTrue);
+      expect(access.isSubscribed, isTrue);
+    });
+
     test('redeemPromoCode avec ErakissLeBon débloque le mode pro éternellement', () async {
       expect(access.isSubscribed, isFalse);
 
@@ -114,8 +149,9 @@ void main() {
   });
 
   group('UnlockPackSheet Widget Tests', () {
-    testWidgets('affiche les deux options de déblocage (Pub 1 partie et Pass VIP)', (WidgetTester tester) async {
+    testWidgets('affiche les options Duo VIP (Annuel -70% et Hebdo), Pass 1H et Restaurer mes achats', (WidgetTester tester) async {
       final access = AccessControlProvider.instance;
+      access.clearForTest();
 
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
@@ -145,9 +181,51 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('DÉBLOQUER PACK HOT & PIQUANT'), findsOneWidget);
-      expect(find.text('DÉBLOQUER 1 PARTIE'), findsOneWidget);
-      expect(find.text('PASS VIP ILLIMITÉ'), findsOneWidget);
+      expect(find.text('PASS SOIRÉE 1H GRATUIT'), findsOneWidget);
+      expect(find.text('PASS ANNUEL CLUB'), findsOneWidget);
+      expect(find.text('-70%'), findsOneWidget);
+      expect(find.text('PASS HEBDOMADAIRE'), findsOneWidget);
+      expect(find.text('Restaurer mes achats'), findsOneWidget);
       expect(find.text('Plus tard'), findsOneWidget);
+    });
+
+    testWidgets('affiche le statut ESSAI 1H DÉJÀ UTILISÉ quand l\'essai a déjà été consommé', (WidgetTester tester) async {
+      final access = AccessControlProvider.instance;
+      access.clearForTest();
+      access.setPass1hForTest(
+        expiresAt: DateTime.now().subtract(const Duration(hours: 2)),
+        hasUsed: true,
+      );
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: access,
+          child: MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    UnlockPackSheet.show(
+                      context,
+                      packId: 'nhie_hot',
+                      packTitle: 'Pack Hot & Piquant',
+                      onUnlocked: () {},
+                    );
+                  },
+                  child: const Text('Ouvrir'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('ESSAI 1H DÉJÀ UTILISÉ'), findsOneWidget);
+      expect(find.text('PASS ANNUEL CLUB'), findsOneWidget);
+      expect(find.text('PASS HEBDOMADAIRE'), findsOneWidget);
     });
   });
 }

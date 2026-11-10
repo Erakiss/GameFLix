@@ -10,6 +10,8 @@ import 'package:gameflix/models/game_config.dart';
 import 'package:gameflix/services/audio_service.dart';
 import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/shared/widgets/hub_banner_ad.dart';
+import 'package:gameflix/shared/widgets/hub_in_wheel_ad_card.dart';
+import 'package:gameflix/shared/widgets/pass_1h_countdown_badge.dart';
 import 'package:gameflix/shared/widgets/procedural_neon_background.dart';
 import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 import 'package:gameflix/state/players_controller.dart';
@@ -274,6 +276,12 @@ class _GameFlixHubState extends State<GameFlixHub> {
               ),
         centerTitle: true,
         actions: [
+          // Badge néon compte à rebours si le Pass Soirée 1H est actif
+          const Center(
+            child: Pass1hCountdownBadge(),
+          ),
+          const SizedBox(width: 6),
+
           // 4. Élément Pro / Pro-actif ultra-minimaliste : Couronne à lignes fines sans texte ni boîte
           Center(
             child: GestureDetector(
@@ -326,6 +334,9 @@ class _GameFlixHubState extends State<GameFlixHub> {
   }
 
   Widget _buildCatalogue(AppStrings strings) {
+    final accessCtrl = context.watch<AccessControlProvider>();
+    final bool showInWheelAd = !accessCtrl.isSubscribed && !accessCtrl.isPass1hActive;
+
     // 1. On garde ton empreinte verticale fixe de 170px qui t'allait bien.
     const double fixedRenderHeight = 170.0;
 
@@ -334,6 +345,37 @@ class _GameFlixHubState extends State<GameFlixHub> {
     // Largeur = 170.0 / 0.45 = ~377.78px.
     const double targetImageRatio = 0.45; // Height is 0.45 of Width
     double calculatedCardWidth = fixedRenderHeight / targetImageRatio; // Target width based on target height.
+
+    final List<Widget> wheelItems = [];
+    for (int i = 0; i < GameRegistry.games.length; i++) {
+      final game = GameRegistry.games[i];
+      wheelItems.add(
+        _buildWheelCard(
+          subtitle: strings.gameSubtitle(game.id, game.subtitle),
+          newBadgeLabel: strings.newBadge,
+          imagePath: game.bannerPath,
+          isNew: game.isNew,
+          isLocked: game.isLocked,
+          cardRenderHeight: fixedRenderHeight,
+          cardRenderWidth: calculatedCardWidth,
+          onTap: () => _launchGame(
+            minPlayers: game.minPlayers,
+            maxPlayers: game.maxPlayers,
+            builder: game.builder,
+          ),
+        ),
+      );
+
+      // Insertion de la carte sponsorisée juste après le 4e jeu (index 3)
+      if (showInWheelAd && i == 3) {
+        wheelItems.add(
+          HubInWheelAdCard(
+            cardRenderHeight: fixedRenderHeight,
+            cardRenderWidth: calculatedCardWidth,
+          ),
+        );
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,22 +400,7 @@ class _GameFlixHubState extends State<GameFlixHub> {
             perspective: 0.005,
             diameterRatio: 2.0,
             squeeze: 1.05,
-            children: GameRegistry.games.map((game) {
-              return _buildWheelCard(
-                subtitle: strings.gameSubtitle(game.id, game.subtitle),
-                newBadgeLabel: strings.newBadge,
-                imagePath: game.bannerPath,
-                isNew: game.isNew,
-                isLocked: game.isLocked,
-                cardRenderHeight: fixedRenderHeight,
-                cardRenderWidth: calculatedCardWidth,
-                onTap: () => _launchGame(
-                  minPlayers: game.minPlayers,
-                  maxPlayers: game.maxPlayers,
-                  builder: game.builder,
-                ),
-              );
-            }).toList(),
+            children: wheelItems,
           ),
         ),
         const HubBannerAd(),

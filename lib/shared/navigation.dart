@@ -12,7 +12,9 @@ const String kHubRouteName = '/hub';
 /// 2. Déclenche l'affichage d'un interstitiel si le cooldown de 4 minutes est respecté.
 /// 3. Dépile la navigation jusqu'à la route racine du Hub.
 void goToHub(BuildContext context) {
-  AccessControlProvider.instance.resetTemporaryUnlocks();
-  AdManager.instance.showInterstitialIfAllowed();
+  final access = AccessControlProvider.instance;
+  access.resetTemporaryUnlocks();
+  final isAdFree = access.isSubscribed || access.isPass1hActive;
+  AdManager.instance.showInterstitialIfAllowed(isVipOrPassActive: isAdFree);
   Navigator.of(context).popUntil((route) => route.settings.name == kHubRouteName || route.isFirst);
 }

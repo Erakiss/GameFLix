@@ -141,4 +141,46 @@ void main() {
     expect(playersCtrl.players.first.attractedTo, {'M', 'F'});
     expect(find.text('→ ♂♀'), findsOneWidget);
   });
+
+  testWidgets('Hub Wheel : affiche HubInWheelAdCard pour utilisateur gratuit et la masque pour VIP / Pass 1H', (tester) async {
+    final playersCtrl = PlayersController();
+    await playersCtrl.load();
+    await LocaleController.instance.load();
+    final access = AccessControlProvider.instance;
+
+    // 1. Utilisateur gratuit -> Carte sponsorisée présente dans la roue (faire défiler vers le bas)
+    access.clearForTest();
+    await tester.pumpWidget(buildTestApp(playersCtrl));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.drag(find.byType(ListWheelScrollView), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('hub_in_wheel_ad_card')), findsOneWidget);
+    expect(find.text('ESPACE SPONSOR'), findsOneWidget);
+
+    // 2. Utilisateur abonné VIP -> Carte sponsorisée absente même après défilement
+    access.setSubscribedForTest(true);
+    await tester.pumpWidget(buildTestApp(playersCtrl));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.drag(find.byType(ListWheelScrollView), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('hub_in_wheel_ad_card')), findsNothing);
+
+    // 3. Utilisateur sous Pass Soirée 1H -> Carte sponsorisée absente
+    access.clearForTest();
+    access.setPass1hForTest(
+      expiresAt: DateTime.now().add(const Duration(minutes: 50)),
+      hasUsed: true,
+    );
+    await tester.pumpWidget(buildTestApp(playersCtrl));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.drag(find.byType(ListWheelScrollView), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('hub_in_wheel_ad_card')), findsNothing);
+  });
 }

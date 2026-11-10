@@ -18,6 +18,7 @@ dependencies:
   provider: ^6.1.5+1
   google_mobile_ads: ^9.2.0
   purchases_flutter: ^10.18.1
+  crypto: ^3.0.8
 
 dev_dependencies:
   flutter_test:

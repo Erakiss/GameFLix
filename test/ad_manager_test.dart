@@ -1,8 +1,10 @@
 // test/ad_manager_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/shared/widgets/hub_banner_ad.dart';
+import 'package:gameflix/state/access_control_provider.dart';
 
 void main() {
   group('AdManager Unit Tests', () {
@@ -12,6 +14,20 @@ void main() {
       await adManager.init();
       expect(adManager.isInitialized, isTrue);
       expect(adManager.cooldownDuration, equals(const Duration(minutes: 4)));
+    });
+
+    test('isVipOrPassActive bloque tout interstitiel même si le cooldown est écoulé', () {
+      final baseTime = DateTime(2026, 1, 1, 20, 0, 0);
+      adManager.setLastInterstitialShownAtForTest(baseTime);
+
+      final tenMinutesLater = baseTime.add(const Duration(minutes: 10));
+      expect(adManager.canShowInterstitial(now: tenMinutesLater), isTrue);
+
+      final result = adManager.showInterstitialIfAllowed(
+        now: tenMinutesLater,
+        isVipOrPassActive: true,
+      );
+      expect(result, isFalse);
     });
 
     test('respect strict du cooldown de 4 minutes pour les interstitiels', () {
@@ -70,9 +86,12 @@ void main() {
   group('HubBannerAd Widget Tests', () {
     testWidgets('HubBannerAd se replie gracieusement en environnement test sans crash', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: HubBannerAd(),
+        ChangeNotifierProvider.value(
+          value: AccessControlProvider.instance,
+          child: const MaterialApp(
+            home: Scaffold(
+              body: HubBannerAd(),
+            ),
           ),
         ),
       );
@@ -80,6 +99,26 @@ void main() {
       await tester.pumpAndSettle();
 
       // En environnement de test, isSupportedPlatform est false -> SizedBox.shrink()
+      expect(find.byType(HubBannerAd), findsOneWidget);
+      expect(find.byType(SizedBox), findsWidgets);
+    });
+
+    testWidgets('HubBannerAd retourne SizedBox.shrink et se supprime pour utilisateur VIP', (WidgetTester tester) async {
+      final access = AccessControlProvider.instance;
+      access.setSubscribedForTest(true);
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: access,
+          child: const MaterialApp(
+            home: Scaffold(
+              body: HubBannerAd(),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
       expect(find.byType(HubBannerAd), findsOneWidget);
       expect(find.byType(SizedBox), findsWidgets);
     });

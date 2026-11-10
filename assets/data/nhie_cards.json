@@ -1,34 +1,922 @@
 [
-  {"difficulty": "SOFT", "content": "Je n'ai jamais menti pour aider un pote à se sortir d'une grosse galère."},
-  {"difficulty": "SOFT", "content": "Je n'ai jamais vomi dans la voiture ou chez un ami après une soirée."},
-  {"difficulty": "SOFT", "content": "Je n'ai jamais eu honte d'écouter une musique en public au point de baisser le son de peur que ça fuite."},
-  {"difficulty": "SOFT", "content": "Je n'ai jamais fait semblant de dormir pour éviter de parler à quelqu'un."},
-  {"difficulty": "SOFT", "content": "Je n'ai jamais fouillé dans le téléphone de quelqu'un d'autre en cachette."},
-  {"difficulty": "SOFT", "content": "Je n'ai jamais eu le crâne rasé ou une coupe de cheveux catastrophique que j'ai regrettée en pleurant."},
-  {"difficulty": "SOFT", "content": "Je n'ai jamais utilisé l'excuse \"j'ai plus de batterie\" alors que j'étais chez moi sur mon chargeur."},
-  {"difficulty": "SOFT", "content": "Je n'ai jamais ri à une blague sans la comprendre juste pour ne pas avoir l'air bête."},
-  {"difficulty": "SOFT", "content": "Je n'ai jamais supprimé un post ou une photo sur les réseaux sociaux parce qu'il n'avait pas assez de likes."},
-  {"difficulty": "SOFT", "content": "Je n'ai jamais espionné un de mes ex sur les réseaux avec un faux compte."},
-
-  {"difficulty": "GEEK", "content": "Je n'ai jamais ragé au point de casser une souris, un clavier ou une manette."},
-  {"difficulty": "GEEK", "content": "Je n'ai jamais passé plus de 12 heures d'affilée sur le même jeu vidéo."},
-  {"difficulty": "GEEK", "content": "Je n'ai jamais menti sur mon rang (Elo/Rank) pour impressionner quelqu'un."},
-  {"difficulty": "GEEK", "content": "Je n'ai jamais dépensé une somme inavouable pour un skin ou un cosmétique totalement inutile en jeu."},
-  {"difficulty": "GEEK", "content": "Je n'ai jamais lâché un \"GG EZ\" à la fin d'une partie alors que je me suis fait carry de A à Z."},
-  {"difficulty": "GEEK", "content": "Je n'ai jamais regardé toute une saison d'un anime en une seule nuit sans dormir."},
-  {"difficulty": "GEEK", "content": "Je n'ai jamais annulé une sortie avec des potes juste parce qu'un nouveau jeu ou une grosse mise à jour sortait."},
-  {"difficulty": "GEEK", "content": "Je n'ai jamais installé de mods NSFW (limites) sur Skyrim, Les Sims ou un autre jeu."},
-  {"difficulty": "GEEK", "content": "Je n'ai jamais eu un crush secret sur un personnage fictif de jeu vidéo ou d'anime."},
-  {"difficulty": "GEEK", "content": "Je n'ai jamais raté un examen ou séché les cours parce que j'avais fait une nuit blanche sur le PC."},
-
-  {"difficulty": "HOT", "content": "Je n'ai jamais envoyé de photo ou vidéo très \"chaude\" à quelqu'un."},
-  {"difficulty": "HOT", "content": "Je n'ai jamais fait l'amour dans un lieu public où je risquais de me faire surprendre."},
-  {"difficulty": "HOT", "content": "Je n'ai jamais eu de pensées très intimes pour le ou la partenaire d'un de mes amis."},
-  {"difficulty": "HOT", "content": "Je n'ai jamais fantasmé sur un de mes professeurs ou un(e) supérieur(e) hiérarchique."},
-  {"difficulty": "HOT", "content": "Je n'ai jamais eu de rapport sexuel dès le premier soir après une rencontre."},
-  {"difficulty": "HOT", "content": "Je n'ai jamais menti sur mon \"body count\" (nombre de partenaires)."},
-  {"difficulty": "HOT", "content": "Je n'ai jamais simulé ou exagéré mon plaisir pour faire plaisir à l'autre ou pour que ça se termine."},
-  {"difficulty": "HOT", "content": "Je n'ai jamais été surpris(e) par quelqu'un en plein acte (parents, colocs, amis...)."},
-  {"difficulty": "HOT", "content": "Je n'ai jamais expérimenté le bondage, les menottes ou d'autres pratiques BDSM."},
-  {"difficulty": "HOT", "content": "Je n'ai jamais utilisé d'application de rencontres uniquement dans le but de trouver un plan d'un soir."}
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais menti pour aider un pote à se sortir d'une grosse galère."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais vomi dans la voiture ou chez un ami après une soirée."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais eu honte d'écouter une musique en public au point de baisser le son de peur que ça fuite."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais fait semblant de dormir pour éviter de parler à quelqu'un."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais fouillé dans le téléphone de quelqu'un d'autre en cachette."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais eu le crâne rasé ou une coupe de cheveux catastrophique que j'ai regrettée en pleurant."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais utilisé l'excuse \"j'ai plus de batterie\" alors que j'étais chez moi sur mon chargeur."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais ri à une blague sans la comprendre juste pour ne pas avoir l'air bête."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais supprimé un post ou une photo sur les réseaux sociaux parce qu'il n'avait pas assez de likes."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais espionné un de mes ex sur les réseaux avec un faux compte."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais ragé au point de casser une souris, un clavier ou une manette."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais passé plus de 12 heures d'affilée sur le même jeu vidéo."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais menti sur mon rang (Elo/Rank) pour impressionner quelqu'un."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais dépensé une somme inavouable pour un skin ou un cosmétique totalement inutile en jeu."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais lâché un \"GG EZ\" à la fin d'une partie alors que je me suis fait carry de A à Z."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais regardé toute une saison d'un anime en une seule nuit sans dormir."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais annulé une sortie avec des potes juste parce qu'un nouveau jeu ou une grosse mise à jour sortait."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais installé de mods NSFW (limites) sur Skyrim, Les Sims ou un autre jeu."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais eu un crush secret sur un personnage fictif de jeu vidéo ou d'anime."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais raté un examen ou séché les cours parce que j'avais fait une nuit blanche sur le PC."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais envoyé de photo ou vidéo très \"chaude\" à quelqu'un."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour dans un lieu public où je risquais de me faire surprendre."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de pensées très intimes pour le ou la partenaire d'un de mes amis."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur un de mes professeurs ou un(e) supérieur(e) hiérarchique."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de rapport sexuel dès le premier soir après une rencontre."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais menti sur mon \"body count\" (nombre de partenaires)."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais simulé ou exagéré mon plaisir pour faire plaisir à l'autre ou pour que ça se termine."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais été surpris(e) par quelqu'un en plein acte (parents, colocs, amis...)."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais expérimenté le bondage, les menottes ou d'autres pratiques BDSM."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais utilisé d'application de rencontres uniquement dans le but de trouver un plan d'un soir."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais fait semblant de chercher un objet que je savais pertinemment avoir cassé ou jeté."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais salué avec enthousiasme un parfait inconnu dans la rue en le prenant pour quelqu'un d'autre."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais mangé le reste du plat de quelqu'un dans le frigo sans rien dire."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais fait semblant de téléphoner pour esquiver quelqu'un que je croisais dans la rue."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais menti sur mon âge pour payer moins cher une entrée ou un billet."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais reniflé mes propres vêtements pour vérifier s'ils étaient encore portables."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais fait semblant d'écouter une conversation en acquiesçant alors que j'étais ailleurs."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais prétendu ne pas avoir vu un message alors que je l'avais lu sur les notifications."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais cherché mes lunettes ou mon téléphone alors que je les avais directement dans la main."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais dansé ou chanté comme une rockstar sous la douche en pensant être seul."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais recraché discrètement un aliment dégoûtant dans ma serviette lors d'un repas de famille."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais appuyé 10 fois d'affilée sur le bouton de l'ascenseur en croyant qu'il viendrait plus vite."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais fait tomber de la nourriture par terre et appliqué la règle des 3 secondes pour la manger."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais inventé un mot en jouant au Scrabble ou au Petit Bac en espérant que ça passe."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais ri tout seul dans les transports en commun en repensant à un souvenir débile."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais vérifié derrière le rideau de douche par peur qu'un tueur s'y cache."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais fait semblant d'être au téléphone pour éviter qu'on me démarche dans la rue."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais regardé un épisode entier d'une série sans réaliser que j'étais à la mauvaise saison."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais perdu mon chemin dans un supermarché ou un magasin de bricolage."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais jeté un emballage à la poubelle avant de devoir le repêcher pour relire le temps de cuisson."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais accusé mon chien ou mon chat pour un bruit suspect ou une bêtise que j'avais faite."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais acheté un livre ou un cours en ligne sans jamais l'ouvrir."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais fait semblant de comprendre une explication scientifique ou technique complexe."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais couru pour attraper un bus ou un train et l'ai vu partir sous mes yeux."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais eu honte de ma démarche en croisant une baie vitrée reflétante."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais poussé une porte où il était écrit 'TIRER'."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais mis mon réveil à sonner toutes les 5 minutes pendant une heure."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais laissé couler l'eau du robinet juste pour faire semblant de me laver les mains."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais eu peur d'avaler un chewing-gum ou un pépin de pastèque."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais triché aux cartes pendant une partie avec des enfants."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais oublié le prénom de quelqu'un 5 secondes après qu'il s'est présenté."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais caché un vêtement tâché au fond du panier de linge pour éviter des reproches."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais vérifié si j'avais bien fermé ma porte à clé trois fois de suite."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais bu directement à la bouteille de lait ou de jus dans le frigo."
+  },
+  {
+    "difficulty": "SOFT",
+    "content": "Je n'ai jamais chanté à tue-tête des paroles de chanson en inventant complètement du yaourt."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais stalké le compte de l'ex de mon crush jusqu'à ses publications de 2018."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais prétendu être malade le lendemain d'une soirée pour esquiver les cours ou le travail."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais recraché discrètement un shot dégueulasse dans une plante ou un gobelet vide."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais embrassé quelqu'un dont j'ai oublié le prénom dès le lendemain matin."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais menti pour annuler des plans avec des amis et rester en pyjama devant Netflix."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais fait semblant d'être ivre pour justifier un comportement débile ou une déclaration."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais envoyé un message à mon ex tard dans la nuit sous l'effet de l'alcool."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais menti sur mon salaire ou mes études pour paraître plus intéressant en soirée."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais piqué les frites d'un pote dans son assiette dès qu'il a tourné le dos."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais liké par erreur une photo vieille de 4 ans sur le profil de quelqu'un en le stalkant."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais tenu la tête d'un ami en train de vomir au-dessus des toilettes."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais menti à un pote sur sa tenue ou sa coupe de cheveux pour ne pas le déprimer."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais dormi dans un endroit totalement improbable (baignoire, sol de cuisine, paillasson)."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais dragué quelqu'un uniquement pour qu'il me paie un verre ou me dépanne."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais pris un râteau magistral devant tous mes potes réunis."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais quitté une soirée à l'anglaise sans dire au revoir à personne."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais mangé un fast-food à 4h du matin assis par terre sur un trottoir."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais inventé un faux crush pour faire réagir quelqu'un d'autre."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais fait semblant d'adorer un artiste musical juste pour plaire à quelqu'un."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais eu de trou noir complet sur une partie de ma soirée."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais esquivé un contrôle de transports ou sauté un tourniquet de métro."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais envoyé une capture d'écran d'une conversation à la personne même de la conversation."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais pleuré en soirée pour une raison totalement absurde."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais emprunté un vêtement à un ami sans jamais le lui rendre."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais eu honte de revoir quelqu'un après ce que j'avais fait la veille en soirée."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais participé à un karaoké complètement sobre."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais inventé une excuse héroïque pour justifier un bleu ou une blessure ridicule."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais jugé les goûts musicaux de quelqu'un au point de lui retirer le câble Bluetooth."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais partagé un verre avec un parfait inconnu en boîte de nuit."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais renversé un verre plein sur le canapé ou le tapis de mon hôte."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais tenté de rentrer en boîte sans carte d'identité en négociant avec le videur."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais caché de la nourriture chez moi pour ne pas avoir à la partager avec mes colocs."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais été viré d'un bar ou d'un établissement de nuit."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais envoyé un vocal d'ivrogne incompréhensible de plus de 2 minutes."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais dormi dans mes vêtements de soirée avec mes chaussures aux pieds."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais fait semblant d'aimer un film ou une série pour paraître cultivé."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais renversé de la sauce sur un vêtement blanc 5 minutes avant de partir en soirée."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais mangé des pâtes au beurre trois jours de suite par flemme totale de faire les courses."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais ri à une blague déplacée sans pouvoir m'arrêter devant des gens sérieux."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais esquivé l'appel d'un ami parce que j'avais la flemme de parler."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais oublié l'anniversaire d'un ami très proche au point de paniquer le jour même."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais squatté le compte Netflix ou Spotify de quelqu'un sans son autorisation."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais continué à défendre une idée dans un débat alors que je savais que j'avais tort."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais fait tomber mon téléphone directement sur mon visage en étant allongé dans mon lit."
+  },
+  {
+    "difficulty": "FUN",
+    "content": "Je n'ai jamais été à une soirée où je ne connaissais absolument personne d'autre que l'hôte."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais essayé de lancer un Kamehameha ou d'utiliser la Force quand j'étais seul chez moi."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais renommé un Pokémon avec le nom d'un pote ou d'un prof pour rigoler."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais passé plus de 2 heures à créer le visage de mon personnage dans un RPG."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais insulté un écran ou jeté ma manette sur le canapé après avoir perdu un match."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais prétendu être malade pour jouer à la sortie d'un jeu vidéo très attendu."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais débattu avec véhémence pour savoir qui gagnerait entre Goku et Superman."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais regardé l'intégralité d'un animé ou d'une trilogie de films en une seule nuit blanche."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais pleuré devant la mort d'un personnage de manga ou de jeu vidéo."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais dépensé de l'argent réel pour une boîte mystère ou des skins virtuels."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais imité la voix de Batman ou de Gollum devant le miroir."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais triché sur Pokémon pour avoir tous les légendaires ou les Pokémon chromatiques (shinies)."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais appris par cœur des répliques entières d'un film culte (Kaamelott, Le Seigneur des Anneaux, Star Wars)."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais passé une journée entière en pyjama à regarder des vidéos de théories complotistes sur un animé."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais rejoué 50 fois le même boss de Dark Souls ou d'Elden Ring jusqu'à craquer mentalement."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais construit une maison ou une ville gigantesque dans Minecraft ou Les Sims avant de l'abandonner."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais chanté à tue-tête le générique français de Pokémon ou de Dragon Ball Z en soirée."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais accusé le lag ou ma manette pour justifier une défaite cuisante."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais rêvé que j'étais un personnage de jeu vidéo ou doté de super-pouvoirs."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais commandé une figurine collector ou une réplique d'épée en métal."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais regardé un let's play complet de 40 heures au lieu de jouer moi-même au jeu."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais essayé de faire un jutsu de Naruto avec mes doigts en cachette."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais installé un émulateur sur mon PC pour rejouer à des jeux de mon enfance."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais refusé d'aller me coucher parce que 'je ne peux pas sauvegarder en plein combat'."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais fait un test en ligne pour savoir dans quelle maison de Poudlard je serais envoyé."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais passé un week-end complet enfermé dans le noir à geek sans voir la lumière du jour."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais été spoilé sur la fin d'une série ou d'un manga et en ai voulu à la terre entière pendant 1 semaine."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais farmé un niveau pendant 10 heures d'affilée pour obtenir un objet ultra rare."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais tenté de reproduire une recette de cuisine vue dans un film ou un animé."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais eu honte du temps de jeu affiché sur mon profil Steam ou console."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais corrigé quelqu'un qui a confondu Link et Zelda."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais imité le bruit d'un sabre laser en tenant un rouleau d'essuie-tout ou un balai."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais fait semblant d'être occupé pour pouvoir continuer ma partie en ligne sans interruption."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais téléchargé un patch de traduction non officiel pour jouer à un jeu japonais non sorti en France."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais cherché la solution d'une énigme sur YouTube après 5 minutes de blocage."
+  },
+  {
+    "difficulty": "GEEK",
+    "content": "Je n'ai jamais possédé de cartes Pokémon rares soigneusement rangées sous pochette plastique."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur un ami ou une amie présent(e) dans cette pièce."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait semblant d'avoir froid pour me coller à quelqu'un ou obtenir un rapprochement physique."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais proposé un 'film à la maison' uniquement pour coucher avec quelqu'un."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais mangé ou léché quelque chose directement sur le corps d'un partenaire."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais testé les menottes, les yeux bandés ou d'autres accessoires BDSM."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec plus de 2 personnes différentes dans la même semaine."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de pensées très chaudes pour un collègue de travail ou un supérieur."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour dans une voiture garée dans un endroit discret."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais envoyé de photo de moi totalement nu(e) à quelqu'un."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec quelqu'un dont je ne connaissais le prénom que depuis quelques heures."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais simulé un orgasme de manière théâtrale."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur le ou la partenaire d'un de mes amis."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour sur une plage ou dans l'eau."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec un de mes ex après notre rupture définitive."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de plan à trois ou participé à une soirée libertine."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais utilisé d'huile de massage ou de bougie spéciale pour faire monter la température."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu d'accident gênant (bruit suspect, crampe, chute) en plein rapport sexuel."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais été surpris(e) par mes parents ou des amis en plein préliminaire."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour dans les toilettes d'un bar, d'un avion ou d'une boîte de nuit."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais pratiqué de jeux de rôle (infirmière, prof, policier) sous la couette."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de fessée ou de tirage de cheveux consenti pendant l'amour."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais embrassé deux personnes différentes au cours de la même soirée."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur une personne du même sexe."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec un voisin ou une voisine d'immeuble."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais regardé du porno avec mon/ma partenaire pour nous inspirer."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour en sachant que quelqu'un pouvait nous entendre dans la pièce d'à côté."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais testé une position acrobatique trouvée sur Internet."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais embrassé quelqu'un juste pour rendre jalouse une autre personne."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de suçon visible que j'ai dû cacher avec un col roulé ou du maquillage."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais envoyé de message coquin alors que j'étais en réunion ou en plein cours."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais possédé plus de deux sex-toys chez moi."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais mordu quelqu'un jusqu'à laisser une marque visible."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait de sextape ou pris de vidéo intime de mes ébats."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec quelqu'un uniquement par vengeance ou rancœur."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu un plan cul régulier avec qui je m'étais juré de ne jamais avoir de sentiments."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour dans les escaliers ou le hall d'un immeuble."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais été attaché(e) au lit avec des menottes ou des cordes."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais utilisé de la chantilly, du chocolat ou des aliments sur le corps d'un partenaire."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur un professeur ou une institutrice."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec quelqu'un sur mon lieu de travail ou dans les vestiaires."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais pratiqué l'échangisme ou fréquenté un sauna coquin."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de relation intime avec une personne ayant plus de 10 ans d'écart avec moi."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour dans un cinéma pendant la séance."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais envoyé de sexto très explicite pendant un repas de famille."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur la mère ou le père d'un de mes amis."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour dans un ascenseur entre deux étages."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais utilisé d'objets du quotidien détournés en sex-toys."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec deux personnes différentes en moins de 48 heures."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait semblant de dormir pour éviter un rapport sexuel."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de fessée qui m'a laissé des marques rouges le lendemain."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais embrassé quelqu'un dans cette pièce sur la bouche."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour sur une table ou un plan de travail de cuisine."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur un ou une collègue pendant une réunion."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais pratiqué de préliminaires dans une cabine d'essayage."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais reçu ou donné un suçon sur une zone intime non visible."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec quelqu'un uniquement parce qu'il ou elle avait un corps de rêve."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais été surpris(e) en train de me masturber par un proche."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais envoyé de photo osée sur Snapchat en mode vue unique."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu envie d'essayer le triolisme avec deux personnes de mon entourage."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais mordu un partenaire jusqu'à ce qu'il crie de plaisir ou de douleur."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour dans un train ou dans un avion."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais utilisé un bandeau pour priver un partenaire de la vue pendant l'acte."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais été incapable d'avoir une érection ou de mouiller à cause du stress ou de l'alcool."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur le médecin ou le dentiste qui m'examinait."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais testé la levrette contre une vitre ou un miroir."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais gardé mes chaussettes pendant un rapport sexuel complet."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait de jeu de rôle coquin avec déguisement ou uniforme."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais été réveillé(e) par une gâterie matinale sous la couette."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour dans un parc ou un jardin public la nuit."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec quelqu'un sans aucune protection lors d'une pulsion."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur quelqu'un en couple alors que je connaissais son partenaire."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de crampe musculaire en pleine position acrobatique au lit."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour sur le capot ou à l'arrière d'une voiture."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais utilisé de glaçon pour stimuler les zones érogènes d'un partenaire."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec quelqu't un dans la chambre de ses parents."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais dit le mauvais prénom pendant un moment d'intimité torride."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais pratiqué de dirty talk très vulgaire au creux de l'oreille."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu de relation intime dans une tente en camping ou en festival."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais commandé un sex-toy en livraison discrète sur Internet."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour devant une baie vitrée ouverte sans volets."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fantasmé sur une célébrité au point d'en rêver la nuit."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais couché avec quelqu'un pour me venger d'une infidélité."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais tiré les cheveux d'un partenaire avec force pendant l'orgasme."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais fait l'amour dans un jacuzzi ou un bain moussant à deux."
+  },
+  {
+    "difficulty": "HOT",
+    "content": "Je n'ai jamais eu un plan d'un soir tellement marquant que j'y pense encore parfois."
+  }
 ]

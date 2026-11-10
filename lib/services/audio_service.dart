@@ -30,6 +30,9 @@ enum SoundEffect {
 
   /// Glissement de carte physique (Action ou Vérité / Tu préfères)
   cardSlide,
+
+  /// Mélange de cartes complet à la française (Action ou Vérité)
+  cardShuffle,
 }
 
 // --- SERVICE AUDIO GLOBAL ---
@@ -250,6 +253,8 @@ class AudioService extends ChangeNotifier with WidgetsBindingObserver {
         return 'audio/sfx_suspense.ogg';
       case SoundEffect.cardSlide:
         return 'audio/sfx_card_slide.ogg';
+      case SoundEffect.cardShuffle:
+        return 'audio/sfx_card_shuffle.wav';
     }
   }
 

@@ -2,6 +2,7 @@
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:gameflix/config/monetization_config.dart';
 
 // --- SERVICE CENTRALISÉ DE PUBLICITÉS ADMOB ---
 
@@ -19,8 +20,8 @@ class AdManager {
   bool _isInitialized = false;
   DateTime? _lastInterstitialShownAt;
 
-  /// Cooldown strict de 4 minutes entre deux interstitiels pour ne pas briser la soirée
-  Duration cooldownDuration = const Duration(minutes: 4);
+  /// Cooldown strict entre deux interstitiels pour ne pas briser la soirée
+  Duration cooldownDuration = MonetizationConfig.interstitialCooldown;
 
   InterstitialAd? _interstitialAd;
   bool _isInterstitialLoading = false;
@@ -49,34 +50,13 @@ class AdManager {
     return current.difference(_lastInterstitialShownAt!) >= cooldownDuration;
   }
 
-  // --- IDENTIFIANTS OFFICIELS DE TEST ADMOB ---
+  // --- IDENTIFIANTS ADMOB (TEST / PROD CONFIGURABLES) ---
 
-  String get bannerAdUnitId {
-    if (Platform.isAndroid) {
-      return 'ca-app-pub-3940256099942544/6300978111';
-    } else if (Platform.isIOS) {
-      return 'ca-app-pub-3940256099942544/2934735716';
-    }
-    return '';
-  }
+  String get bannerAdUnitId => MonetizationConfig.bannerAdUnitId;
 
-  String get interstitialAdUnitId {
-    if (Platform.isAndroid) {
-      return 'ca-app-pub-3940256099942544/1033173712';
-    } else if (Platform.isIOS) {
-      return 'ca-app-pub-3940256099942544/4411468910';
-    }
-    return '';
-  }
+  String get interstitialAdUnitId => MonetizationConfig.interstitialAdUnitId;
 
-  String get rewardedAdUnitId {
-    if (Platform.isAndroid) {
-      return 'ca-app-pub-3940256099942544/5224354917';
-    } else if (Platform.isIOS) {
-      return 'ca-app-pub-3940256099942544/1712485313';
-    }
-    return '';
-  }
+  String get rewardedAdUnitId => MonetizationConfig.rewardedAdUnitId;
 
   // --- INITIALISATION DU SDK ---
 
@@ -132,9 +112,16 @@ class AdManager {
     );
   }
 
-  /// Affiche l'interstitiel uniquement si le cooldown de 4 minutes est écoulé.
+  /// Affiche l'interstitiel uniquement si le cooldown de 4 minutes est écoulé
+  /// et si l'utilisateur n'est pas VIP ou sous Pass Soirée 1H actif.
   /// Retourne [true] si la publicité a été affichée, [false] sinon.
-  bool showInterstitialIfAllowed({DateTime? now}) {
+  bool showInterstitialIfAllowed({DateTime? now, bool isVipOrPassActive = false}) {
+    // 0. Si l'utilisateur est VIP ou a un pass 1h actif, pas de pub interstitielle
+    if (isVipOrPassActive) {
+      debugPrint('AdManager : Interstitiel ignoré (utilisateur VIP ou Pass 1H actif)');
+      return false;
+    }
+
     // 1. Contrôle strict du cooldown de 4 minutes
     if (!canShowInterstitial(now: now)) {
       debugPrint('AdManager : Interstitiel ignoré (cooldown de 4 min non écoulé)');
