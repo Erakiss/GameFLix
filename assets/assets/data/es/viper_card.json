@@ -1,0 +1,190 @@
+[
+  {
+    "title": "VERDAD",
+    "description": "¿Qué es lo más vergonzoso que has hecho en una fiesta?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "VERDAD",
+    "description": "Si tuvieras que intercambiar tu vida con uno de los jugadores de la mesa, ¿con quién sería y por qué?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "VERDAD",
+    "description": "¿Qué es lo que más te quita las ganas en alguien?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "VERDAD",
+    "description": "¿Alguna vez mentiste para librarte de salir con amigos? Si es así, ¿cuál fue la excusa?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "VERDAD",
+    "description": "¿Cuál es la peor manía o costumbre de alguno de los jugadores presentes?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "VERDAD",
+    "description": "¿Cuál es la peor mentira que te han contado? ¡Cuéntalo con detalle!",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "VERDAD",
+    "description": "¿Hay alguien en esta sala que al principio te cayera fatal y ahora te encante?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "RETO",
+    "description": "Dale un abrazo al jugador que va en último lugar para consolarlo.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "RETO",
+    "description": "Dale un masaje de 30 segundos al jugador de tu derecha.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "RETO (EL COCTELERO)",
+    "description": "¡Hora de lucirte! Prepara el próximo cóctel (o chupito) para el jugador que elijas.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "RETO",
+    "description": "Eres el camarero de la mesa durante los próximos 2 turnos. Tienes que servir a todos cuando lo pidan.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "RETO",
+    "description": "Imita al jugador más cercano a ti hasta tu próximo turno.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "RETO",
+    "description": "Enseña la última foto guardada en tu galería o bebe 2 tragos.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "BEBE",
+    "description": "¡El jugador en primer lugar tiene que beber 2 tragos contigo!",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "BEBE",
+    "description": "¡Buddy Shot! Elige un compañero de bebida: brindad y bebed 2 tragos juntos.",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "BEBE",
+    "description": "¡Haz beber 2 tragos a la persona más ruidosa de la mesa!",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "BEBE",
+    "description": "¡Reparte 2 tragos al jugador que conoces desde hace más tiempo!",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "BEBE",
+    "description": "¡Ronda general! Todo el mundo bebe 1 trago.",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "BEBE",
+    "description": "Si tienes más de 100 notificaciones sin leer en el móvil, ¡bebe 2 tragos!",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "PICANTE",
+    "description": "¿Quién en esta sala tiene más sex-appeal según tú? Hazle beber 2 tragos.",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "PICANTE",
+    "description": "¿Cuál es tu fantasía más inconfesable? Responde con sinceridad o bebe 3 tragos.",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "PICANTE",
+    "description": "Besa en el cuello al jugador que elijas (o bebed 2 tragos cada uno).",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "PICANTE",
+    "description": "¿Con qué persona presente aquí pasarías una noche de una sola vez?",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "PICANTE",
+    "description": "Haz un cumplido súper seductor mirando a los ojos al jugador de tu izquierda durante 10 segundos.",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "GLITCH",
+    "description": "¡Overclocking exitoso! Avanza 3 casillas.",
+    "type": "special",
+    "movement": 3
+  },
+  {
+    "title": "GLITCH",
+    "description": "Cortocircuito del sistema... Retrocede 3 casillas.",
+    "type": "special",
+    "movement": -3
+  },
+  {
+    "title": "GLITCH",
+    "description": "¡Brecha temporal! Impúlsate 5 casillas hacia delante.",
+    "type": "special",
+    "movement": 5
+  },
+  {
+    "title": "GLITCH",
+    "description": "Rollback del servidor. Retrocede 4 casillas.",
+    "type": "special",
+    "movement": -4
+  },
+  {
+    "title": "GLITCH",
+    "description": "¡Teletransporte cuántico! Intercambia tu posición en el tablero con el jugador más atrasado.",
+    "type": "special",
+    "movement": 0
+  },
+  {
+    "title": "GLITCH",
+    "description": "¡Doble Turno! ¡Bebe 1 trago y vuelve a tirar el dado inmediatamente!",
+    "type": "special",
+    "movement": 0,
+    "reroll": true
+  },
+  {
+    "title": "GLITCH",
+    "description": "¡Suero Antiveneno activado! Eres inmune a la próxima bajada (Serpiente o Portal Down).",
+    "type": "special",
+    "movement": 0,
+    "shield": true
+  }
+]

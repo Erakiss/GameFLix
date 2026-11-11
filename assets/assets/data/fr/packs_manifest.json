@@ -48,6 +48,14 @@
     "filePath": "assets/data/wyr_cards.json"
   },
   {
+    "id": "wyr_hot",
+    "gameId": "wyr",
+    "title": "Pack Hot & Piquant",
+    "description": "Dilemmes intimes et choix torrides pour pimenter la soirée.",
+    "isPremium": true,
+    "filePath": "assets/data/wyr_cards.json"
+  },
+  {
     "id": "code_classic",
     "gameId": "code",
     "title": "Pack Classique",
@@ -61,6 +69,14 @@
     "title": "Plateau Classique",
     "description": "Gages et cartes pour le plateau de l'enfer.",
     "isPremium": false,
+    "filePath": "assets/data/viper_card.json"
+  },
+  {
+    "id": "viper_hot",
+    "gameId": "viper",
+    "title": "Ambiance Hot & Spicy",
+    "description": "Vérités osées et défis torrides sur le plateau de l'enfer.",
+    "isPremium": true,
     "filePath": "assets/data/viper_card.json"
   }
 ]
