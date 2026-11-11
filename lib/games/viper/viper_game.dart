@@ -9,6 +9,9 @@ import 'package:gameflix/models/player.dart';
 import 'package:gameflix/services/audio_service.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/locale_controller.dart';
+import 'package:gameflix/l10n/strings_wyr_viper.dart';
 
 // --- MODES DU PLATEAU (EXPRESS 47, NORMAL 63, SPIRALE 90) ---
 enum ViperBoardMode {
@@ -698,6 +701,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
   TileAction? _currentAction;
 
   Completer<void>? _cardDismissed;
+  AppLocale? _lastBoardLocale;
 
   @override
   void initState() {
@@ -728,7 +732,9 @@ class _ViperGameScreenState extends State<ViperGameScreen>
       );
     }
 
-    _buildBoardLayout();
+    final initialStrings = AppStrings(LocaleController.instance.currentLocale);
+    _lastBoardLocale = initialStrings.locale;
+    _buildBoardLayout(initialStrings);
     _loadCards();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -770,12 +776,13 @@ class _ViperGameScreenState extends State<ViperGameScreen>
       );
     }
     if (!mounted) return;
+    final strings = AppStrings(LocaleController.instance.currentLocale);
     _safeSetState(
       () => _actionPool = pool.isEmpty
           ? [
               TileAction(
-                title: 'ERREUR',
-                description: 'Vérifie viper_card.json',
+                title: strings.viperErrorTitle,
+                description: strings.viperErrorDescription,
                 type: TileType.action,
               ),
             ]
@@ -840,7 +847,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
   }
 
   // --- GÉNÉRATION DU PLATEAU EN RUBAN NÉON CONTINU ---
-  void _buildBoardLayout() {
+  void _buildBoardLayout(AppStrings strings) {
     final List<Offset> positions = computeBoardGridPositions(widget.boardMode);
 
     final double stepX = _tileWidth;
@@ -873,7 +880,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
       if (i == 0) {
         neonColor = Colors.greenAccent;
         tileBackgroundColor = const Color(0xFF07221A);
-        tileText = 'START!';
+        tileText = strings.viperTileStart;
         centerIcon = const Icon(
           Icons.double_arrow_rounded,
           color: Colors.greenAccent,
@@ -882,7 +889,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
       } else if (i == positions.length - 1) {
         neonColor = Colors.amberAccent;
         tileBackgroundColor = const Color(0xFF241B06);
-        tileText = 'VICTOIRE';
+        tileText = strings.viperTileVictory;
         centerIcon = const Icon(
           Icons.emoji_events_rounded,
           color: Colors.amberAccent,
@@ -892,7 +899,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
         if (departureLadder.isLadder) {
           neonColor = const Color(0xFF00E676);
           tileBackgroundColor = const Color(0xFF082419);
-          tileText = _isSpiral ? 'PORTAIL +' : 'LADDER';
+          tileText = strings.viperTileConnectorUp(_isSpiral);
           centerIcon = _isSpiral
               ? const Icon(
                   Icons.toll_rounded,
@@ -906,7 +913,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
         } else {
           neonColor = const Color(0xFFE040FB);
           tileBackgroundColor = const Color(0xFF210A2B);
-          tileText = _isSpiral ? 'PORTAIL -' : 'SNAKE';
+          tileText = strings.viperTileConnectorDown(_isSpiral);
           centerIcon = _isSpiral
               ? const Icon(
                   Icons.cyclone_rounded,
@@ -921,7 +928,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
       } else if (arrivalLadder != null) {
         neonColor = arrivalLadder.color.withValues(alpha: 0.75);
         tileBackgroundColor = const Color(0xFF080C18);
-        tileText = 'ARRIVÉE';
+        tileText = strings.viperTileArrival;
         centerIcon = Icon(
           Icons.my_location_rounded,
           color: arrivalLadder.color.withValues(alpha: 0.85),
@@ -933,7 +940,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
           case TileType.special:
             neonColor = Colors.amberAccent;
             tileBackgroundColor = const Color(0xFF1D1708);
-            tileText = 'GLITCH';
+            tileText = strings.viperTileSpecial;
             centerIcon = const Icon(
               Icons.bolt_rounded,
               color: Colors.amberAccent,
@@ -943,7 +950,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
           case TileType.spicy:
             neonColor = const Color(0xFFFF2A85);
             tileBackgroundColor = const Color(0xFF220818);
-            tileText = 'SPICY';
+            tileText = strings.viperTileSpicy;
             centerIcon = const Icon(
               Icons.whatshot_rounded,
               color: Color(0xFFFF2A85),
@@ -953,7 +960,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
           case TileType.drink:
             neonColor = const Color(0xFF00E5FF);
             tileBackgroundColor = const Color(0xFF071B24);
-            tileText = 'DRINK';
+            tileText = strings.viperTileDrink;
             centerIcon = const Icon(
               Icons.local_bar_rounded,
               color: Color(0xFF00E5FF),
@@ -963,7 +970,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
           case TileType.question:
             neonColor = const Color(0xFF40C4FF);
             tileBackgroundColor = const Color(0xFF0A1426);
-            tileText = 'TRUTH';
+            tileText = strings.viperTileQuestion;
             centerIcon = const Icon(
               Icons.chat_bubble_rounded,
               color: Color(0xFF40C4FF),
@@ -973,7 +980,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
           case TileType.action:
             neonColor = const Color(0xFFFF5252);
             tileBackgroundColor = const Color(0xFF200B12);
-            tileText = 'DARE';
+            tileText = strings.viperTileAction;
             // Vrai visage de démon cartoon néon 😈
             centerIcon = const CartoonDemonIcon(
               color: Color(0xFFFF5252),
@@ -1149,14 +1156,14 @@ class _ViperGameScreenState extends State<ViperGameScreen>
         .where((l) => l.fromTile == currentPlayer.currentTileIndex)
         .firstOrNull;
 
+    final strings = AppStrings(LocaleController.instance.currentLocale);
+
     if (connector != null) {
       if (connector.isLadder) {
         // Montée : Gage / Shot offert aux autres joueurs
         final TileAction upCard = TileAction(
-          title: _isSpiral ? 'PORTAIL UP !' : 'GIFT A SHOT & MOVE UP!',
-          description: _isSpiral
-              ? 'Offre 1 gorgée (ou donne un mini-gage) au joueur de ton choix et franchis le portail vers l\'anneau intérieur !'
-              : 'Offre 1 gorgée (ou donne un mini-gage) au joueur de ton choix et grimpe vers le haut !',
+          title: strings.viperUpCardTitle(_isSpiral),
+          description: strings.viperUpCardDesc(_isSpiral),
           type: TileType.action,
         );
         if (!await _presentCardAndWait(upCard)) return;
@@ -1178,19 +1185,15 @@ class _ViperGameScreenState extends State<ViperGameScreen>
         if (currentPlayer.hasShield) {
           setState(() {
             currentPlayer.hasShield = false;
-            _statusBannerText = _isSpiral
-                ? '🌀 BOUCLIER : TÉLÉPORTATION ANNULÉE !'
-                : '🧪 ANTI-VENIN : DESCENTE ANNULÉE !';
+            _statusBannerText = strings.viperShieldBlockedBanner(_isSpiral);
             _statusBannerColor = Colors.greenAccent;
           });
           if (!await _wait(750)) return;
           setState(() => _statusBannerText = null);
         } else {
           final TileAction downCard = TileAction(
-            title: _isSpiral ? 'PORTAIL DOWN !' : 'TAKE A SHOT & SLIDE!',
-            description: _isSpiral
-                ? 'Bois 1 gorgée (ou accomplis un gage choisi par la table) : aspiré par le vortex vers l\'anneau extérieur !'
-                : 'Bois 1 gorgée (ou accomplis un gage choisi par la table) et redescends dans les profondeurs !',
+            title: strings.viperDownCardTitle(_isSpiral),
+            description: strings.viperDownCardDesc(_isSpiral),
             type: TileType.drink,
           );
           currentPlayer.sipsCount += 2;
@@ -1225,7 +1228,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
 
     if (grantedExtraRoll) {
       setState(() {
-        _statusBannerText = '🎲 DOUBLE TOUR : RELANCE LE DÉ !';
+        _statusBannerText = strings.viperDoubleTurnBanner;
         _statusBannerColor = Colors.amberAccent;
       });
       if (!await _wait(650)) return;
@@ -1296,9 +1299,10 @@ class _ViperGameScreenState extends State<ViperGameScreen>
     final int lastTile = _totalTiles - 1;
 
     if (action.shield) {
+      final strings = AppStrings(LocaleController.instance.currentLocale);
       setState(() {
         activePlayer.hasShield = true;
-        _statusBannerText = '🧪 SÉRUM ANTI-VENIN ACTIVÉ !';
+        _statusBannerText = strings.viperAntiVenomActivatedBanner;
         _statusBannerColor = Colors.greenAccent;
       });
       if (!await _wait(550)) return null;
@@ -1358,10 +1362,16 @@ class _ViperGameScreenState extends State<ViperGameScreen>
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+    if (_lastBoardLocale != strings.locale) {
+      _lastBoardLocale = strings.locale;
+      _buildBoardLayout(strings);
+    }
+
     if (_boardPlayers.isEmpty) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF050512),
-        body: Center(child: Text('Ajoute des joueurs !')),
+      return Scaffold(
+        backgroundColor: const Color(0xFF050512),
+        body: Center(child: Text(strings.viperAddPlayersMessage)),
       );
     }
 
@@ -1491,7 +1501,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
                         ),
                       ),
                       child: Text(
-                        'À ${currentPlayer.player.name.toUpperCase()} !',
+                        strings.viperTransitionBanner(currentPlayer.player.name),
                         style: TextStyle(
                           color: currentPlayer.color,
                           fontSize: 22,
@@ -1565,7 +1575,7 @@ class _ViperGameScreenState extends State<ViperGameScreen>
                         border: Border.all(color: Colors.white24),
                       ),
                       child: Text(
-                        '${widget.boardMode.label} • ${widget.deckMood.label}',
+                        '${strings.viperModeLabel(widget.boardMode)} • ${strings.viperMoodLabel(widget.deckMood)}',
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 11,
@@ -1617,7 +1627,9 @@ class _ViperGameScreenState extends State<ViperGameScreen>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Tour de ${currentPlayer.player.name}',
+                                strings.viperPlayerTurnLabel(
+                                  currentPlayer.player.name,
+                                ),
                                 style: TextStyle(
                                   color: currentPlayer.color,
                                   fontSize: 18,
@@ -1668,8 +1680,8 @@ class _ViperGameScreenState extends State<ViperGameScreen>
                                 const SizedBox(width: 15),
                                 Text(
                                   _phase != GamePhase.idle
-                                      ? 'EN COURS...'
-                                      : 'LANCER LE DÉ',
+                                      ? strings.viperRollingButton
+                                      : strings.viperRollDiceButton,
                                   style: TextStyle(
                                     color: _phase != GamePhase.idle
                                         ? Colors.grey

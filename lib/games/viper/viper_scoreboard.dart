@@ -8,6 +8,8 @@ import 'package:gameflix/services/audio_service.dart';
 import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/shared/widgets/neon_confetti.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_wyr_viper.dart';
 
 class ViperScoreboardScreen extends StatefulWidget {
   final List<BoardPlayer> boardPlayers;
@@ -60,6 +62,7 @@ class _ViperScoreboardScreenState extends State<ViperScoreboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     final sorted = List<BoardPlayer>.from(widget.boardPlayers)
       ..sort((a, b) => b.currentTileIndex.compareTo(a.currentTileIndex));
 
@@ -73,9 +76,9 @@ class _ViperScoreboardScreenState extends State<ViperScoreboardScreen> {
         elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text(
-          'FIN DE PARTIE',
-          style: TextStyle(
+        title: Text(
+          strings.viperGameOverTitle,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white70,
@@ -110,7 +113,7 @@ class _ViperScoreboardScreenState extends State<ViperScoreboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'VICTOIRE !',
+                      strings.viperVictoryTitle,
                       style: TextStyle(
                         color: winnerColor,
                         fontSize: 34,
@@ -179,7 +182,9 @@ class _ViperScoreboardScreenState extends State<ViperScoreboardScreen> {
                                       ),
                                     ),
                                     Text(
-                                      'Case ${bp.currentTileIndex}',
+                                      strings.viperTileNumber(
+                                        bp.currentTileIndex,
+                                      ),
                                       style: const TextStyle(
                                         color: Colors.white54,
                                         fontSize: 12,
@@ -217,9 +222,9 @@ class _ViperScoreboardScreenState extends State<ViperScoreboardScreen> {
                       Expanded(
                         child: OutlinedButton.icon(
                           icon: const Icon(Icons.refresh, color: Colors.amberAccent),
-                          label: const Text(
-                            'REJOUER',
-                            style: TextStyle(
+                          label: Text(
+                            strings.replayButton,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.amberAccent,
@@ -247,9 +252,9 @@ class _ViperScoreboardScreenState extends State<ViperScoreboardScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.home, color: Colors.black),
-                          label: const Text(
-                            'HUB',
-                            style: TextStyle(
+                          label: Text(
+                            strings.hubButton,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,

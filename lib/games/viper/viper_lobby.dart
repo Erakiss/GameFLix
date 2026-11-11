@@ -8,6 +8,8 @@ import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
 import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 import 'package:gameflix/state/access_control_provider.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_wyr_viper.dart';
 
 class ViperLobbyScreen extends StatefulWidget {
   final List<Player> players;
@@ -28,10 +30,11 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
     final bool canAccessHot =
         AccessControlProvider.instance.canAccess('viper_hot', isPremium: true);
     if (_selectedMood == ViperDeckMood.hot && !canAccessHot) {
+      final strings = AppStrings.read(context);
       UnlockPackSheet.show(
         context,
         packId: 'viper_hot',
-        packTitle: 'Ambiance Hot & Spicy',
+        packTitle: strings.viperHotPackTitle,
         onUnlocked: () {
           setState(() => _selectedMood = ViperDeckMood.hot);
         },
@@ -77,6 +80,7 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
     required ViperBoardMode mode,
     required IconData icon,
     required Color accentColor,
+    required AppStrings strings,
   }) {
     final bool isSelected = _selectedMode == mode;
     return Expanded(
@@ -115,7 +119,7 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      mode.label,
+                      strings.viperModeLabel(mode),
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -128,7 +132,7 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      mode.subtitle,
+                      strings.viperModeSubtitle(mode),
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -180,7 +184,11 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
     );
   }
 
-  Widget _buildMoodOption(ViperDeckMood mood, {bool isLocked = false}) {
+  Widget _buildMoodOption(
+    ViperDeckMood mood, {
+    required AppStrings strings,
+    bool isLocked = false,
+  }) {
     final bool isSelected = _selectedMood == mood && !isLocked;
     final Color accentColor = mood.color;
     return Expanded(
@@ -191,7 +199,7 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
             UnlockPackSheet.show(
               context,
               packId: 'viper_hot',
-              packTitle: 'Ambiance Hot & Spicy',
+              packTitle: strings.viperHotPackTitle,
               onUnlocked: () {
                 setState(() => _selectedMood = mood);
               },
@@ -226,7 +234,7 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
                 children: [
                   Flexible(
                     child: Text(
-                      mood.label,
+                      strings.viperMoodLabel(mood),
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -250,7 +258,7 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
               ),
               const SizedBox(height: 3),
               Text(
-                mood.subtitle,
+                strings.viperMoodSubtitle(mood),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -268,6 +276,8 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     return ListenableBuilder(
       listenable: AccessControlProvider.instance,
       builder: (context, _) {
@@ -299,41 +309,51 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
                             ),
                             const SizedBox(height: 18),
                             // --- 1. SÉLECTEUR DE MODE DU PLATEAU (EXPRESS / NORMAL / SPIRALE 🔥) ---
-                            _buildSectionTitle('MODE DE JEU'),
+                            _buildSectionTitle(strings.viperGameModeSection),
                             Row(
                               children: [
                                 _buildModeOption(
                                   mode: ViperBoardMode.express,
                                   icon: Icons.flash_on_rounded,
                                   accentColor: Colors.cyanAccent,
+                                  strings: strings,
                                 ),
                                 const SizedBox(width: 8),
                                 _buildModeOption(
                                   mode: ViperBoardMode.normal,
                                   icon: Icons.grid_4x4_rounded,
                                   accentColor: Colors.amberAccent,
+                                  strings: strings,
                                 ),
                                 const SizedBox(width: 8),
                                 _buildModeOption(
                                   mode: ViperBoardMode.spiral,
                                   icon: Icons.all_inclusive_rounded,
                                   accentColor: Colors.purpleAccent,
+                                  strings: strings,
                                 ),
                               ],
                             ),
                             const SizedBox(height: 18),
                             // --- 2. SÉLECTEUR D'AMBIANCE (DECK) ---
-                            _buildSectionTitle('AMBIANCE DU DECK'),
+                            _buildSectionTitle(strings.viperDeckMoodSection),
                             Row(
                               children: [
-                                _buildMoodOption(ViperDeckMood.classic),
+                                _buildMoodOption(
+                                  ViperDeckMood.classic,
+                                  strings: strings,
+                                ),
                                 const SizedBox(width: 8),
                                 _buildMoodOption(
                                   ViperDeckMood.hot,
+                                  strings: strings,
                                   isLocked: !canAccessHot,
                                 ),
                                 const SizedBox(width: 8),
-                                _buildMoodOption(ViperDeckMood.blackout),
+                                _buildMoodOption(
+                                  ViperDeckMood.blackout,
+                                  strings: strings,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 16),
@@ -358,9 +378,9 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text(
-                          'LANCER LA PARTIE',
-                          style: TextStyle(
+                        child: Text(
+                          strings.viperStartGameButton,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.amberAccent,

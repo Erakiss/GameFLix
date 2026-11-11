@@ -11,6 +11,8 @@ import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
 import 'package:gameflix/services/audio_service.dart';
 import 'package:gameflix/state/access_control_provider.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_wyr_viper.dart';
 
 // --- MODÈLE ---
 class WyrCard {
@@ -120,9 +122,10 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
     }
 
     if (deck.isEmpty) {
+      final strings = AppStrings.read(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Sélectionne au moins une catégorie !"),
+        SnackBar(
+          content: Text(strings.wyrSelectCategoryError),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -154,26 +157,27 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
     );
   }
 
-  Widget _buildRoundSelector() {
+  Widget _buildRoundSelector(AppStrings strings) {
     final options = [
-      {'label': '10', 'sub': 'Express', 'value': 10},
-      {'label': '15', 'sub': 'Standard', 'value': 15},
-      {'label': '20', 'sub': 'Intense', 'value': 20},
-      {'label': '∞', 'sub': 'Tout', 'value': 0},
+      {'label': '10', 'sub': strings.wyrLengthExpress, 'value': 10},
+      {'label': '15', 'sub': strings.wyrLengthStandard, 'value': 15},
+      {'label': '20', 'sub': strings.wyrLengthIntense, 'value': 20},
+      {'label': '∞', 'sub': strings.wyrLengthAll, 'value': 0},
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
             children: [
-              Icon(Icons.timer_outlined, color: Colors.orangeAccent, size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.timer_outlined,
+                  color: Colors.orangeAccent, size: 18),
+              const SizedBox(width: 8),
               Text(
-                "DURÉE DE LA PARTIE",
-                style: TextStyle(
+                strings.wyrGameLengthTitle,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Colors.white70,
@@ -256,6 +260,8 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     return ListenableBuilder(
       listenable: AccessControlProvider.instance,
       builder: (context, _) {
@@ -288,7 +294,7 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
                             const SizedBox(height: 20),
 
                             // Sélecteur de nombre de tours
-                            _buildRoundSelector(),
+                            _buildRoundSelector(strings),
                             const SizedBox(height: 20),
 
                             // Catégories
@@ -329,7 +335,7 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
                                 UnlockPackSheet.show(
                                   context,
                                   packId: 'wyr_hot',
-                                  packTitle: 'Pack Hot & Piquant',
+                                  packTitle: strings.wyrHotPackTitle,
                                   onUnlocked: () {
                                     setState(() => _isHotSelected = true);
                                   },
@@ -340,7 +346,7 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
                                   UnlockPackSheet.show(
                                     context,
                                     packId: 'wyr_hot',
-                                    packTitle: 'Pack Hot & Piquant',
+                                    packTitle: strings.wyrHotPackTitle,
                                     onUnlocked: () {
                                       setState(() => _isHotSelected = true);
                                     },
@@ -370,9 +376,9 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text(
-                          "LANCER LE JEU",
-                          style: TextStyle(
+                        child: Text(
+                          strings.wyrStartGameButton,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.orangeAccent,

@@ -1,6 +1,8 @@
 // lib/shared/widgets/global_settings_button.dart
 import 'package:flutter/material.dart';
 import 'package:gameflix/hub/widgets/settings_overlay_dialog.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_shared.dart';
 import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
 
 /// Décoration de fond standardisée (dégradé violet profond) pour tous les Lobbies.
@@ -99,10 +101,10 @@ PreferredSizeWidget buildUnifiedLobbyAppBar({
             ),
           ],
         ),
-        tooltip: 'Règles du jeu',
+        tooltip: AppStrings.of(context).defaultRulesTitle,
         onPressed: () => GameRulesSheet.show(
           context,
-          DefaultGameRules.getRules(gameId),
+          DefaultGameRules.getRules(gameId, AppStrings.read(context)),
         ),
       ),
       const GlobalSettingsButton(),

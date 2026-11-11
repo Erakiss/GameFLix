@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:gameflix/hub/widgets/settings_overlay_dialog.dart';
 import 'package:gameflix/l10n/app_strings.dart';
 import 'package:gameflix/l10n/locale_controller.dart';
+import 'package:gameflix/l10n/strings_shared.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/models/game_config.dart';
 import 'package:gameflix/services/audio_service.dart';
@@ -60,7 +61,7 @@ class _GameFlixHubState extends State<GameFlixHub> {
     UnlockPackSheet.show(
       context,
       packId: 'vip_all',
-      packTitle: 'PASS PRO / SPICY',
+      packTitle: AppStrings.read(context).proSpicyPackTitle,
       onUnlocked: () {},
     );
   }

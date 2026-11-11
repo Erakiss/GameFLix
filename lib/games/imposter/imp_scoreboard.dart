@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/imposter/imp_lobby.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_imp_code.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/shared/widgets/neon_confetti.dart';
 
@@ -122,7 +124,7 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     });
   }
 
-  Widget _buildPlayerCard(Player player) {
+  Widget _buildPlayerCard(Player player, AppStrings strings) {
     bool isRevealed = _revealedPlayers.contains(player.name);
     String role = widget.playerRoles[player.name]!;
 
@@ -130,13 +132,13 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
     String roleName = "";
     if (role == "MISTER_WHITE") {
       roleColor = Colors.white;
-      roleName = "MISTER WHITE";
+      roleName = strings.impRoleMisterWhite;
     } else if (role == "IMPOSTER") {
       roleColor = Colors.redAccent;
-      roleName = "IMPOSTEUR";
+      roleName = strings.impRoleImposter;
     } else {
       roleColor = Colors.greenAccent;
-      roleName = "CIVIL";
+      roleName = strings.impRoleCivil;
     }
 
     bool isWinner = false;
@@ -223,25 +225,26 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     bool isFinished = _gameState == "FINISHED";
 
-    String headerText = "PHASE D'ÉLIMINATION";
+    String headerText = strings.impEliminationPhaseTitle;
     Color headerColor = Colors.purpleAccent;
     if (isFinished) {
       if (_winner == "CIVILS") {
-        headerText = "VICTOIRE DES CIVILS !";
+        headerText = strings.impCivilsVictory;
         headerColor = Colors.greenAccent;
       }
       if (_winner == "IMPOSTERS") {
-        headerText = "VICTOIRE DES IMPOSTEURS !";
+        headerText = strings.impImpostersVictory;
         headerColor = Colors.redAccent;
       }
       if (_winner == "MISTER_WHITE") {
-        headerText = "MISTER WHITE A TROUVÉ LE MOT !";
+        headerText = strings.impMisterWhiteVictory;
         headerColor = Colors.white;
       }
     } else if (_gameState == "MW_GUESS") {
-      headerText = "MISTER WHITE, SAUVE TOI !";
+      headerText = strings.impMisterWhiteSaveYourself;
       headerColor = Colors.white;
     }
 
@@ -276,10 +279,10 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                   ),
                   const SizedBox(height: 10),
                   if (!isFinished && _gameState != "MW_GUESS")
-                    const Text(
-                      "Appuyez sur un joueur éliminé par le groupe.",
+                    Text(
+                      strings.impTapEliminatedPlayer,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white70),
+                      style: const TextStyle(color: Colors.white70),
                     ),
                   const SizedBox(height: 20),
                   Container(
@@ -299,9 +302,9 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                             children: [
                               Column(
                                 children: [
-                                  const Text(
-                                    "CIVIL",
-                                    style: TextStyle(
+                                  Text(
+                                    strings.impRoleCivil,
+                                    style: const TextStyle(
                                       color: Colors.greenAccent,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -318,9 +321,9 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                               ),
                               Column(
                                 children: [
-                                  const Text(
-                                    "IMPOSTEUR",
-                                    style: TextStyle(
+                                  Text(
+                                    strings.impRoleImposter,
+                                    style: const TextStyle(
                                       color: Colors.redAccent,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -337,10 +340,10 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                               ),
                             ],
                           )
-                        : const Center(
+                        : Center(
                             child: Text(
-                              "LES MOTS SONT CACHÉS",
-                              style: TextStyle(
+                              strings.impWordsHiddenLabel,
+                              style: const TextStyle(
                                 color: Colors.white54,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 3,
@@ -362,10 +365,10 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text(
-                                "Tu as été démasqué... Mais tu as une dernière chance !",
+                              Text(
+                                strings.impMisterWhiteLastChance,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                 ),
@@ -380,7 +383,7 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                                 decoration: InputDecoration(
-                                  hintText: "Écris le mot ici...",
+                                  hintText: strings.impMisterWhiteGuessHint,
                                   hintStyle: const TextStyle(
                                     color: Colors.white38,
                                   ),
@@ -405,9 +408,9 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                                     borderRadius: BorderRadius.circular(15),
                                   ),
                                 ),
-                                child: const Text(
-                                  "VALIDER MON MOT",
-                                  style: TextStyle(
+                                child: Text(
+                                  strings.impValidateWordButton,
+                                  style: const TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 18,
@@ -424,7 +427,7 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         children: widget.players
-                            .map((p) => _buildPlayerCard(p))
+                            .map((p) => _buildPlayerCard(p, strings))
                             .toList(),
                       ),
                     ),
@@ -439,9 +442,9 @@ class _ImpScoreboardScreenState extends State<ImpScoreboardScreen> {
                           Icons.home,
                           color: Colors.purpleAccent,
                         ),
-                        label: const Text(
-                          "RETOUR AU HUB",
-                          style: TextStyle(
+                        label: Text(
+                          strings.backToHubButton,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.purpleAccent,

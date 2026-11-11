@@ -3,25 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_tod_nhie.dart';
 
 class TodScoreboardScreen extends StatelessWidget {
   final List<Player> players;
   const TodScoreboardScreen({super.key, required this.players});
 
-  String _getPlayerTitle(int rank, int score, int totalPlayers) {
-    if (score == 0) return "L'Ange 😇 (Même pas soif)";
-    if (rank == 0) {
-      if (score >= 15) return "L'Éponge Légendaire 🧽";
-      return "Le Pilier de Bar 🍺";
-    }
-    if (rank == totalPlayers - 1) return "Le Sam (Capitaine de soirée) 🚗";
-    if (score <= 3) return "L'Esquiveur 🥷";
-    if (score <= 8) return "Vitesse de Croisière 🛥️";
-    return "Bien Chaud 🔥";
-  }
-
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.of(context);
     final sortedPlayers = List<Player>.from(players)
       ..sort((a, b) => b.score.compareTo(a.score));
 
@@ -48,9 +39,9 @@ class TodScoreboardScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              const Text(
-                "🏆 FIN DE PARTIE 🏆",
-                style: TextStyle(
+              Text(
+                s.todGameOverTitle,
+                style: const TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w900,
                   color: Colors.cyanAccent,
@@ -58,9 +49,9 @@ class TodScoreboardScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              const Text(
-                "Qui a pris le plus cher ce soir ?",
-                style: TextStyle(
+              Text(
+                s.todScoreboardSubtitle,
+                style: const TextStyle(
                   fontSize: 18,
                   color: Colors.white70,
                   fontStyle: FontStyle.italic,
@@ -75,7 +66,7 @@ class TodScoreboardScreen extends StatelessWidget {
                     itemBuilder: (context, i) {
                       final player = sortedPlayers[i];
                       final isFirst = i == 0;
-                      final String playerTitle = _getPlayerTitle(
+                      final String playerTitle = s.todPlayerTitle(
                         i,
                         player.score,
                         sortedPlayers.length,
@@ -169,9 +160,9 @@ class TodScoreboardScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 30),
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.home, size: 28),
-                  label: const Text(
-                    'RETOUR AU HUB',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  label: Text(
+                    s.todBackToHubButton,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.cyanAccent,

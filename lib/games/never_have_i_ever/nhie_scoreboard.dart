@@ -10,6 +10,8 @@ import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/shared/widgets/neon_confetti.dart';
 import 'package:gameflix/services/audio_service.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_tod_nhie.dart';
 
 class NhieScoreboardScreen extends StatelessWidget {
   final List<Player> players;
@@ -21,22 +23,9 @@ class NhieScoreboardScreen extends StatelessWidget {
     this.targetScore = 10,
   });
 
-  String _getPlayerTitle(int score, int maxScore, int minScore) {
-    if (score == maxScore && maxScore > 0) {
-      return "Légende Vivante 🏆";
-    }
-    if (score == 0 || (score == minScore && maxScore > minScore)) {
-      return "Ange Gardien 😇";
-    }
-    final double ratio = targetScore > 0 ? (score / targetScore) : 0.5;
-    if (ratio >= 0.7) {
-      return "Pur-Sang Déchaîné 🔥";
-    }
-    return "Galop d'Essai 🐎";
-  }
-
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.of(context);
     final List<Player> sortedPlayers = List<Player>.from(players)
       ..sort((a, b) => b.score.compareTo(a.score));
 
@@ -56,11 +45,11 @@ class NhieScoreboardScreen extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const FittedBox(
+        title: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            "PODIUM DE LA COURSE",
-            style: TextStyle(
+            s.nhiePodiumAppBarTitle,
+            style: const TextStyle(
               fontFamily: 'Orbitron',
               fontSize: 17,
               fontWeight: FontWeight.w900,
@@ -99,7 +88,7 @@ class NhieScoreboardScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          isPhotoFinish ? "PHOTO-FINISH !" : "ARRIVÉE FRANCHIE !",
+                          s.nhieRaceBannerTitle(isPhotoFinish),
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
@@ -164,9 +153,7 @@ class NhieScoreboardScreen extends StatelessWidget {
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
-                                  isPhotoFinish
-                                      ? "CHAMPIONS EX-AEQUO"
-                                      : "GRAND VAINQUEUR DE LA SOIRÉE",
+                                  s.nhieWinnerHeader(isPhotoFinish),
                                   maxLines: 1,
                                   style: const TextStyle(
                                     color: Colors.amberAccent,
@@ -203,9 +190,7 @@ class NhieScoreboardScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          isPhotoFinish
-                              ? "Avec $maxScore aveux chacun, vous avez vécu mille vies ! 🍻"
-                              : "Avec $maxScore aveux au compteur, rien ne t'arrête ! 🍻",
+                          s.nhieWinnerSubtitle(isPhotoFinish, maxScore),
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white70,
@@ -219,11 +204,11 @@ class NhieScoreboardScreen extends StatelessWidget {
 
                   const SizedBox(height: 18),
 
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "CLASSEMENT DE L'HIPPODROME",
-                      style: TextStyle(
+                      s.nhieStandingsHeader,
+                      style: const TextStyle(
                         color: Colors.white54,
                         fontWeight: FontWeight.w900,
                         fontSize: 12,
@@ -242,10 +227,13 @@ class NhieScoreboardScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final Player p = sortedPlayers[index];
                         final bool isTop = p.score == maxScore && maxScore > 0;
-                        final String title =
-                            _getPlayerTitle(p.score, maxScore, minScore);
-                        final String ptsLabel =
-                            "${p.score} pt${p.score > 1 ? 's' : ''}";
+                        final String title = s.nhiePlayerTitle(
+                          p.score,
+                          maxScore,
+                          minScore,
+                          targetScore,
+                        );
+                        final String ptsLabel = s.nhiePointsShort(p.score);
 
                         return Container(
                           padding: const EdgeInsets.symmetric(
@@ -378,22 +366,22 @@ class NhieScoreboardScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            child: const FittedBox(
+                            child: FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.home_rounded,
                                     color: Colors.white70,
                                     size: 20,
                                   ),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
-                                    "MENU",
+                                    s.nhieMenuButton,
                                     maxLines: 1,
                                     softWrap: false,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
@@ -437,22 +425,22 @@ class NhieScoreboardScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            child: const FittedBox(
+                            child: FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.replay_rounded,
                                     color: Colors.black,
                                     size: 20,
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    "REJOUER",
+                                    s.nhieReplayButton,
                                     maxLines: 1,
                                     softWrap: false,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w900,
                                       fontSize: 16,

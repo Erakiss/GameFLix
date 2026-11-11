@@ -13,6 +13,8 @@ import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
 import 'package:gameflix/services/audio_service.dart';
 import 'package:gameflix/state/access_control_provider.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_tod_nhie.dart';
 
 class NhieCard {
   final String difficulty;
@@ -80,8 +82,8 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
 
     if (deck.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Sélectionne au moins une catégorie !"),
+        SnackBar(
+          content: Text(AppStrings.read(context).nhieSelectCategoryError),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -105,19 +107,19 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
     );
   }
 
-  Widget _buildDistanceSelector() {
+  Widget _buildDistanceSelector(AppStrings s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
             children: [
-              Icon(Icons.flag_rounded, color: Colors.cyanAccent, size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.flag_rounded, color: Colors.cyanAccent, size: 18),
+              const SizedBox(width: 8),
               Text(
-                "DISTANCE DE LA COURSE",
-                style: TextStyle(
+                s.nhieRaceDistanceTitle,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Colors.white70,
@@ -162,7 +164,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                   child: Column(
                     children: [
                       Text(
-                        "CLASSIQUE",
+                        s.nhieClassicLabel,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
@@ -172,7 +174,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        "10 points",
+                        s.nhiePointsText(10),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -216,7 +218,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                   child: Column(
                     children: [
                       Text(
-                        "MODULABLE",
+                        s.nhieCustomLabel,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
@@ -226,7 +228,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        _isCustomDistance ? "$_customTargetScore points" : "5 à 25 pts",
+                        _isCustomDistance ? s.nhiePointsText(_customTargetScore) : s.nhiePointsRange,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -314,7 +316,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                     border: Border.all(color: Colors.purpleAccent),
                   ),
                   child: Text(
-                    "$_customTargetScore PTS",
+                    s.nhiePointsBadge(_customTargetScore),
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w900,
@@ -360,6 +362,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.of(context);
     final access = context.watch<AccessControlProvider>();
     final bool canAccessHot = access.canAccess('nhie_hot', isPremium: true);
 
@@ -417,7 +420,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                             UnlockPackSheet.show(
                               context,
                               packId: 'nhie_hot',
-                              packTitle: 'Pack Hot & Piquant',
+                              packTitle: s.nhieHotPackTitle,
                               onUnlocked: () {
                                 setState(() => _isHotSelected = true);
                               },
@@ -428,7 +431,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                               UnlockPackSheet.show(
                                 context,
                                 packId: 'nhie_hot',
-                                packTitle: 'Pack Hot & Piquant',
+                                packTitle: s.nhieHotPackTitle,
                                 onUnlocked: () {
                                   setState(() => _isHotSelected = true);
                                 },
@@ -439,7 +442,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                           },
                         ),
                         const SizedBox(height: 16),
-                        _buildDistanceSelector(),
+                        _buildDistanceSelector(s),
                         const SizedBox(height: 12),
                       ],
                     ),
@@ -458,7 +461,7 @@ class _NhieLobbyScreenState extends State<NhieLobbyScreen> {
                       ),
                     ),
                     child: Text(
-                      "LANCER LA COURSE ($_effectiveTargetScore PTS)",
+                      s.nhieStartRaceButton(_effectiveTargetScore),
                       style: const TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.bold,

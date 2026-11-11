@@ -9,6 +9,8 @@ import 'package:gameflix/games/would_you_rather/wyr_lobby.dart';
 import 'package:gameflix/games/would_you_rather/wyr_scoreboard.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/services/audio_service.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_wyr_viper.dart';
 
 class WyrGameScreen extends StatefulWidget {
   final List<Player> players;
@@ -163,6 +165,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
       builder: (context) {
+        final strings = AppStrings.of(context);
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -172,14 +175,14 @@ class _WyrGameScreenState extends State<WyrGameScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.leaderboard_rounded,
+                        const Icon(Icons.leaderboard_rounded,
                             color: Colors.amberAccent, size: 24),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
-                          "SCORES EN DIRECT",
-                          style: TextStyle(
+                          strings.wyrLiveScoresTitle,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -195,9 +198,9 @@ class _WyrGameScreenState extends State<WyrGameScreen>
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  "Le joueur avec le plus de points boira le shot final !",
-                  style: TextStyle(fontSize: 13, color: Colors.white60),
+                Text(
+                  strings.wyrLiveScoresSubtitle,
+                  style: const TextStyle(fontSize: 13, color: Colors.white60),
                 ),
                 const SizedBox(height: 15),
                 Flexible(
@@ -270,39 +273,47 @@ class _WyrGameScreenState extends State<WyrGameScreen>
   Future<bool> _onWillPop() async {
     final shouldLeave = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E36),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text("Quitter la partie ?",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        content: const Text(
-          "La progression et les pénalités de cette manche seront perdues.",
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("CONTINUER",
-                style: TextStyle(color: Colors.cyanAccent)),
+      builder: (context) {
+        final strings = AppStrings.of(context);
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E1E36),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(strings.wyrQuitDialogTitle,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold)),
+          content: Text(
+            strings.wyrQuitDialogBody,
+            style: const TextStyle(color: Colors.white70),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("QUITTER",
-                style: TextStyle(color: Colors.redAccent)),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(strings.wyrContinueButton,
+                  style: const TextStyle(color: Colors.cyanAccent)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(strings.wyrQuitButton,
+                  style: const TextStyle(color: Colors.redAccent)),
+            ),
+          ],
+        );
+      },
     );
     return shouldLeave ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     if (widget.deck.isEmpty) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: Colors.black,
         body: Center(
-          child: Text("Aucune carte", style: TextStyle(color: Colors.white)),
+          child: Text(strings.wyrNoCards,
+              style: const TextStyle(color: Colors.white)),
         ),
       );
     }
@@ -338,7 +349,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
             },
           ),
           title: Text(
-            "MANCHE ${_currentIndex + 1} / $maxRoundDisplay",
+            strings.wyrRoundCounter(_currentIndex + 1, maxRoundDisplay),
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w900,
@@ -352,7 +363,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
             IconButton(
               icon: const Icon(Icons.leaderboard_rounded,
                   color: Colors.amberAccent, size: 24),
-              tooltip: 'Classement en direct',
+              tooltip: strings.wyrLiveScoresTooltip,
               onPressed: _showLiveLeaderboard,
             ),
             const GlobalSettingsButton(),
@@ -369,7 +380,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
                       const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: SlideTransition(
                     position: _cardSlideAnimation,
-                    child: _buildDilemmaCard(card, hasShameOption),
+                    child: _buildDilemmaCard(card, hasShameOption, strings),
                   ),
                 ),
               ),
@@ -379,8 +390,8 @@ class _WyrGameScreenState extends State<WyrGameScreen>
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
                 child: _isRevealed
                     ? _buildRevealedInteractionSection(
-                        hasShameOption, isLastCard)
-                    : _buildPreRevealButton(),
+                        hasShameOption, isLastCard, strings)
+                    : _buildPreRevealButton(strings),
               ),
             ],
           ),
@@ -390,7 +401,8 @@ class _WyrGameScreenState extends State<WyrGameScreen>
   }
 
   // --- WIDGET CARTE DU DILEMME : 2 CARTES DUEL FLOTTANTES ---
-  Widget _buildDilemmaCard(WyrCard card, bool hasShameOption) {
+  Widget _buildDilemmaCard(
+      WyrCard card, bool hasShameOption, AppStrings strings) {
     return Stack(
       alignment: Alignment.center,
       clipBehavior: Clip.none,
@@ -400,13 +412,14 @@ class _WyrGameScreenState extends State<WyrGameScreen>
             // CARTE DUEL CHOIX A (Rose fuchsia néon)
             Expanded(
               child: _buildFloatingDuelCard(
-                badgeLabel: "CHOIX A",
+                badgeLabel: strings.wyrChoiceA,
                 text: card.choice1,
                 percentage: card.percentage1,
                 primaryColor: const Color(0xFFFF2A85),
                 darkBgStart: const Color(0xFF260D22),
                 darkBgEnd: const Color(0xFF150716),
                 isShame: card.percentage1 < 35,
+                strings: strings,
               ),
             ),
 
@@ -416,13 +429,14 @@ class _WyrGameScreenState extends State<WyrGameScreen>
             // CARTE DUEL CHOIX B (Cyan électrique néon)
             Expanded(
               child: _buildFloatingDuelCard(
-                badgeLabel: "CHOIX B",
+                badgeLabel: strings.wyrChoiceB,
                 text: card.choice2,
                 percentage: card.percentage2,
                 primaryColor: const Color(0xFF00E5FF),
                 darkBgStart: const Color(0xFF0B1E2B),
                 darkBgEnd: const Color(0xFF061019),
                 isShame: card.percentage2 < 35,
+                strings: strings,
               ),
             ),
           ],
@@ -437,7 +451,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
             top: -4,
             left: 8,
             right: 8,
-            child: _buildMiniGageBanner(card.miniGage!),
+            child: _buildMiniGageBanner(card.miniGage!, strings),
           ),
       ],
     );
@@ -452,6 +466,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
     required Color darkBgStart,
     required Color darkBgEnd,
     required bool isShame,
+    required AppStrings strings,
   }) {
     return GestureDetector(
       onTap: _isRevealed ? null : _revealResults,
@@ -557,9 +572,9 @@ class _WyrGameScreenState extends State<WyrGameScreen>
                                     width: 1,
                                   ),
                                 ),
-                                child: const Text(
-                                  "💀 CHOIX DE LA HONTE (<35%) • +1 PT MALUS",
-                                  style: TextStyle(
+                                child: Text(
+                                  strings.wyrShameBadge,
+                                  style: const TextStyle(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w900,
                                     color: Colors.redAccent,
@@ -616,9 +631,9 @@ class _WyrGameScreenState extends State<WyrGameScreen>
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              const Text(
-                                "MONDE",
-                                style: TextStyle(
+                              Text(
+                                strings.wyrWorldLabel,
+                                style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white54,
@@ -695,7 +710,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
   }
 
   // --- BANNIÈRE MINI-GAGE ---
-  Widget _buildMiniGageBanner(String miniGage) {
+  Widget _buildMiniGageBanner(String miniGage, AppStrings strings) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
@@ -716,7 +731,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "MINI-GAGE : $miniGage",
+              strings.wyrMiniDareBanner(miniGage),
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -732,19 +747,19 @@ class _WyrGameScreenState extends State<WyrGameScreen>
   }
 
   // --- BOUTON AVANT RÉVÉLATION ---
-  Widget _buildPreRevealButton() {
+  Widget _buildPreRevealButton(AppStrings strings) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.how_to_vote_outlined,
+            const Icon(Icons.how_to_vote_outlined,
                 color: Colors.white60, size: 18),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
-              "Votez à main levée à la table !",
-              style: TextStyle(
+              strings.wyrVoteHint,
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: Colors.white70,
@@ -761,9 +776,9 @@ class _WyrGameScreenState extends State<WyrGameScreen>
             onPressed: _revealResults,
             icon: const Icon(Icons.pie_chart_outline_rounded,
                 color: Colors.black, size: 24),
-            label: const Text(
-              "RÉVÉLER LES POURCENTAGES",
-              style: TextStyle(
+            label: Text(
+              strings.wyrRevealButton,
+              style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w900,
                 color: Colors.black,
@@ -786,7 +801,7 @@ class _WyrGameScreenState extends State<WyrGameScreen>
 
   // --- SECTION INTERACTIVE APRÈS RÉVÉLATION ---
   Widget _buildRevealedInteractionSection(
-      bool hasShameOption, bool isLastCard) {
+      bool hasShameOption, bool isLastCard, AppStrings strings) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -797,15 +812,16 @@ class _WyrGameScreenState extends State<WyrGameScreen>
             const Icon(Icons.touch_app_rounded,
                 color: Colors.redAccent, size: 18),
             const SizedBox(width: 6),
-            Text(
-              hasShameOption
-                  ? "QUI EST EN MINORITÉ ? (+2 pts, tap = +3 si honte)"
-                  : "QUI EST EN MINORITÉ ? (+2 pts)",
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                color: Colors.redAccent,
-                letterSpacing: 0.8,
+            Expanded(
+              child: Text(
+                strings.wyrMinorityPrompt(hasShameOption),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.redAccent,
+                  letterSpacing: 0.8,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -946,8 +962,8 @@ class _WyrGameScreenState extends State<WyrGameScreen>
             ),
             label: Text(
               isLastCard
-                  ? "VOIR LE HALL OF SHAME 💀"
-                  : "DILEMME SUIVANT ➔",
+                  ? strings.wyrViewHallOfShame
+                  : strings.wyrNextDilemma,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w900,

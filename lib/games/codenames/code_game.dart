@@ -7,6 +7,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/codenames/code_lobby.dart';
 import 'package:gameflix/games/codenames/code_scoreboard.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_imp_code.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 
 class CodeGameScreen extends StatefulWidget {
@@ -38,7 +40,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
   bool _spyGridRevealed = false;
   bool _isTransitioning = false;
 
-  String _overlayMessage = "";
+  String _overlayKey = "";
   Color _overlayColor = Colors.transparent;
 
   final Color _bgDark = const Color(0xFF050515);
@@ -89,13 +91,13 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
     if (word.teamColor == "ASSASSIN") {
       setState(() {
         _isTransitioning = true;
-        _overlayMessage = "SYSTÈME COMPROMIS\nÉCHEC CRITIQUE";
+        _overlayKey = "ASSASSIN";
         _overlayColor = Colors.redAccent;
       });
       Future.delayed(const Duration(seconds: 2), () {
         if (!mounted) return;
         String winner = _currentTurn == "RED" ? "BLUE" : "RED";
-        _goToScoreboard(winner, "L'ASSASSIN A ÉTÉ TROUVÉ !");
+        _goToScoreboard(winner, "ASSASSIN");
       });
       return;
     }
@@ -104,7 +106,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
       _isTransitioning = true;
       Future.delayed(const Duration(seconds: 2), () {
         if (!mounted) return;
-        _goToScoreboard("RED", "TOUS LES MOTS ROUGES ONT ÉTÉ TROUVÉS !");
+        _goToScoreboard("RED", "RED_ALL");
       });
       return;
     }
@@ -112,7 +114,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
       _isTransitioning = true;
       Future.delayed(const Duration(seconds: 2), () {
         if (!mounted) return;
-        _goToScoreboard("BLUE", "TOUS LES MOTS CYBER-BLEUS ONT ÉTÉ TROUVÉS !");
+        _goToScoreboard("BLUE", "BLUE_ALL");
       });
       return;
     }
@@ -121,10 +123,10 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
       setState(() {
         _isTransitioning = true;
         if (word.teamColor == "NEUTRAL") {
-          _overlayMessage = "CIBLE NEUTRE\nFIN DE TRANSMISSION";
+          _overlayKey = "NEUTRAL";
           _overlayColor = Colors.white;
         } else {
-          _overlayMessage = "FIREWALL ENNEMI\nACCÈS REFUSÉ";
+          _overlayKey = "ENEMY";
           _overlayColor = word.teamColor == "RED" ? _neonRed : _neonBlue;
         }
       });
@@ -133,7 +135,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
         if (!mounted) return;
         setState(() {
           _isTransitioning = false;
-          _overlayMessage = "";
+          _overlayKey = "";
         });
         _endTurn();
       });
@@ -419,11 +421,11 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     String currentSpyName = _currentTurn == "RED"
         ? widget.redTeam.first.name
         : widget.blueTeam.first.name;
     Color turnColor = _currentTurn == "RED" ? _neonRed : _neonBlue;
-    String teamText = _currentTurn == "RED" ? "ROUGE" : "BLEU";
 
     return Scaffold(
       backgroundColor: _bgDark,
@@ -432,10 +434,9 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
           if (_isSpyTurn) {
             if (!_spyGridRevealed) {
               return _buildLockScreen(
-                title: "TOUR ESPION $teamText",
-                subtitle:
-                    "Autorisation requise pour $currentSpyName. Sécurisez le périmètre.",
-                btnText: "DÉVERROUILLER",
+                title: strings.codeSpyTurnTitle(_currentTurn),
+                subtitle: strings.codeSpyTurnSubtitle(currentSpyName),
+                btnText: strings.codeUnlockButton,
                 onConfirm: () => setState(() => _spyGridRevealed = true),
               );
             } else {
@@ -451,7 +452,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
                             Icon(Icons.radar, color: turnColor),
                             const SizedBox(width: 10),
                             Text(
-                              "RÉSEAU ESPION $teamText",
+                              strings.codeSpyNetworkTitle(_currentTurn),
                               style: TextStyle(
                                 color: turnColor,
                                 fontWeight: FontWeight.w900,
@@ -471,9 +472,9 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
                                 color: Colors.white,
                                 size: 18,
                               ),
-                              label: const Text(
-                                "TRANSMETTRE",
-                                style: TextStyle(
+                              label: Text(
+                                strings.codeTransmitButton,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -528,7 +529,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
                           ],
                         ),
                         child: Text(
-                          "CIBLES ROUGE : $_redRemaining",
+                          strings.codeRedTargets(_redRemaining),
                           style: TextStyle(
                             color: _neonRed,
                             fontWeight: FontWeight.w900,
@@ -554,7 +555,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
                           ],
                         ),
                         child: Text(
-                          "PIRATAGE $teamText",
+                          strings.codeHackingTitle(_currentTurn),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w900,
@@ -583,7 +584,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
                               ],
                             ),
                             child: Text(
-                              "CIBLES BLEU : $_blueRemaining",
+                              strings.codeBlueTargets(_blueRemaining),
                               style: TextStyle(
                                 color: _neonBlue,
                                 fontWeight: FontWeight.w900,
@@ -604,7 +605,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
                                 Icons.arrow_forward,
                                 color: Colors.white,
                               ),
-                              tooltip: "Fin de transmission",
+                              tooltip: strings.codeEndTurnTooltip,
                               onPressed: _isTransitioning ? null : _endTurn,
                             ),
                           ),
@@ -620,7 +621,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
                       alignment: Alignment.center,
                       children: [
                         Center(child: _buildGrid(isSpyView: false)),
-                        if (_isTransitioning && _overlayMessage.isNotEmpty)
+                        if (_isTransitioning && _overlayKey.isNotEmpty)
                           TweenAnimationBuilder(
                             tween: Tween<double>(begin: 0.5, end: 1.0),
                             duration: const Duration(milliseconds: 300),
@@ -651,7 +652,7 @@ class _CodeGameScreenState extends State<CodeGameScreen> {
                                     ],
                                   ),
                                   child: Text(
-                                    _overlayMessage,
+                                    strings.codeOverlayMessage(_overlayKey),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 28,

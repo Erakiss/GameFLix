@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/imposter/imp_lobby.dart';
 import 'package:gameflix/games/imposter/imp_scoreboard.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_imp_code.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 
 // --- STAGE 1 : LA DISTRIBUTION ---
@@ -58,6 +60,7 @@ class _ImpDistributionScreenState extends State<ImpDistributionScreen> {
       return const SizedBox.shrink();
     }
 
+    final strings = AppStrings.of(context);
     Player currentPlayer = widget.players[_currentPlayerIndex];
     String playerRole = widget.playerRoles[currentPlayer.name]!;
 
@@ -66,15 +69,15 @@ class _ImpDistributionScreenState extends State<ImpDistributionScreen> {
     bool isMisterWhite = false;
 
     if (playerRole == "MISTER_WHITE") {
-      secretWord = "TU ES MISTER WHITE";
-      roleSubtext = "Tu n'as aucun mot. Écoute les autres pour le deviner !";
+      secretWord = strings.impYouAreMisterWhite;
+      roleSubtext = strings.impMisterWhiteSubtext;
       isMisterWhite = true;
     } else if (playerRole == "IMPOSTER") {
       secretWord = widget.selectedCard.imposterWord;
-      roleSubtext = "Mémorise ce mot et garde-le secret.";
+      roleSubtext = strings.impSecretWordSubtext;
     } else {
       secretWord = widget.selectedCard.word;
-      roleSubtext = "Mémorise ce mot et garde-le secret.";
+      roleSubtext = strings.impSecretWordSubtext;
     }
 
     return Scaffold(
@@ -102,9 +105,9 @@ class _ImpDistributionScreenState extends State<ImpDistributionScreen> {
                         color: Colors.white54,
                       ),
                       const SizedBox(height: 30),
-                      const Text(
-                        "Passez le téléphone à",
-                        style: TextStyle(fontSize: 20, color: Colors.white70),
+                      Text(
+                        strings.impPassPhoneTo,
+                        style: const TextStyle(fontSize: 20, color: Colors.white70),
                       ),
                       const SizedBox(height: 10),
                       Text(
@@ -129,9 +132,9 @@ class _ImpDistributionScreenState extends State<ImpDistributionScreen> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text(
-                          "VOIR MON RÔLE",
-                          style: TextStyle(
+                        child: Text(
+                          strings.impSeeRoleButton,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -139,10 +142,10 @@ class _ImpDistributionScreenState extends State<ImpDistributionScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text(
-                        "Assurez-vous que personne ne regarde votre écran !",
+                      Text(
+                        strings.impPrivacyWarning,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.redAccent,
                           fontStyle: FontStyle.italic,
                         ),
@@ -162,8 +165,8 @@ class _ImpDistributionScreenState extends State<ImpDistributionScreen> {
                       const SizedBox(height: 10),
                       Text(
                         isMisterWhite
-                            ? "ATTENTION :"
-                            : "TON MOT SECRET EST :",
+                            ? strings.impAttentionLabel
+                            : strings.impYourSecretWordIs,
                         style: const TextStyle(
                           fontSize: 16,
                           color: Colors.purpleAccent,
@@ -225,8 +228,8 @@ class _ImpDistributionScreenState extends State<ImpDistributionScreen> {
                         ),
                         label: Text(
                           _currentPlayerIndex == widget.players.length - 1
-                              ? "CACHER ET COMMENCER"
-                              : "CACHER ET PASSER",
+                              ? strings.impHideAndStartButton
+                              : strings.impHideAndPassButton,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -318,54 +321,51 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
   void _showForgetMenu() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF111122),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Colors.purpleAccent, width: 2),
-        ),
-        title: const Text(
-          "Qui a oublié son mot ?",
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: widget.players
-              .map(
-                (p) => ListTile(
-                  title: Text(
-                    p.name,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.purpleAccent,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+      builder: (context) {
+        final strings = AppStrings.of(context);
+        return AlertDialog(
+          backgroundColor: const Color(0xFF111122),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Colors.purpleAccent, width: 2),
+          ),
+          title: Text(
+            strings.impForgotWordDialogTitle,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: widget.players
+                .map(
+                  (p) => ListTile(
+                    title: Text(
+                      p.name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.purpleAccent,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showPlayerSecret(p);
+                    },
                   ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showPlayerSecret(p);
-                  },
-                ),
-              )
-              .toList(),
-        ),
-      ),
+                )
+                .toList(),
+          ),
+        );
+      },
     );
   }
 
   void _showPlayerSecret(Player player) {
     String role = widget.playerRoles[player.name]!;
-    String secretWord = "";
-
-    if (role == "MISTER_WHITE") {
-      secretWord = "TU ES MISTER WHITE";
-    } else if (role == "IMPOSTER") {
-      secretWord = widget.selectedCard.imposterWord;
-    } else {
-      secretWord = widget.selectedCard.word;
-    }
 
     showDialog(
       context: context,
@@ -373,6 +373,16 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
         bool isRevealed = false;
         return StatefulBuilder(
           builder: (context, setState) {
+            final strings = AppStrings.of(context);
+            final String secretWord;
+            if (role == "MISTER_WHITE") {
+              secretWord = strings.impYouAreMisterWhite;
+            } else if (role == "IMPOSTER") {
+              secretWord = widget.selectedCard.imposterWord;
+            } else {
+              secretWord = widget.selectedCard.word;
+            }
+
             return AlertDialog(
               backgroundColor: const Color(0xFF050515),
               shape: RoundedRectangleBorder(
@@ -390,9 +400,9 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    "Cache l'écran aux autres !",
-                    style: TextStyle(
+                  Text(
+                    strings.impHideScreenFromOthers,
+                    style: const TextStyle(
                       color: Colors.redAccent,
                       fontStyle: FontStyle.italic,
                     ),
@@ -434,9 +444,9 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
                         color: Colors.purpleAccent,
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: const Text(
-                        "MAINTENIR POUR VOIR",
-                        style: TextStyle(
+                      child: Text(
+                        strings.impHoldToSeeButton,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -454,6 +464,7 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     int minutes = _timeLeft ~/ 60;
     int seconds = _timeLeft % 60;
     String timeString =
@@ -475,9 +486,9 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                "TEMPS DE DÉBAT",
-                style: TextStyle(
+              Text(
+                strings.impDebateTimeTitle,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.purpleAccent,
@@ -485,10 +496,10 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                "Posez-vous des questions pour\ndémasquer les menteurs !",
+              Text(
+                strings.impDebateSubtitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+                style: const TextStyle(color: Colors.white70, fontSize: 16),
               ),
               const SizedBox(height: 50),
               Container(
@@ -529,9 +540,9 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
               ElevatedButton.icon(
                 onPressed: _goToReveal,
                 icon: const Icon(Icons.how_to_vote, color: Colors.white),
-                label: const Text(
-                  "PASSER AU VOTE",
-                  style: TextStyle(
+                label: Text(
+                  strings.impGoToVoteButton,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -552,9 +563,9 @@ class _ImpDebateScreenState extends State<ImpDebateScreen> {
               TextButton.icon(
                 onPressed: _showForgetMenu,
                 icon: const Icon(Icons.help_outline, color: Colors.white54),
-                label: const Text(
-                  "J'ai oublié mon mot",
-                  style: TextStyle(
+                label: Text(
+                  strings.impForgotWordButton,
+                  style: const TextStyle(
                     color: Colors.white54,
                     decoration: TextDecoration.underline,
                     fontSize: 16,

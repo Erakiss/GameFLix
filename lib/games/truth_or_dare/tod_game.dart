@@ -12,6 +12,9 @@ import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/shared/widgets/procedural_neon_background.dart';
 import 'package:gameflix/shared/widgets/neon_table_mat.dart';
 import 'package:gameflix/games/truth_or_dare/tod_scoreboard.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/locale_controller.dart';
+import 'package:gameflix/l10n/strings_tod_nhie.dart';
 
 class TurnRecord {
   final int playerIndex;
@@ -202,7 +205,9 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
       requireCompatibility: false,
     );
 
-    return content.replaceAll('{TARGET}', target != null ? target.name : "quelqu'un");
+    final String fallbackName =
+        AppStrings(LocaleController.instance.currentLocale).todSomeoneFallback;
+    return content.replaceAll('{TARGET}', target != null ? target.name : fallbackName);
   }
 
   void _recordTurn(bool failed) => _history.add(TurnRecord(_currentPlayerIndex, _currentCard!, _currentDisplayContent!, failed, _currentTurnCount));
@@ -311,12 +316,15 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
         _drawController.forward(from: 0.0);
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Plus aucune carte disponible pour ce choix !")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppStrings.read(context).todNoCardsAvailableError)),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.of(context);
     final currentPlayer = widget.players[_currentPlayerIndex];
     
     double valuesRefuse = (_swipeOffset.dx < -50) ? min(1.0, (_swipeOffset.dx.abs() - 50) / 100) : 0.0;
@@ -332,36 +340,36 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
             ),
           ),
           if (_currentCard != null && !_isTransitioning) ...[
-            IgnorePointer(child: Container(color: Colors.green.withValues(alpha: valuesFait * 0.8), alignment: Alignment.center, child: valuesFait > 0.1 ? Transform.rotate(angle: 0.2, child: const Text("FAIT ! 😎", style: TextStyle(fontSize: 60, fontWeight: FontWeight.w900, color: Colors.white))) : null)),
-            IgnorePointer(child: Container(color: Colors.red.withValues(alpha: valuesRefuse * 0.8), alignment: Alignment.center, child: valuesRefuse > 0.1 ? Transform.rotate(angle: -0.2, child: const Text("REFUSÉ ! 🥴", style: TextStyle(fontSize: 60, fontWeight: FontWeight.w900, color: Colors.white))) : null)),
+            IgnorePointer(child: Container(color: Colors.green.withValues(alpha: valuesFait * 0.8), alignment: Alignment.center, child: valuesFait > 0.1 ? Transform.rotate(angle: 0.2, child: Text(s.todSwipeDoneOverlay, style: const TextStyle(fontSize: 60, fontWeight: FontWeight.w900, color: Colors.white))) : null)),
+            IgnorePointer(child: Container(color: Colors.red.withValues(alpha: valuesRefuse * 0.8), alignment: Alignment.center, child: valuesRefuse > 0.1 ? Transform.rotate(angle: -0.2, child: Text(s.todSwipeRefusedOverlay, style: const TextStyle(fontSize: 60, fontWeight: FontWeight.w900, color: Colors.white))) : null)),
           ],
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             transitionBuilder: (Widget child, Animation<double> animation) => FadeTransition(opacity: animation, child: ScaleTransition(scale: Tween<double>(begin: 0.9, end: 1.0).animate(animation), child: child)),
-            child: _isTransitioning ? _buildTransitionScreen(currentPlayer) : _buildMainGameArea(currentPlayer),
+            child: _isTransitioning ? _buildTransitionScreen(currentPlayer, s) : _buildMainGameArea(currentPlayer, s),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTransitionScreen(Player currentPlayer) {
+  Widget _buildTransitionScreen(Player currentPlayer, AppStrings s) {
     return Center(
       key: const ValueKey('TransitionScreen'),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("🔥 PRÉPARE-TOI 🔥", style: TextStyle(fontSize: 24, color: Colors.white70, letterSpacing: 4)),
+          Text(s.todGetReadyBanner, style: const TextStyle(fontSize: 24, color: Colors.white70, letterSpacing: 4)),
           const SizedBox(height: 20),
           Text(currentPlayer.name.toUpperCase(), textAlign: TextAlign.center, style: TextStyle(fontSize: 60, fontWeight: FontWeight.w900, color: currentPlayer.gender == 'M' ? Colors.cyanAccent : Colors.pinkAccent, shadows: [Shadow(color: currentPlayer.gender == 'M' ? Colors.cyan : Colors.pink, blurRadius: 20), Shadow(color: currentPlayer.gender == 'M' ? Colors.blue : Colors.purple, blurRadius: 40)])),
           const SizedBox(height: 20),
-          const Text("C'est à ton tour de jouer...", style: TextStyle(fontSize: 20, color: Colors.white54, fontStyle: FontStyle.italic)),
+          Text(s.todYourTurnSubtitle, style: const TextStyle(fontSize: 20, color: Colors.white54, fontStyle: FontStyle.italic)),
         ],
       ),
     );
   }
 
-  Widget _buildMainGameArea(Player currentPlayer) {
+  Widget _buildMainGameArea(Player currentPlayer, AppStrings s) {
     return SafeArea(
       key: const ValueKey('GameScreen'),
       child: LayoutBuilder(
@@ -386,7 +394,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white24)),
-                      child: Text("Tour $_currentTurnCount / ${widget.maxTurns}", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.cyanAccent)),
+                      child: Text(s.todTurnCounter(_currentTurnCount, widget.maxTurns), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.cyanAccent)),
                     ),
                     const GlobalSettingsButton(),
                   ],
@@ -394,7 +402,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
               ),
               const SizedBox(height: 2),
               Text(
-                "C'est au tour de",
+                s.todTurnOfLabel,
                 style: TextStyle(
                   fontSize: 14,
                   letterSpacing: 1.2,
@@ -444,7 +452,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
                     const Icon(Icons.sports_bar_rounded, size: 15, color: Colors.amberAccent),
                     const SizedBox(width: 6),
                     Text(
-                      "Gorgées : ${currentPlayer.score}",
+                      s.todSipsCounter(currentPlayer.score),
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
@@ -474,8 +482,8 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
                     ),
                     if (_isShuffling) _buildShuffleAnimation(),
                     if (!_isShuffling) _buildRestingDeck(),
-                    if (!_isShuffling && _currentCard != null) _buildSwipeableCard(),
-                    if (!_isShuffling && _currentCard == null) _buildDuelChoiceArea(matWidth, matHeight),
+                    if (!_isShuffling && _currentCard != null) _buildSwipeableCard(s),
+                    if (!_isShuffling && _currentCard == null) _buildDuelChoiceArea(matWidth, matHeight, s),
                   ],
                 ),
               ),
@@ -492,7 +500,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
                               child: ElevatedButton.icon(
                                 onPressed: _handleFail,
                                 icon: const Icon(Icons.close, color: Colors.redAccent),
-                                label: const Text('REFUSÉ', style: TextStyle(color: Colors.redAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+                                label: Text(s.todRefusedButton, style: const TextStyle(color: Colors.redAccent, fontSize: 18, fontWeight: FontWeight.bold)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.redAccent.withValues(alpha: 0.1),
                                   side: const BorderSide(color: Colors.redAccent, width: 2),
@@ -505,7 +513,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
                               child: ElevatedButton.icon(
                                 onPressed: _handleSuccess,
                                 icon: const Icon(Icons.check, color: Colors.greenAccent),
-                                label: const Text('FAIT', style: TextStyle(color: Colors.greenAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+                                label: Text(s.todDoneButton, style: const TextStyle(color: Colors.greenAccent, fontSize: 18, fontWeight: FontWeight.bold)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.greenAccent.withValues(alpha: 0.1),
                                   side: const BorderSide(color: Colors.greenAccent, width: 2),
@@ -592,7 +600,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
   }
 
   // --- NOUVEAU COMPOSANT : Les Panneaux de Duel Action / Vérité ---
-  Widget _buildDuelChoiceArea(double matWidth, double matHeight) {
+  Widget _buildDuelChoiceArea(double matWidth, double matHeight, AppStrings s) {
     return FadeTransition(
       opacity: _choiceFadeAnimation,
       child: ScaleTransition(
@@ -608,8 +616,9 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
                 Expanded(
                   child: _buildChoiceCard(
                     type: 'ACTION',
-                    label: 'ACTION',
-                    subtitle: 'Relève le défi',
+                    label: s.todActionLabel,
+                    subtitle: s.todActionSubtitle,
+                    tapHint: s.todTapHint,
                     icon: Icons.bolt_rounded,
                     primaryColor: const Color(0xFF00E5FF),
                     darkBgStart: const Color(0xCC0B1E2B),
@@ -621,8 +630,9 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
                 Expanded(
                   child: _buildChoiceCard(
                     type: 'VERITE',
-                    label: 'VÉRITÉ',
-                    subtitle: 'Avoue sans filtre',
+                    label: s.todTruthLabel,
+                    subtitle: s.todTruthSubtitle,
+                    tapHint: s.todTapHint,
                     icon: Icons.visibility_rounded,
                     primaryColor: const Color(0xFFFF2A85),
                     darkBgStart: const Color(0xCC260D22),
@@ -641,6 +651,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
     required String type,
     required String label,
     required String subtitle,
+    required String tapHint,
     required IconData icon,
     required Color primaryColor,
     required Color darkBgStart,
@@ -759,7 +770,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          "TAP",
+                          tapHint,
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
@@ -993,7 +1004,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
     );
   }
 
-  Widget _buildSwipeableCard() {
+  Widget _buildSwipeableCard(AppStrings s) {
     return AnimatedBuilder(
       animation: _drawController,
       builder: (context, child) {
@@ -1022,7 +1033,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
               child: AnimatedContainer(
                 duration: _isDragging ? Duration.zero : const Duration(milliseconds: 400), curve: Curves.elasticOut,
                 transform: Matrix4.translationValues(_swipeOffset.dx, _swipeOffset.dy, 0)..rotateZ(_swipeOffset.dx / 1000),
-                child: Transform(alignment: FractionalOffset.center, transform: Matrix4.identity()..setEntry(3, 2, 0.0015)..rotateY(angle), child: isFront ? _buildCardFront() : _buildCardBack(backImage)),
+                child: Transform(alignment: FractionalOffset.center, transform: Matrix4.identity()..setEntry(3, 2, 0.0015)..rotateY(angle), child: isFront ? _buildCardFront(s) : _buildCardBack(backImage)),
               ),
             ),
           ),
@@ -1031,7 +1042,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
     );
   }
 
-  Widget _buildCardFront() {
+  Widget _buildCardFront(AppStrings s) {
     Color accentColor = _currentCard!.difficulty == 'SOFT' ? Colors.greenAccent : _currentCard!.difficulty == 'FUN' ? Colors.orangeAccent : _currentCard!.difficulty == 'HOT' ? Colors.redAccent : Colors.purpleAccent;
 
     return Container(
@@ -1047,7 +1058,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("${_currentCard!.type} • ${_currentCard!.difficulty}", style: TextStyle(color: accentColor, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+              Text("${s.todCardTypeDisplay(_currentCard!.type)} • ${_currentCard!.difficulty}", style: TextStyle(color: accentColor, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
               const SizedBox(height: 30),
               SizedBox(
                 height: 180, 
@@ -1064,7 +1075,7 @@ class _TodGameScreenState extends State<TodGameScreen> with TickerProviderStateM
               // -----------------------------------------------------
 
               const Spacer(),
-              Container(padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8), decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(10)), child: Text("Pénalité : ${_currentCard!.shots} 🍺", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white))),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8), decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(10)), child: Text(s.todPenaltyLabel(_currentCard!.shots), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white))),
             ],
           ),
 

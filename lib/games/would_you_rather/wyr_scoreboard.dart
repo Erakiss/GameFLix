@@ -4,6 +4,8 @@ import 'package:gameflix/models/player.dart';
 import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/services/audio_service.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_wyr_viper.dart';
 
 /// Écran de fin de partie et Hall of Shame pour le mini-jeu "Tu préfères".
 ///
@@ -34,23 +36,10 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
     });
   }
 
-  String _getVerdictMessage(int shots, int score) {
-    if (score == 0) return "Miracle absolu ! Personne n'a pris de points 🎉";
-    if (shots == 1) return "Ça passe encore... mais santé quand même ! 🍻";
-    if (shots == 2) return "Deux shots bien mérités pour tes goûts douteux ! 💀";
-    if (shots == 3) return "Trois shots ! La table ne te fait plus confiance... 🔥";
-    return "$shots shots ! Préparez le verre d'eau et appelez un taxi 🚑";
-  }
-
-  String _getPlayerStatus(int rank, int score, int minScore, int maxScore) {
-    if (score == minScore) return "Le Propre 😇 (Gagnant)";
-    if (score == maxScore) return "Le Condamné 💀 (Grand perdant)";
-    if (score - minScore <= 2) return "À deux doigts du désastre 😅";
-    return "Dans la tourmente 😬";
-  }
-
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     // Tri décroissant : le score le plus élevé correspond au pire joueur (le plus pénalisé)
     final sortedPlayers = List<Player>.from(widget.players)
       ..sort((a, b) => b.score.compareTo(a.score));
@@ -62,7 +51,8 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
 
     final int diff = maxScore - minScore;
     final int shotsToDrink = maxScore > 0 ? (1 + (diff ~/ 5)) : 0;
-    final String verdictMessage = _getVerdictMessage(shotsToDrink, maxScore);
+    final String verdictMessage =
+        strings.wyrVerdictMessage(shotsToDrink, maxScore);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D1E),
@@ -70,9 +60,9 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text(
-          "RÉSULTATS DE LA SOIRÉE",
-          style: TextStyle(
+        title: Text(
+          strings.wyrScoreboardAppBarTitle,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white70,
@@ -93,10 +83,10 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
               const SizedBox(height: 10),
 
               // Titre néon Hall of Shame
-              const Text(
-                "💀 HALL OF SHAME 💀",
+              Text(
+                strings.wyrHallOfShameTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w900,
                   color: Colors.redAccent,
@@ -108,10 +98,10 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
-                "Qui a les goûts les plus impardonnables de la table ?",
+              Text(
+                strings.wyrHallOfShameSubtitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white60,
                   fontStyle: FontStyle.italic,
@@ -183,9 +173,9 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                "LE GRAND PERDANT",
-                                style: TextStyle(
+                              Text(
+                                strings.wyrBiggestLoserLabel,
+                                style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.redAccent,
@@ -202,7 +192,7 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                "${worstPlayer.score} points de pénalité",
+                                strings.wyrPenaltyPoints(worstPlayer.score),
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.white70,
@@ -227,9 +217,7 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
                       child: Column(
                         children: [
                           Text(
-                            shotsToDrink > 0
-                                ? "🥃 SENTENCE : $shotsToDrink SHOT${shotsToDrink > 1 ? 'S' : ''} !"
-                                : "🎉 AUCUN SHOT À BOIRE !",
+                            strings.wyrSentenceShots(shotsToDrink),
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
@@ -260,9 +248,9 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
               // En-tête de la liste
               Row(
                 children: [
-                  const Text(
-                    "CLASSEMENT DE LA TABLE",
-                    style: TextStyle(
+                  Text(
+                    strings.wyrTableStandingsTitle,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: Colors.white70,
@@ -271,7 +259,7 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
                   ),
                   const Spacer(),
                   Text(
-                    "${sortedPlayers.length} joueurs",
+                    strings.wyrPlayersCount(sortedPlayers.length),
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.white38,
@@ -289,8 +277,8 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
                     final player = sortedPlayers[index];
                     final bool isWorst = index == 0;
                     final bool isBest = index == sortedPlayers.length - 1;
-                    final String status = _getPlayerStatus(
-                        index, player.score, minScore, maxScore);
+                    final String status = strings.wyrPlayerStatus(
+                        player.score, minScore, maxScore);
 
                     final Color accentColor = isWorst
                         ? Colors.redAccent
@@ -414,9 +402,9 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
                   Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.refresh, color: Colors.orangeAccent),
-                      label: const Text(
-                        "REJOUER",
-                        style: TextStyle(
+                      label: Text(
+                        strings.replayButton,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.orangeAccent,
@@ -444,9 +432,9 @@ class _WyrScoreboardScreenState extends State<WyrScoreboardScreen> {
                   Expanded(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.home, color: Colors.black),
-                      label: const Text(
-                        "HUB",
-                        style: TextStyle(
+                      label: Text(
+                        strings.hubButton,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,

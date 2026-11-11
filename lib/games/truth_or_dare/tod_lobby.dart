@@ -11,6 +11,8 @@ import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 import 'package:gameflix/shared/widgets/neon_table_mat.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
 import 'package:gameflix/state/access_control_provider.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_tod_nhie.dart';
 
 class TodLobbyScreen extends StatefulWidget {
   final List<Player> players;
@@ -94,7 +96,9 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
             onCardCreated: (newCard) {
               setState(() => _customCards.add(newCard));
               _saveCustomCards();
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Carte ajoutée ! 🃏")));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(AppStrings.read(context).todCardAddedSnackbar)),
+              );
             },
             onCardDeleted: (cardToDelete) {
               setState(() => _customCards.remove(cardToDelete));
@@ -116,7 +120,12 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
     if (_useCustom) finalDeck.addAll(_customCards);
 
     if (finalDeck.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("⚠️ Sélectionne au moins un paquet !"), backgroundColor: Colors.redAccent));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.read(context).todSelectDeckError),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
       return;
     }
 
@@ -133,6 +142,7 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
+    final s = AppStrings.of(context);
     final access = context.watch<AccessControlProvider>();
     final bool canAccessHot = access.canAccess('tod_hot', isPremium: true);
 
@@ -152,7 +162,7 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 10),
-                const Text("Paquets actifs", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white70)),
+                Text(s.todActiveDecksTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white70)),
                 const SizedBox(height: 15),
                 
                 // --- LES NOUVEAUX MINI-BOUTONS ---
@@ -170,7 +180,7 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
                           UnlockPackSheet.show(
                             context,
                             packId: 'tod_hot',
-                            packTitle: 'Pack Hot & Spicy',
+                            packTitle: s.todHotPackTitle,
                             onUnlocked: () {
                               _toggleDeck('HOT', false);
                             },
@@ -191,16 +201,16 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
                 _buildTapisPreview(),
                 
                 const SizedBox(height: 15),
-                Center(child: TextButton.icon(onPressed: _openCardManager, icon: const Icon(Icons.add_box, color: Colors.purpleAccent), label: Text("Gérer les ${_customCards.length} cartes Custom", style: const TextStyle(color: Colors.purpleAccent)))),
+                Center(child: TextButton.icon(onPressed: _openCardManager, icon: const Icon(Icons.add_box, color: Colors.purpleAccent), label: Text(s.todManageCustomCards(_customCards.length), style: const TextStyle(color: Colors.purpleAccent)))),
                 
                 const Spacer(),
-                const Text("Durée de la partie", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white70)),
+                Text(s.todGameLengthTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white70)),
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 10), padding: const EdgeInsets.symmetric(vertical: 15),
                   decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.white10)),
                   child: Column(
                     children: [
-                      Text("${_selectedTurns.toInt()} tours", style: const TextStyle(color: Colors.cyanAccent, fontSize: 24, fontWeight: FontWeight.w900)),
+                      Text(s.todTurnsCount(_selectedTurns.toInt()), style: const TextStyle(color: Colors.cyanAccent, fontSize: 24, fontWeight: FontWeight.w900)),
                       Slider(value: _selectedTurns, min: 5, max: 50, divisions: 9, activeColor: Colors.cyanAccent, inactiveColor: Colors.white24, onChanged: (val) => setState(() => _selectedTurns = val)),
                     ],
                   ),
@@ -215,9 +225,9 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
                       side: const BorderSide(color: Colors.pinkAccent, width: 2), 
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
                     ),
-                    child: const Text(
-                      "LANCER LA PARTIE", 
-                      style: TextStyle(
+                    child: Text(
+                      s.todStartGameButton, 
+                      style: const TextStyle(
                         fontSize: 22, 
                         fontWeight: FontWeight.bold, 
                         color: Colors.pinkAccent, 
@@ -362,6 +372,7 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.of(context);
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -375,7 +386,7 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
               else
                 const SizedBox(width: 48), // Spacer pour centrer le titre
                 
-              Text(_isCreating ? "Nouvelle Carte" : "Tes Cartes Custom", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.purpleAccent)),
+              Text(_isCreating ? s.todNewCardTitle : s.todYourCustomCardsTitle, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.purpleAccent)),
               
               const SizedBox(width: 48), // Spacer pour centrer le titre
             ],
@@ -384,7 +395,7 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
           
           // Le contenu change selon l'état _isCreating
           Expanded(
-            child: _isCreating ? _buildCreateForm() : _buildCardsList(),
+            child: _isCreating ? _buildCreateForm(s) : _buildCardsList(s),
           ),
         ],
       ),
@@ -392,7 +403,7 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
   }
 
   // --- VUE 1 : LA LISTE DES CARTES ---
-  Widget _buildCardsList() {
+  Widget _buildCardsList(AppStrings s) {
     if (widget.customCards.isEmpty) {
       return Center(
         child: Column(
@@ -400,9 +411,9 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
           children: [
             const Icon(Icons.style, size: 60, color: Colors.white24),
             const SizedBox(height: 15),
-            const Text("Aucune carte custom pour l'instant.", style: TextStyle(color: Colors.white54)),
+            Text(s.todEmptyCustomCards, style: const TextStyle(color: Colors.white54)),
             const SizedBox(height: 30),
-            _buildAddButton(),
+            _buildAddButton(s),
           ],
         ),
       );
@@ -424,7 +435,7 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
                 ),
                 child: ListTile(
                   title: Text(card.content, style: const TextStyle(color: Colors.white, fontSize: 14)),
-                  subtitle: Text(card.type, style: const TextStyle(color: Colors.purpleAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                  subtitle: Text(s.todCardTypeDisplay(card.type), style: const TextStyle(color: Colors.purpleAccent, fontSize: 12, fontWeight: FontWeight.bold)),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
                     onPressed: () {
@@ -438,17 +449,17 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
           ),
         ),
         const SizedBox(height: 10),
-        _buildAddButton(),
+        _buildAddButton(s),
       ],
     );
   }
 
-  Widget _buildAddButton() {
+  Widget _buildAddButton(AppStrings s) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
         icon: const Icon(Icons.add),
-        label: const Text('CRÉER UNE NOUVELLE CARTE', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(s.todCreateNewCardButton, style: const TextStyle(fontWeight: FontWeight.bold)),
         style: ElevatedButton.styleFrom(backgroundColor: Colors.purpleAccent, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
         onPressed: () {
           setState(() {
@@ -461,13 +472,13 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
   }
 
   // --- VUE 2 : LE FORMULAIRE DE CRÉATION ---
-  Widget _buildCreateForm() {
+  Widget _buildCreateForm(AppStrings s) {
     return Column(
       children: [
         TextField(
           controller: _contentController, 
           decoration: InputDecoration(
-            labelText: 'Contenu (utilise {TARGET} pour cibler un joueur)', 
+            labelText: s.todCustomContentLabel, 
             filled: true, 
             fillColor: Colors.black45,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -478,14 +489,14 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
         DropdownButtonFormField<String>(
           initialValue: _type, 
           decoration: InputDecoration(
-            labelText: 'Type de carte',
+            labelText: s.todCardTypeFieldLabel,
             filled: true, 
             fillColor: Colors.black45,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          items: const [
-            DropdownMenuItem(value: 'ACTION', child: Text('ACTION')), 
-            DropdownMenuItem(value: 'VERITE', child: Text('VERITE'))
+          items: [
+            DropdownMenuItem(value: 'ACTION', child: Text(s.todActionLabel)), 
+            DropdownMenuItem(value: 'VERITE', child: Text(s.todTruthLabel))
           ], 
           onChanged: (v) => setState(() => _type = v!)
         ),
@@ -500,7 +511,7 @@ class _ManageCustomCardsSheetState extends State<ManageCustomCardsSheet> {
               } 
             }, 
             style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))), 
-            child: const Text('VALIDER LA CARTE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))
+            child: Text(s.todSaveCardButton, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))
           )
         )
       ],

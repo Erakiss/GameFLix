@@ -11,6 +11,8 @@ import 'package:gameflix/games/never_have_i_ever/nhie_scoreboard.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/shared/widgets/game_rules_sheet.dart';
 import 'package:gameflix/services/audio_service.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_tod_nhie.dart';
 
 class _NhieTurnRecord {
   final int cardIndex;
@@ -219,7 +221,7 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
     return p.score + (isSelected ? 1 : 0);
   }
 
-  Widget _buildFinishBanner() {
+  Widget _buildFinishBanner(AppStrings s) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 14),
       height: 28,
@@ -259,7 +261,7 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
                   const Text("🏁", style: TextStyle(fontSize: 12)),
                   const SizedBox(width: 6),
                   Text(
-                    "ARRIVÉE • ${widget.targetScore} PTS",
+                    s.nhieFinishBanner(widget.targetScore),
                     style: const TextStyle(
                       color: Colors.cyanAccent,
                       fontWeight: FontWeight.w900,
@@ -603,7 +605,7 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
     );
   }
 
-  Widget _buildCompactCard(NhieCard card, Color accentColor) {
+  Widget _buildCompactCard(NhieCard card, Color accentColor, AppStrings s) {
     final double dragRatio = (_dragOffsetX / 180.0).clamp(-1.0, 1.0);
 
     return GestureDetector(
@@ -703,7 +705,7 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            "JE N'AI JAMAIS...",
+                            s.nhieCardHeaderTitle,
                             style: TextStyle(
                               color: accentColor,
                               fontWeight: FontWeight.w900,
@@ -760,7 +762,11 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
     );
   }
 
-  Widget _buildBottomActionBar(int selectedCount, bool willSomeoneWin) {
+  Widget _buildBottomActionBar(
+    int selectedCount,
+    bool willSomeoneWin,
+    AppStrings s,
+  ) {
     final bool hasSelection = selectedCount > 0;
     final Color buttonColor = willSomeoneWin
         ? Colors.amberAccent
@@ -768,17 +774,10 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
             ? Colors.cyanAccent
             : Colors.white24;
 
-    final String statusText = selectedCount == 0
-        ? "Appuie sur ton couloir si tu l'as déjà fait 👇"
-        : selectedCount == 1
-            ? "1 joueur avoue, avance d'une case et boit ! 🍺"
-            : "$selectedCount joueurs avouent, avancent et trinquent ! 🍻";
+    final String statusText = s.nhieStatusText(selectedCount);
 
-    final String buttonLabel = willSomeoneWin
-        ? "FRANCHIR L'ARRIVÉE 🏆 ($selectedCount)"
-        : hasSelection
-            ? "TRINQUER & AVANCER ($selectedCount) 🍻"
-            : "PASSER LA CARTE 😇 →";
+    final String buttonLabel =
+        s.nhieActionButtonLabel(selectedCount, willSomeoneWin);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 6, 14, 14),
@@ -805,7 +804,7 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
             children: [
               // Bouton Undo (Annuler le tour précédent)
               Tooltip(
-                message: 'Annuler le tour précédent',
+                message: s.nhieUndoTooltip,
                 child: GestureDetector(
                   onTap: _history.isNotEmpty ? _undoLastTurn : null,
                   child: AnimatedContainer(
@@ -878,6 +877,7 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.of(context);
     final NhieCard card = widget.deck[_cardIndex];
     final Color accentColor = _getCategoryColor(card.difficulty);
 
@@ -898,9 +898,9 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          "HIPPODROME NÉON",
-          style: TextStyle(
+        title: Text(
+          s.nhieRaceAppBarTitle,
+          style: const TextStyle(
             fontFamily: 'Orbitron',
             fontSize: 16,
             fontWeight: FontWeight.w900,
@@ -916,7 +916,7 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
               color: Colors.cyanAccent,
               size: 24,
             ),
-            tooltip: 'Règles du jeu',
+            tooltip: s.nhieRulesTooltip,
             onPressed: () => GameRulesSheet.show(
               context,
               DefaultGameRules.getRules('nhie'),
@@ -930,12 +930,12 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
         child: Column(
           children: [
             // 1. Carte compacte en haut (~22% de l'écran)
-            _buildCompactCard(card, accentColor),
+            _buildCompactCard(card, accentColor, s),
 
             const SizedBox(height: 4),
 
             // 2. Bandeau Damier d'arrivée
-            _buildFinishBanner(),
+            _buildFinishBanner(s),
 
             const SizedBox(height: 6),
 
@@ -987,7 +987,7 @@ class _NhieRaceScreenState extends State<NhieRaceScreen>
             ),
 
             // 4. Barre d'action dynamique + Undo
-            _buildBottomActionBar(selectedCount, willSomeoneWin),
+            _buildBottomActionBar(selectedCount, willSomeoneWin, s),
           ],
         ),
       ),

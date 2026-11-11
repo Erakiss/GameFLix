@@ -1,5 +1,7 @@
 // lib/shared/widgets/unlock_pack_sheet.dart
 import 'package:flutter/material.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_shared.dart';
 import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/state/access_control_provider.dart';
 
@@ -42,11 +44,12 @@ class UnlockPackSheet extends StatelessWidget {
 
   void _watchRewardedAd(BuildContext context) {
     final access = AccessControlProvider.instance;
+    final strings = AppStrings.read(context);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Chargement de la vidéo récompensée... 🎬"),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(strings.rewardedAdLoadingMessage),
+        duration: const Duration(seconds: 2),
       ),
     );
 
@@ -61,16 +64,17 @@ class UnlockPackSheet extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text("🔥 Pass Soirée 1H activé ! Tout est débloqué pendant 60 minutes !"),
+              content: Text(strings.pass1hActivatedMessage),
               backgroundColor: Colors.greenAccent.shade700,
             ),
           );
         }
       },
       onAdFailed: () {
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Vidéo indisponible ou appareil hors-ligne. Réessaie dans un instant !"),
+          SnackBar(
+            content: Text(strings.rewardedAdFailedMessage),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -80,6 +84,7 @@ class UnlockPackSheet extends StatelessWidget {
 
   void _buyPlan(BuildContext context, {required bool isAnnual}) async {
     final access = AccessControlProvider.instance;
+    final strings = AppStrings.read(context);
     final success = await access.purchasePlan(isAnnual: isAnnual);
 
     if (!context.mounted) return;
@@ -90,15 +95,15 @@ class UnlockPackSheet extends StatelessWidget {
       }
       onUnlocked();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("👑 Bienvenue VIP ! Tous les packs sont débloqués et zéro pub !"),
+        SnackBar(
+          content: Text(strings.vipWelcomeMessage),
           backgroundColor: Colors.pinkAccent,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Achat annulé ou indisponible."),
+        SnackBar(
+          content: Text(strings.purchaseUnavailableMessage),
           backgroundColor: Colors.orangeAccent,
         ),
       );
@@ -107,6 +112,7 @@ class UnlockPackSheet extends StatelessWidget {
 
   void _restorePurchases(BuildContext context) async {
     final access = AccessControlProvider.instance;
+    final strings = AppStrings.read(context);
     final success = await access.restorePurchases();
 
     if (!context.mounted) return;
@@ -117,22 +123,22 @@ class UnlockPackSheet extends StatelessWidget {
       }
       onUnlocked();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("✨ Achats restaurés avec succès !"),
+        SnackBar(
+          content: Text(strings.unlockRestoreSuccessMessage),
           backgroundColor: Colors.greenAccent,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Aucun abonnement actif trouvé à restaurer."),
+        SnackBar(
+          content: Text(strings.restoreEmptyMessage),
           backgroundColor: Colors.orangeAccent,
         ),
       );
     }
   }
 
-  Widget _buildOneHourPassOption(BuildContext context) {
+  Widget _buildOneHourPassOption(BuildContext context, AppStrings strings) {
     final access = AccessControlProvider.instance;
 
     // Cas 1 : L'essai a déjà été utilisé et n'est plus actif
@@ -155,29 +161,29 @@ class UnlockPackSheet extends StatelessWidget {
               child: const Icon(Icons.lock_clock_rounded, color: Colors.white38, size: 24),
             ),
             const SizedBox(width: 14),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "ESSAI 1H DÉJÀ UTILISÉ",
-                    style: TextStyle(
+                    strings.pass1hUsedTitle,
+                    style: const TextStyle(
                       color: Colors.white38,
                       fontWeight: FontWeight.w900,
                       fontSize: 15,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    "Offre unique par téléphone déjà consommée",
-                    style: TextStyle(color: Colors.white38, fontSize: 12),
+                    strings.pass1hUsedSubtitle,
+                    style: const TextStyle(color: Colors.white38, fontSize: 12),
                   ),
                 ],
               ),
             ),
-            const Text(
-              "EXPIRÉ",
-              style: TextStyle(
+            Text(
+              strings.pass1hExpiredBadge,
+              style: const TextStyle(
                 color: Colors.white38,
                 fontWeight: FontWeight.bold,
                 fontSize: 11,
@@ -221,9 +227,9 @@ class UnlockPackSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "PASS 1H ACTIF",
-                    style: TextStyle(
+                  Text(
+                    strings.pass1hActiveTitle,
+                    style: const TextStyle(
                       color: Colors.amberAccent,
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
@@ -231,7 +237,7 @@ class UnlockPackSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "Encore ~$minutes min de déblocage total pour la soirée !",
+                    strings.pass1hActiveRemaining(minutes),
                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
@@ -271,29 +277,29 @@ class UnlockPackSheet extends StatelessWidget {
               child: const Icon(Icons.play_arrow_rounded, color: Colors.black, size: 24),
             ),
             const SizedBox(width: 14),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "PASS SOIRÉE 1H GRATUIT",
-                    style: TextStyle(
+                    strings.pass1hFreeTitle,
+                    style: const TextStyle(
                       color: Colors.cyanAccent,
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    "Regarde 1 vidéo pour TOUT débloquer (Essai unique)",
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                    strings.pass1hFreeSubtitle,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               ),
             ),
-            const Text(
-              "GRATUIT",
-              style: TextStyle(
+            Text(
+              strings.freeBadge,
+              style: const TextStyle(
                 color: Colors.cyanAccent,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
@@ -307,6 +313,8 @@ class UnlockPackSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -333,7 +341,7 @@ class UnlockPackSheet extends StatelessWidget {
             const SizedBox(height: 16),
 
             Text(
-              "DÉBLOQUER $packTitle".toUpperCase(),
+              strings.unlockPackTitle(packTitle),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 22,
@@ -344,15 +352,15 @@ class UnlockPackSheet extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            const Text(
-              "Ce contenu Spicy est réservé aux membres VIP ou débloquable pour cette session de jeu !",
+            Text(
+              strings.unlockPackSubtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.white70),
+              style: const TextStyle(fontSize: 14, color: Colors.white70),
             ),
             const SizedBox(height: 25),
 
             // 2. Option 1 : Pass Soirée 1H (Gratuit via Rewarded Ad, essai unique par appareil)
-            _buildOneHourPassOption(context),
+            _buildOneHourPassOption(context, strings),
             const SizedBox(height: 14),
 
             // 3. Option 2 : Formule Duo VIP RevenueCat (Annuel -70% et Hebdomadaire)
@@ -395,9 +403,9 @@ class UnlockPackSheet extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              const Text(
-                                "PASS ANNUEL CLUB",
-                                style: TextStyle(
+                              Text(
+                                strings.annualClubPassTitle,
+                                style: const TextStyle(
                                   color: Colors.pinkAccent,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 15,
@@ -422,9 +430,9 @@ class UnlockPackSheet extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 2),
-                          const Text(
-                            "Tous les jeux illimités & sans pub à l'année",
-                            style: TextStyle(color: Colors.white70, fontSize: 12),
+                          Text(
+                            strings.annualClubPassSubtitle,
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
                           ),
                         ],
                       ),
@@ -440,9 +448,9 @@ class UnlockPackSheet extends StatelessWidget {
                             fontSize: 15,
                           ),
                         ),
-                        const Text(
-                          "/ an",
-                          style: TextStyle(color: Colors.white54, fontSize: 11),
+                        Text(
+                          strings.perYearLabel,
+                          style: const TextStyle(color: Colors.white54, fontSize: 11),
                         ),
                       ],
                     ),
@@ -474,22 +482,22 @@ class UnlockPackSheet extends StatelessWidget {
                       child: const Icon(Icons.flash_on_rounded, color: Colors.cyanAccent, size: 20),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "PASS HEBDOMADAIRE",
-                            style: TextStyle(
+                            strings.weeklyPassTitle,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w900,
                               fontSize: 14,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
-                            "Idéal pour animer votre soirée ce soir",
-                            style: TextStyle(color: Colors.white60, fontSize: 11),
+                            strings.weeklyPassSubtitle,
+                            style: const TextStyle(color: Colors.white60, fontSize: 11),
                           ),
                         ],
                       ),
@@ -505,9 +513,9 @@ class UnlockPackSheet extends StatelessWidget {
                             fontSize: 14,
                           ),
                         ),
-                        const Text(
-                          "/ semaine",
-                          style: TextStyle(color: Colors.white54, fontSize: 10),
+                        Text(
+                          strings.perWeekLabel,
+                          style: const TextStyle(color: Colors.white54, fontSize: 10),
                         ),
                       ],
                     ),
@@ -522,9 +530,9 @@ class UnlockPackSheet extends StatelessWidget {
               child: TextButton.icon(
                 onPressed: () => _restorePurchases(context),
                 icon: const Icon(Icons.restore_rounded, color: Colors.cyanAccent, size: 16),
-                label: const Text(
-                  "Restaurer mes achats",
-                  style: TextStyle(color: Colors.cyanAccent, fontSize: 12),
+                label: Text(
+                  strings.restorePurchasesButton,
+                  style: const TextStyle(color: Colors.cyanAccent, fontSize: 12),
                 ),
               ),
             ),
@@ -544,9 +552,9 @@ class UnlockPackSheet extends StatelessWidget {
             // 5. Bouton Annuler
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                "Plus tard",
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+              child: Text(
+                strings.laterButton,
+                style: const TextStyle(color: Colors.white54, fontSize: 14),
               ),
             ),
           ],
@@ -578,6 +586,7 @@ class _GiftCodeRowState extends State<_GiftCodeRow> {
     final code = _controller.text.trim();
     if (code.isEmpty) return;
 
+    final strings = AppStrings.read(context);
     final success = await AccessControlProvider.instance.redeemPromoCode(code);
     if (!mounted) return;
 
@@ -585,8 +594,8 @@ class _GiftCodeRowState extends State<_GiftCodeRow> {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(
-            content: Text("✨ Code validé ! Le mode Pro est débloqué à vie ! 👑"),
+          SnackBar(
+            content: Text(strings.giftCodeSuccessMessage),
             backgroundColor: Colors.pinkAccent,
           ),
         );
@@ -595,8 +604,8 @@ class _GiftCodeRowState extends State<_GiftCodeRow> {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(
-            content: Text("Code cadeau invalide ou expiré."),
+          SnackBar(
+            content: Text(strings.giftCodeErrorMessage),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -605,6 +614,8 @@ class _GiftCodeRowState extends State<_GiftCodeRow> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -615,13 +626,13 @@ class _GiftCodeRowState extends State<_GiftCodeRow> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.card_giftcard_rounded, color: Colors.amberAccent, size: 18),
-              SizedBox(width: 6),
+              const Icon(Icons.card_giftcard_rounded, color: Colors.amberAccent, size: 18),
+              const SizedBox(width: 6),
               Text(
-                "ESPACE CADEAU 🎁",
-                style: TextStyle(
+                strings.giftCodeTitle,
+                style: const TextStyle(
                   color: Colors.amberAccent,
                   fontWeight: FontWeight.w900,
                   fontSize: 12,
@@ -639,7 +650,7 @@ class _GiftCodeRowState extends State<_GiftCodeRow> {
                   textCapitalization: TextCapitalization.characters,
                   onSubmitted: (_) => _redeem(),
                   decoration: InputDecoration(
-                    hintText: "Code cadeau...",
+                    hintText: strings.giftCodeHint,
                     hintStyle: const TextStyle(fontSize: 13, color: Colors.white38),
                     filled: true,
                     fillColor: const Color(0xFF101024),
@@ -663,9 +674,9 @@ class _GiftCodeRowState extends State<_GiftCodeRow> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text(
-                  "Activer",
-                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
+                child: Text(
+                  strings.giftCodeValidateButton,
+                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
                 ),
               ),
             ],

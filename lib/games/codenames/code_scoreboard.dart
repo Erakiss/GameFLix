@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:gameflix/shared/navigation.dart';
 import 'package:gameflix/models/player.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_imp_code.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/shared/widgets/neon_confetti.dart';
 
@@ -21,8 +23,10 @@ class CodeScoreboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     Color winColor = winner == "RED" ? Colors.redAccent : Colors.blueAccent;
-    String winTeamName = winner == "RED" ? "ÉQUIPE ROUGE" : "ÉQUIPE BLEUE";
+    String winTeamName =
+        winner == "RED" ? strings.codeRedTeamName : strings.codeBlueTeamName;
 
     return Scaffold(
       backgroundColor: const Color(0xFF050515),
@@ -45,7 +49,7 @@ class CodeScoreboardScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    reason,
+                    strings.codeWinReason(reason),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
@@ -55,7 +59,7 @@ class CodeScoreboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "VICTOIRE\n$winTeamName",
+                    strings.codeVictoryHeader(winTeamName),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 40,
@@ -77,9 +81,9 @@ class CodeScoreboardScreen extends StatelessWidget {
                       Expanded(
                         child: Column(
                           children: [
-                            const Text(
-                              "🔴 ROUGE",
-                              style: TextStyle(
+                            Text(
+                              strings.codeRedTeamBadge,
+                              style: const TextStyle(
                                 color: Colors.redAccent,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -106,9 +110,9 @@ class CodeScoreboardScreen extends StatelessWidget {
                       Expanded(
                         child: Column(
                           children: [
-                            const Text(
-                              "🔵 BLEU",
-                              style: TextStyle(
+                            Text(
+                              strings.codeBlueTeamBadge,
+                              style: const TextStyle(
                                 color: Colors.blueAccent,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -142,7 +146,7 @@ class CodeScoreboardScreen extends StatelessWidget {
                       onPressed: () => goToHub(context),
                       icon: Icon(Icons.home, color: winColor),
                       label: Text(
-                        "RETOUR AU HUB",
+                        strings.backToHubButton,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/imposter/imp_game.dart';
 import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_imp_code.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
@@ -82,9 +83,10 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
         .toList();
 
     if (deck.isEmpty) {
+      final strings = AppStrings.read(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Sélectionne au moins une catégorie !"),
+        SnackBar(
+          content: Text(strings.impSelectCategoryError),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -168,21 +170,21 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Mode Mister White",
-                              style: TextStyle(
+                              strings.impMisterWhiteModeTitle,
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.purpleAccent,
                               ),
                             ),
                             Text(
-                              "L'imposteur n'aura AUCUN mot secret.",
-                              style: TextStyle(
+                              strings.impMisterWhiteModeSubtitle,
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.white70,
                               ),
@@ -230,9 +232,9 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    child: const Text(
-                      "DISTRIBUER LES RÔLES",
-                      style: TextStyle(
+                    child: Text(
+                      strings.impDealRolesButton,
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.purpleAccent,

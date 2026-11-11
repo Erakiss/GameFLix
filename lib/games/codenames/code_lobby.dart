@@ -7,6 +7,8 @@ import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/games/codenames/code_game.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_imp_code.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
 
 class CodeWord {
@@ -76,11 +78,10 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
   void _startGame() {
     // Vérification stricte : 2 joueurs minimum par équipe
     if (_redTeam.length < 2 || _blueTeam.length < 2) {
+      final strings = AppStrings.read(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Chaque équipe doit avoir au moins 2 joueurs (1 Espion + 1 Devineur) !",
-          ),
+        SnackBar(
+          content: Text(strings.codeTeamMinPlayersError),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -142,6 +143,7 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
     Color teamColor,
     List<Player> teamPlayers,
     bool isRedTeam,
+    AppStrings strings,
   ) {
     return Expanded(
       child: Container(
@@ -217,7 +219,7 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
                           ),
                           if (isSpy)
                             Text(
-                              "ESPION 👁️",
+                              strings.codeSpyRoleBadge,
                               style: TextStyle(
                                 color: teamColor,
                                 fontSize: 10,
@@ -225,9 +227,9 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
                               ),
                             ),
                           if (!isSpy)
-                            const Text(
-                              "DEVINEUR",
-                              style: TextStyle(
+                            Text(
+                              strings.codeGuesserRoleBadge,
+                              style: const TextStyle(
                                 color: Colors.white54,
                                 fontSize: 10,
                               ),
@@ -239,11 +241,11 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
                 },
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8.0),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: Text(
-                "Appuyez pour déplacer",
-                style: TextStyle(
+                strings.codeTapToMoveHint,
+                style: const TextStyle(
                   color: Colors.white38,
                   fontSize: 10,
                   fontStyle: FontStyle.italic,
@@ -258,6 +260,7 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: buildUnifiedLobbyAppBar(
@@ -283,7 +286,7 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
                       ),
                       const SizedBox(height: 15),
                       NeonCategorySwitch(
-                        title: 'Activer le mode Express',
+                        title: strings.codeExpressModeLabel,
                         color: Colors.cyanAccent,
                         value: _isExpressMode,
                         onChanged: (val) =>
@@ -294,16 +297,18 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
                         child: Row(
                           children: [
                             _buildTeamColumn(
-                              "ROUGE",
+                              strings.codeTeamRed,
                               Colors.redAccent,
                               _redTeam,
                               true,
+                              strings,
                             ),
                             _buildTeamColumn(
-                              "BLEU",
+                              strings.codeTeamBlue,
                               Colors.blueAccent,
                               _blueTeam,
                               false,
+                              strings,
                             ),
                           ],
                         ),
@@ -325,9 +330,9 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
-                          child: const Text(
-                            "GÉNÉRER LA GRILLE",
-                            style: TextStyle(
+                          child: Text(
+                            strings.codeGenerateGridButton,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.cyanAccent,

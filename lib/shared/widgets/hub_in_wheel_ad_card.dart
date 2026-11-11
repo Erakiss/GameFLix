@@ -2,6 +2,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_shared.dart';
 import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 
@@ -101,6 +103,8 @@ class _HubInWheelAdCardState extends State<HubInWheelAdCard> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     return Container(
       key: const Key('hub_in_wheel_ad_card'),
       height: widget.cardRenderHeight,
@@ -153,7 +157,7 @@ class _HubInWheelAdCardState extends State<HubInWheelAdCard> {
                         UnlockPackSheet.show(
                           context,
                           packId: 'vip_pass',
-                          packTitle: 'PASS VIP / SANS PUB',
+                          packTitle: strings.vipAdFreePackTitle,
                           onUnlocked: () {},
                         );
                       },
@@ -177,9 +181,9 @@ class _HubInWheelAdCardState extends State<HubInWheelAdCard> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            "ESPACE SPONSOR",
-                            style: TextStyle(
+                          Text(
+                            strings.sponsorSpaceTitle,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w900,
                               fontSize: 14,
@@ -188,7 +192,7 @@ class _HubInWheelAdCardState extends State<HubInWheelAdCard> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            "Passez en VIP pour supprimer toutes les pubs 👑",
+                            strings.sponsorSpaceSubtitle,
                             style: TextStyle(
                               color: Colors.cyanAccent.withValues(alpha: 0.8),
                               fontSize: 11,
@@ -214,9 +218,9 @@ class _HubInWheelAdCardState extends State<HubInWheelAdCard> {
                     width: 1,
                   ),
                 ),
-                child: const Text(
-                  "PUB",
-                  style: TextStyle(
+                child: Text(
+                  strings.adBadgeLabel,
+                  style: const TextStyle(
                     color: Colors.cyanAccent,
                     fontSize: 9,
                     fontWeight: FontWeight.w900,

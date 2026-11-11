@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:gameflix/l10n/app_strings.dart';
 import 'package:gameflix/l10n/locale_controller.dart';
+import 'package:gameflix/l10n/strings_shared.dart';
 import 'package:gameflix/models/game_config.dart';
 import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/services/audio_service.dart';
@@ -339,7 +340,7 @@ class _SettingsOverlayDialogState extends State<SettingsOverlayDialog> {
                                   UnlockPackSheet.show(
                                     context,
                                     packId: 'vip_all',
-                                    packTitle: 'PASS PRO / SPICY',
+                                    packTitle: strings.proSpicyPackTitle,
                                     onUnlocked: () {},
                                   );
                                 },
@@ -519,9 +520,9 @@ class _SettingsOverlayDialogState extends State<SettingsOverlayDialog> {
                               color: Colors.white60,
                               size: 18,
                             ),
-                            label: const Text(
-                              'Préférences de confidentialité (RGPD)',
-                              style: TextStyle(color: Colors.white60, fontSize: 12),
+                            label: Text(
+                              strings.gdprPrivacyPreferencesButton,
+                              style: const TextStyle(color: Colors.white60, fontSize: 12),
                             ),
                           ),
                         ),

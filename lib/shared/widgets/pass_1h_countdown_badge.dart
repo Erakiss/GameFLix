@@ -2,6 +2,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/strings_shared.dart';
 import 'package:gameflix/state/access_control_provider.dart';
 
 /// Badge néon dynamique affichant le compte à rebours du Pass Soirée 1H.
@@ -40,6 +42,7 @@ class _Pass1hCountdownBadgeState extends State<Pass1hCountdownBadge> {
   @override
   Widget build(BuildContext context) {
     final accessCtrl = context.watch<AccessControlProvider>();
+    final strings = AppStrings.of(context);
 
     if (!accessCtrl.isPass1hActive) {
       return const SizedBox.shrink();
@@ -73,7 +76,7 @@ class _Pass1hCountdownBadgeState extends State<Pass1hCountdownBadge> {
           ),
           const SizedBox(width: 4),
           Text(
-            "PASS 1H : $minutes:$seconds",
+            strings.pass1hCountdownLabel(minutes, seconds),
             style: const TextStyle(
               color: Colors.amberAccent,
               fontSize: 11,

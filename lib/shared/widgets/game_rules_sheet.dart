@@ -1,5 +1,8 @@
 // lib/shared/widgets/game_rules_sheet.dart
 import 'package:flutter/material.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/l10n/locale_controller.dart';
+import 'package:gameflix/l10n/strings_shared.dart';
 
 // --- MODÈLES DE DONNÉES DES RÈGLES ---
 
@@ -48,178 +51,180 @@ class GameRules {
 class DefaultGameRules {
   DefaultGameRules._();
 
-  static GameRules getRules(String gameId) {
+  static GameRules getRules(String gameId, [AppStrings? strings]) {
+    final s = strings ?? AppStrings(LocaleController.instance.currentLocale);
+
     switch (gameId) {
       case 'tod':
-        return const GameRules(
-          gameTitle: 'Action ou Vérité',
-          objective: 'Découvrir les secrets de tes potes ou relever des défis délirants sans te défiler.',
+        return GameRules(
+          gameTitle: s.gameTitle('tod', 'Action ou Vérité'),
+          objective: s.todRulesObjective,
           accentColor: Colors.purpleAccent,
           steps: [
             GameRuleStep(
-              title: '1. Choix du joueur',
-              description: 'Le jeu désigne le joueur actif. Choisis entre Vérité (honnêteté obligatoire) ou Action (gage à accomplir).',
+              title: s.todStep1Title,
+              description: s.todStep1Desc,
               icon: Icons.touch_app,
             ),
             GameRuleStep(
-              title: '2. Les catégories de cartes',
-              description: 'SOFT pour démarrer tranquillement, FUN pour rigoler entre potes, et HOT pour chauffer l\'ambiance.',
+              title: s.todStep2Title,
+              description: s.todStep2Desc,
               icon: Icons.layers,
             ),
             GameRuleStep(
-              title: '3. En cas de refus',
-              description: 'Si un joueur refuse catégoriquement d\'accomplir son gage ou d\'avouer la vérité, il prend une gorgée de pénalité !',
+              title: s.todStep3Title,
+              description: s.todStep3Desc,
               icon: Icons.warning_amber_rounded,
             ),
           ],
-          endCondition: 'Jouez autant de tours que vous voulez. La partie s\'arrête quand la table n\'a plus de secrets !',
+          endCondition: s.todRulesEndCondition,
         );
 
       case 'nhie':
-        return const GameRules(
-          gameTitle: "Je n'ai jamais",
-          objective: 'Être le premier joueur à franchir la ligne d\'arrivée en ayant déjà fait ce qui est annoncé !',
+        return GameRules(
+          gameTitle: s.gameTitle('nhie', "Je n'ai jamais"),
+          objective: s.nhieRulesObjective,
           accentColor: Colors.cyanAccent,
           steps: [
             GameRuleStep(
-              title: '1. Annonce de la phrase',
-              description: 'Une affirmation commence toujours par "Je n\'ai jamais...". Lis-la à voix haute pour tout le monde.',
+              title: s.nhieStep1Title,
+              description: s.nhieStep1Desc,
               icon: Icons.record_voice_over,
             ),
             GameRuleStep(
-              title: '2. Avance ou reste sur place',
-              description: 'Tous les joueurs qui ont DÉJÀ fait l\'action annoncée avancent d\'une case dans leur couloir de course.',
+              title: s.nhieStep2Title,
+              description: s.nhieStep2Desc,
               icon: Icons.directions_run,
             ),
             GameRuleStep(
-              title: '3. Solidarité & Gorgée',
-              description: 'Ceux qui avancent assument leurs bêtises et trinquent tous ensemble !',
+              title: s.nhieStep3Title,
+              description: s.nhieStep3Desc,
               icon: Icons.local_bar,
             ),
           ],
-          endCondition: 'Le premier joueur qui atteint la dernière case de son couloir remporte la course !',
+          endCondition: s.nhieRulesEndCondition,
         );
 
       case 'imp':
-        return const GameRules(
-          gameTitle: "L'Imposteur",
-          objective: 'Pour les civils : démasquer l\'imposteur. Pour l\'imposteur : se fondre dans la masse sans se faire griller.',
+        return GameRules(
+          gameTitle: s.gameTitle('imp', "L'Imposteur"),
+          objective: s.impRulesObjective,
           accentColor: Colors.orangeAccent,
           steps: [
             GameRuleStep(
-              title: '1. Découverte secrète',
-              description: 'Passez-vous le téléphone. Chaque civil découvre le mot secret. L\'imposteur reçoit une consigne floue (ou rien en mode Mister White).',
+              title: s.impStep1Title,
+              description: s.impStep1Desc,
               icon: Icons.visibility_off,
             ),
             GameRuleStep(
-              title: '2. Tour d\'indices',
-              description: 'Dans l\'ordre, chaque joueur donne UN SEUL mot comme indice en lien avec le mot secret.',
+              title: s.impStep2Title,
+              description: s.impStep2Desc,
               icon: Icons.chat_bubble_outline,
             ),
             GameRuleStep(
-              title: '3. Débat & Vote',
-              description: 'À la fin du tour, débattez ensemble et votez tous en même temps pour désigner l\'imposteur présumé.',
+              title: s.impStep3Title,
+              description: s.impStep3Desc,
               icon: Icons.how_to_vote,
             ),
           ],
-          endCondition: 'Les civils gagnent s\'ils votent contre l\'imposteur. L\'imposteur gagne s\'il survit au vote ou s\'il devine le mot secret.',
+          endCondition: s.impRulesEndCondition,
         );
 
       case 'wyr':
-        return const GameRules(
-          gameTitle: 'Tu préfères',
-          objective: 'Trancher entre deux dilemmes impossibles, absurdes ou cruels sans langue de bois.',
+        return GameRules(
+          gameTitle: s.gameTitle('wyr', 'Tu préfères'),
+          objective: s.wyrRulesObjective,
           accentColor: Colors.blueAccent,
           steps: [
             GameRuleStep(
-              title: '1. Les deux options',
-              description: 'Deux choix s\'affichent à l\'écran : l\'Option Rose vs l\'Option Cyan.',
+              title: s.wyrStep1Title,
+              description: s.wyrStep1Desc,
               icon: Icons.compare_arrows,
             ),
             GameRuleStep(
-              title: '2. Débat & Vote du groupe',
-              description: 'Au signal, chaque joueur vote à main levée pour l\'option qu\'il préfère.',
+              title: s.wyrStep2Title,
+              description: s.wyrStep2Desc,
               icon: Icons.thumb_up_alt_outlined,
             ),
             GameRuleStep(
-              title: '3. Révélation & Pénalités',
-              description: 'Appuyez pour révéler les pourcentages mondiaux. La minorité de la table prend +2 pts (+1 pt si choix impopulaire <35%).',
+              title: s.wyrStep3Title,
+              description: s.wyrStep3Desc,
               icon: Icons.pie_chart_outline_rounded,
             ),
             GameRuleStep(
-              title: '4. Hall of Shame & Shots',
-              description: 'En fin de partie, le joueur avec le plus de points boit 1 shot + 1 shot bonus par tranche de 5 pts d\'écart !',
+              title: s.wyrStep4Title,
+              description: s.wyrStep4Desc,
               icon: Icons.local_bar_rounded,
             ),
           ],
-          endCondition: 'Cumulez le moins de points possible pour échapper aux shots du Hall of Shame !',
+          endCondition: s.wyrRulesEndCondition,
         );
 
       case 'code':
-        return const GameRules(
-          gameTitle: 'Codenames',
-          objective: 'Faire deviner tous les mots de son équipe avant les adversaires, tout en évitant l\'Assassin.',
+        return GameRules(
+          gameTitle: s.gameTitle('code', 'Codenames'),
+          objective: s.codeRulesObjective,
           accentColor: Colors.cyanAccent,
           steps: [
             GameRuleStep(
-              title: '1. Composition des équipes',
-              description: 'Deux équipes (Rouge et Bleu). Dans chaque équipe, un Maître-Espion fait deviner les mots à ses Agents de terrain.',
+              title: s.codeStep1Title,
+              description: s.codeStep1Desc,
               icon: Icons.groups,
             ),
             GameRuleStep(
-              title: '2. L\'indice codé',
-              description: 'Le Maître-Espion donne un indice composé d\'UN mot et d\'UN chiffre (ex: "Plage 2" pour relier deux mots).',
+              title: s.codeStep2Title,
+              description: s.codeStep2Desc,
               icon: Icons.lightbulb_outline,
             ),
             GameRuleStep(
-              title: '3. Révélation des cartes',
-              description: 'Les agents cliquent sur les cartes correspondantes. Si la carte est de leur couleur, ils continuent.',
+              title: s.codeStep3Title,
+              description: s.codeStep3Desc,
               icon: Icons.style,
             ),
           ],
-          endCondition: 'La première équipe qui découvre toutes ses cartes gagne. Toucher la carte Assassin provoque une défaite immédiate !',
+          endCondition: s.codeRulesEndCondition,
         );
 
       case 'viper':
       case 'board':
-        return const GameRules(
-          gameTitle: 'Viper',
-          objective: 'Lancer le dé à tour de rôle et franchir le premier la case finale du plateau.',
+        return GameRules(
+          gameTitle: s.gameTitle('viper', 'Viper'),
+          objective: s.viperRulesObjective,
           accentColor: Colors.amberAccent,
           steps: [
             GameRuleStep(
-              title: '1. Déplacement & Rebond (Lacets)',
-              description: 'En Mode Express et Normal, tu avances en serpentin avec rebond si tu dépasses la fin. En Mode Spirale (3 anneaux), tu tournes en boucle sur ton anneau jusqu\'à atteindre le centre sans rebond !',
+              title: s.viperStep1Title,
+              description: s.viperStep1Desc,
               icon: Icons.casino_outlined,
             ),
             GameRuleStep(
-              title: '2. Échelles (LADDER), Serpents (SNAKE) & Portails',
-              description: 'Pour monter (Échelles ou Portails UP), offre 1 gorgée ou donne un gage ! Pour descendre (Serpents ou Portails DOWN), bois 1 gorgée et glisse (la case d\'atterrissage est neutre, évitant toute double peine).',
+              title: s.viperStep2Title,
+              description: s.viperStep2Desc,
               icon: Icons.swap_vert_rounded,
             ),
             GameRuleStep(
-              title: '3. Gages DARE 😈, Vérités & Mode Hot 🌶️',
-              description: 'Les cases Truth, Dare (démon 😈) et Drink rythment la partie. Les cartes Spicy n\'apparaissent que si le mode Hot 🌶️ est activé !',
+              title: s.viperStep3Title,
+              description: s.viperStep3Desc,
               icon: Icons.local_bar_rounded,
             ),
             GameRuleStep(
-              title: '4. Cases GLITCH (Double Tour & Anti-Venin)',
-              description: 'Ces cases piratent le jeu : relance immédiatement le dé (Double Tour), avance, recule, échange ta place ou active un sérum Anti-Venin qui annule ta prochaine descente !',
+              title: s.viperStep4Title,
+              description: s.viperStep4Desc,
               icon: Icons.bolt_rounded,
             ),
           ],
-          endCondition: 'Le premier joueur qui atteint la case finale remporte la partie !',
+          endCondition: s.viperRulesEndCondition,
         );
 
       default:
         return GameRules(
-          gameTitle: 'Règles du jeu',
-          objective: 'Amusez-vous entre amis !',
+          gameTitle: s.defaultRulesTitle,
+          objective: s.defaultRulesObjective,
           accentColor: Colors.cyanAccent,
-          steps: const [
+          steps: [
             GameRuleStep(
-              title: 'Déroulement',
-              description: 'Suivez les instructions affichées à l\'écran à chaque tour.',
+              title: s.defaultRulesStepTitle,
+              description: s.defaultRulesStepDesc,
             ),
           ],
         );
@@ -247,6 +252,8 @@ class GameRulesSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.85,
@@ -279,12 +286,12 @@ class GameRulesSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // --- SECTION : OBJECTIF DU JEU ---
-                    _buildObjectiveCard(),
+                    _buildObjectiveCard(strings),
                     const SizedBox(height: 20),
 
                     // --- SECTION : ÉTAPES DU JEU ---
                     Text(
-                      'COMMENT JOUER ?',
+                      strings.rulesHowToPlayHeader,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -298,7 +305,7 @@ class GameRulesSheet extends StatelessWidget {
                     // --- SECTION : CONDITION DE FIN ---
                     if (rules.endCondition != null) ...[
                       const SizedBox(height: 15),
-                      _buildEndConditionCard(),
+                      _buildEndConditionCard(strings),
                     ],
                     const SizedBox(height: 15),
                   ],
@@ -348,7 +355,7 @@ class GameRulesSheet extends StatelessWidget {
   }
 
   /// Bloc résumant l'objectif principal du jeu
-  Widget _buildObjectiveCard() {
+  Widget _buildObjectiveCard(AppStrings strings) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(15),
@@ -365,7 +372,7 @@ class GameRulesSheet extends StatelessWidget {
               Icon(Icons.flag_rounded, color: rules.accentColor, size: 18),
               const SizedBox(width: 8),
               Text(
-                'BUT DU JEU',
+                strings.rulesObjectiveHeader,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -436,7 +443,7 @@ class GameRulesSheet extends StatelessWidget {
   }
 
   /// Bloc signalant la condition de fin ou victoire
-  Widget _buildEndConditionCard() {
+  Widget _buildEndConditionCard(AppStrings strings) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -448,13 +455,13 @@ class GameRulesSheet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.emoji_events_rounded, color: Colors.amberAccent, size: 20),
-              SizedBox(width: 8),
+              const Icon(Icons.emoji_events_rounded, color: Colors.amberAccent, size: 20),
+              const SizedBox(width: 8),
               Text(
-                'FIN DE PARTIE',
-                style: TextStyle(
+                strings.rulesEndConditionHeader,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Colors.amberAccent,
