@@ -183,6 +183,7 @@ void main() {
 
       expect(find.text('CLASSIQUE'), findsOneWidget);
       expect(find.text('HOT 🌶️'), findsOneWidget);
+      expect(find.byIcon(Icons.lock_rounded), findsOneWidget);
       expect(find.text('BLACK OUT'), findsOneWidget);
       expect(find.text('LANCER LA PARTIE'), findsOneWidget);
 

@@ -142,6 +142,33 @@ class AppStrings {
         _ => fallback,
       };
 
+  /// Retourne le chemin vers la bannière WebP localisée d'un jeu selon son identifiant.
+  String? gameBannerPath(String gameId, [String? fallback]) => switch (gameId) {
+        'tod' => 'assets/banners/${locale.code}/tod_banner.webp',
+        'nhie' => 'assets/banners/${locale.code}/nhie_banner.webp',
+        'imp' => 'assets/banners/${locale.code}/imp_banner.webp',
+        'wyr' => 'assets/banners/${locale.code}/wyr_banner.webp',
+        'viper' || 'board' => 'assets/banners/${locale.code}/board_banner.webp',
+        'code' => 'assets/banners/en/code_banner.webp',
+        _ => fallback != null ? resolveBannerAsset(fallback) : null,
+      };
+
+  /// Résout un chemin de bannière générique (ex: 'assets/imp_banner.png') vers la bannière WebP localisée.
+  String resolveBannerAsset(String imagePath) {
+    final String fileName = imagePath.split('/').last;
+    final String baseName =
+        fileName.replaceAll(RegExp(r'\.(png|webp|jpg|jpeg)$'), '');
+    return switch (baseName) {
+      'tod_banner' => 'assets/banners/${locale.code}/tod_banner.webp',
+      'nhie_banner' => 'assets/banners/${locale.code}/nhie_banner.webp',
+      'imp_banner' => 'assets/banners/${locale.code}/imp_banner.webp',
+      'wyr_banner' => 'assets/banners/${locale.code}/wyr_banner.webp',
+      'board_banner' => 'assets/banners/${locale.code}/board_banner.webp',
+      'code_banner' => 'assets/banners/en/code_banner.webp',
+      _ => imagePath,
+    };
+  }
+
   // --- GESTION DES JOUEURS (PLAYER MANAGER SHEET) ---
 
   String get playersTitle => switch (locale) {
@@ -187,9 +214,59 @@ class AppStrings {
       };
 
   String get duplicateNameError => switch (locale) {
-        AppLocale.fr => 'Ce nom est déjà pris ! Ajoute une initiale (ex: Test 2).',
+        AppLocale.fr => 'Ce nom est déjà pris ! Ajoute une initiale (ex: Alex 2).',
         AppLocale.en => 'This name is already taken! Add an initial (e.g. Alex 2).',
         AppLocale.es => '¡Este nombre ya está en uso! Añade una inicial (ej: Alex 2).',
+      };
+
+  /// Libellé localisé pour les catégories de L'Imposteur.
+  String impCategoryTitle(String categoryKey) => switch (categoryKey) {
+        'Animaux' => switch (locale) {
+            AppLocale.fr => 'Animaux',
+            AppLocale.en => 'Animals',
+            AppLocale.es => 'Animales',
+          },
+        'Sport' => switch (locale) {
+            AppLocale.fr => 'Sport',
+            AppLocale.en => 'Sports',
+            AppLocale.es => 'Deportes',
+          },
+        'Lieu' => switch (locale) {
+            AppLocale.fr => 'Lieu',
+            AppLocale.en => 'Places',
+            AppLocale.es => 'Lugares',
+          },
+        'Personnage Animé' => switch (locale) {
+            AppLocale.fr => 'Personnage Animé',
+            AppLocale.en => 'Animated Characters',
+            AppLocale.es => 'Personajes Animados',
+          },
+        'Film' => switch (locale) {
+            AppLocale.fr => 'Films & Séries',
+            AppLocale.en => 'Movies & Series',
+            AppLocale.es => 'Películas y Series',
+          },
+        'Célébrités' => switch (locale) {
+            AppLocale.fr => 'Célébrités',
+            AppLocale.en => 'Celebrities',
+            AppLocale.es => 'Celebridades',
+          },
+        'Musique' => switch (locale) {
+            AppLocale.fr => 'Rap & Musique',
+            AppLocale.en => 'Rap & Music',
+            AppLocale.es => 'Rap y Música',
+          },
+        'Nourriture' => switch (locale) {
+            AppLocale.fr => 'Nourriture',
+            AppLocale.en => 'Food',
+            AppLocale.es => 'Comida',
+          },
+        'Soirée' => switch (locale) {
+            AppLocale.fr => 'Soirée',
+            AppLocale.en => 'Party',
+            AppLocale.es => 'Fiesta',
+          },
+        _ => categoryKey,
       };
 
   String get emptyPlayersMessage => switch (locale) {

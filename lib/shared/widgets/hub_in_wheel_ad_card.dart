@@ -1,4 +1,5 @@
 // lib/shared/widgets/hub_in_wheel_ad_card.dart
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:gameflix/services/ad_manager.dart';
@@ -24,38 +25,63 @@ class HubInWheelAdCard extends StatefulWidget {
 }
 
 class _HubInWheelAdCardState extends State<HubInWheelAdCard> {
+  static const int _maxRetries = 3;
+
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
+  bool _isLoading = false;
+  int _retryCount = 0;
+  Timer? _retryTimer;
 
   @override
   void initState() {
     super.initState();
+    AdManager.instance.adsReadyNotifier.addListener(_onAdsReadyChanged);
     _loadBanner();
   }
 
-  void _loadBanner() {
-    if (!AdManager.instance.isSupportedPlatform) return;
+  void _onAdsReadyChanged() {
+    if (AdManager.instance.adsReadyNotifier.value) {
+      _loadBanner();
+    }
+  }
 
+  void _loadBanner() {
+    if (!mounted || _isLoading || _bannerAd != null) return;
+    if (!AdManager.instance.isSupportedPlatform) return;
+    if (!AdManager.instance.adsReadyNotifier.value) return;
+
+    _isLoading = true;
     final banner = BannerAd(
       adUnitId: AdManager.instance.bannerAdUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
+          _isLoading = false;
+          _retryCount = 0;
           if (mounted) {
             setState(() {
               _isAdLoaded = true;
             });
+          } else {
+            ad.dispose();
           }
         },
         onAdFailedToLoad: (ad, error) {
           debugPrint('Échec chargement bannière dans la roue : $error');
           ad.dispose();
+          _isLoading = false;
           if (mounted) {
             setState(() {
               _bannerAd = null;
               _isAdLoaded = false;
             });
+            if (_retryCount < _maxRetries) {
+              _retryCount++;
+              _retryTimer?.cancel();
+              _retryTimer = Timer(Duration(seconds: 4 * _retryCount), _loadBanner);
+            }
           }
         },
       ),
@@ -67,6 +93,8 @@ class _HubInWheelAdCardState extends State<HubInWheelAdCard> {
 
   @override
   void dispose() {
+    AdManager.instance.adsReadyNotifier.removeListener(_onAdsReadyChanged);
+    _retryTimer?.cancel();
     _bannerAd?.dispose();
     super.dispose();
   }

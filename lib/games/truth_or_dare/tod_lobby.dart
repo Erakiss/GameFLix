@@ -107,10 +107,12 @@ class _TodLobbyScreenState extends State<TodLobbyScreen> {
   }
 
   void _startGame() {
+    final bool canAccessHot =
+        AccessControlProvider.instance.canAccess('tod_hot', isPremium: true);
     List<GameCard> finalDeck = [];
     if (_useSoft) finalDeck.addAll(_baseDeck.where((c) => c.difficulty == 'SOFT'));
     if (_useFun) finalDeck.addAll(_baseDeck.where((c) => c.difficulty == 'FUN'));
-    if (_useHot) finalDeck.addAll(_baseDeck.where((c) => c.difficulty == 'HOT'));
+    if (_useHot && canAccessHot) finalDeck.addAll(_baseDeck.where((c) => c.difficulty == 'HOT'));
     if (_useCustom) finalDeck.addAll(_customCards);
 
     if (finalDeck.isEmpty) {

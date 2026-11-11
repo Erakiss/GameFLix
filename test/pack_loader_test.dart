@@ -57,10 +57,21 @@ void main() {
         expect(File(filePath).existsSync(), isTrue, reason: 'Le fichier $filePath doit exister');
       }
 
-      // Vérifie la présence des sous-dossiers FR / EN / ES et des échantillons
-      expect(File('assets/data/fr/cards.json').existsSync(), isTrue);
-      expect(File('assets/data/en/cards.json').existsSync(), isTrue);
-      expect(File('assets/data/es/cards.json').existsSync(), isTrue);
+      // Vérifie la présence des sous-dossiers FR / EN / ES et la parité de tous les decks
+      for (final fileName in [
+        'cards.json',
+        'nhie_cards.json',
+        'wyr_cards.json',
+        'imp_cards.json',
+        'viper_card.json',
+        'code_words.json',
+      ]) {
+        final frList = jsonDecode(File('assets/data/fr/$fileName').readAsStringSync()) as List;
+        final enList = jsonDecode(File('assets/data/en/$fileName').readAsStringSync()) as List;
+        final esList = jsonDecode(File('assets/data/es/$fileName').readAsStringSync()) as List;
+        expect(enList.length, frList.length, reason: '$fileName EN doit avoir le même nombre d\'entrées que FR');
+        expect(esList.length, frList.length, reason: '$fileName ES doit avoir le même nombre d\'entrées que FR');
+      }
     });
   });
 

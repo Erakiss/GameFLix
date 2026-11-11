@@ -13,7 +13,7 @@ import 'package:gameflix/config/monetization_config.dart';
 /// 1. Gestion de l'abonnement RevenueCat (accès permanent et illimité).
 /// 2. Gestion des déblocages temporaires via Rewarded Ad (valable pour la session de jeu active).
 /// 3. Réinitialisation automatique des déblocages temporaires lors du retour au Hub.
-/// 4. Déblocage permanent par code cadeau (ex: 'ErakissLeBon').
+/// 4. Déblocage permanent par code cadeau (vérifié par empreinte SHA-256).
 class AccessControlProvider extends ChangeNotifier {
   static const String _promoCodePrefsKey = 'promo_code_pro_unlocked';
   static const String _pass1hExpiresAtKey = 'pass_1h_expires_at';

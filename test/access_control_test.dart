@@ -26,6 +26,8 @@ void main() {
     test('packs premium verrouillés par défaut', () {
       expect(access.canAccess('tod_hot', isPremium: true), isFalse);
       expect(access.canAccess('nhie_hot', isPremium: true), isFalse);
+      expect(access.canAccess('wyr_hot', isPremium: true), isFalse);
+      expect(access.canAccess('viper_hot', isPremium: true), isFalse);
     });
 
     test('abonnement VIP débloque tous les packs de façon illimitée', () {
@@ -34,6 +36,8 @@ void main() {
       expect(access.isSubscribed, isTrue);
       expect(access.canAccess('tod_hot', isPremium: true), isTrue);
       expect(access.canAccess('nhie_hot', isPremium: true), isTrue);
+      expect(access.canAccess('wyr_hot', isPremium: true), isTrue);
+      expect(access.canAccess('viper_hot', isPremium: true), isTrue);
     });
 
     test('déblocage temporaire via Rewarded Ad pour la session active', () {

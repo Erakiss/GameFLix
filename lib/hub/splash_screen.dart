@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gameflix/hub/gameflix_hub.dart';
+import 'package:gameflix/l10n/app_strings.dart';
+import 'package:gameflix/models/game_config.dart';
 import 'package:gameflix/services/ad_manager.dart';
 import 'package:gameflix/shared/navigation.dart';
 
@@ -12,6 +14,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _scaleAnimation;
+  bool _bannersPrecached = false;
 
   @override
   void initState() {
@@ -30,6 +33,26 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         ));
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_bannersPrecached) {
+      _bannersPrecached = true;
+      final strings = AppStrings.read(context);
+      final double dpr = MediaQuery.devicePixelRatioOf(context).clamp(1.0, 3.0);
+      final int cacheWidth = ((170.0 / 0.45) * dpr).round();
+      for (final game in GameRegistry.games) {
+        final String? path = strings.gameBannerPath(game.id, game.bannerPath);
+        if (path != null) {
+          precacheImage(
+            ResizeImage.resizeIfNeeded(cacheWidth, null, AssetImage(path)),
+            context,
+          );
+        }
+      }
+    }
   }
 
   @override

@@ -54,8 +54,8 @@ class MonetizationConfig {
   static const String testRewardedAndroid = 'ca-app-pub-3940256099942544/5224354917';
   static const String testRewardedIos = 'ca-app-pub-3940256099942544/1712485313';
 
-  // --- Mode Production (passez à true ou utilisez --dart-define=IS_PROD=true) ---
-  static const bool isProductionAds = bool.fromEnvironment('IS_PROD', defaultValue: false);
+  // --- Mode Production (actif automatiquement en release, surchargeable via --dart-define=IS_PROD=false) ---
+  static const bool isProductionAds = bool.fromEnvironment('IS_PROD', defaultValue: kReleaseMode);
 
   // --- IDs Production ---
   static const String prodBannerAndroid = 'ca-app-pub-8546144812971039/4188148590';
@@ -112,7 +112,6 @@ class MonetizationConfig {
 
   // ===========================================================================
   // 4. SÉCURITÉ CRYPTOGRAPHIQUE DES CODES PROMO
-  // SHA-256 de 'erakisslebon' : 788384b0e3c33b57684087d5e0e0494ffcb4a127a0067efebc00a4be8d4755e1
   // ===========================================================================
 
   /// Empreinte SHA-256 du code promo VIP permanent

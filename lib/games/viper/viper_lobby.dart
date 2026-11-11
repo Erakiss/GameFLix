@@ -6,6 +6,8 @@ import 'package:gameflix/games/viper/viper_game.dart';
 import 'package:gameflix/services/audio_service.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
+import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
+import 'package:gameflix/state/access_control_provider.dart';
 
 class ViperLobbyScreen extends StatefulWidget {
   final List<Player> players;
@@ -22,6 +24,20 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
 
   void _startGame() {
     AudioService.instance.playSfx(SoundEffect.click);
+
+    final bool canAccessHot =
+        AccessControlProvider.instance.canAccess('viper_hot', isPremium: true);
+    if (_selectedMood == ViperDeckMood.hot && !canAccessHot) {
+      UnlockPackSheet.show(
+        context,
+        packId: 'viper_hot',
+        packTitle: 'Ambiance Hot & Spicy',
+        onUnlocked: () {
+          setState(() => _selectedMood = ViperDeckMood.hot);
+        },
+      );
+      return;
+    }
 
     for (final player in widget.players) {
       player.score = 0;
@@ -131,8 +147,8 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
                 right: 4,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
+                    horizontal: 5,
+                    vertical: 3,
                   ),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
@@ -151,25 +167,10 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
                       ),
                     ],
                   ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.local_fire_department_rounded,
-                        color: Colors.amberAccent,
-                        size: 12,
-                      ),
-                      SizedBox(width: 2),
-                      Text(
-                        'HOT',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 8.5,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
+                  child: const Icon(
+                    Icons.local_fire_department_rounded,
+                    color: Colors.amberAccent,
+                    size: 13,
                   ),
                 ),
               ),
@@ -179,13 +180,24 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
     );
   }
 
-  Widget _buildMoodOption(ViperDeckMood mood) {
-    final bool isSelected = _selectedMood == mood;
+  Widget _buildMoodOption(ViperDeckMood mood, {bool isLocked = false}) {
+    final bool isSelected = _selectedMood == mood && !isLocked;
     final Color accentColor = mood.color;
     return Expanded(
       child: GestureDetector(
         onTap: () {
           AudioService.instance.playSfx(SoundEffect.click);
+          if (isLocked) {
+            UnlockPackSheet.show(
+              context,
+              packId: 'viper_hot',
+              packTitle: 'Ambiance Hot & Spicy',
+              onUnlocked: () {
+                setState(() => _selectedMood = mood);
+              },
+            );
+            return;
+          }
           setState(() => _selectedMood = mood);
         },
         child: AnimatedContainer(
@@ -197,24 +209,44 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
                 : Colors.black45,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isSelected
-                  ? accentColor
-                  : Colors.white.withValues(alpha: 0.2),
+              color: isLocked
+                  ? Colors.redAccent.withValues(alpha: 0.65)
+                  : (isSelected
+                      ? accentColor
+                      : Colors.white.withValues(alpha: 0.2)),
               width: isSelected ? 2.0 : 1.1,
             ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                mood.label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: isSelected ? accentColor : Colors.white70,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 12,
-                  letterSpacing: 0.6,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      mood.label,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: isSelected ? accentColor : Colors.white70,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                  ),
+                  if (isLocked) ...[
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.lock_rounded,
+                      size: 12,
+                      color: Colors.redAccent,
+                    ),
+                  ],
+                ],
               ),
               const SizedBox(height: 3),
               Text(
@@ -236,103 +268,115 @@ class _ViperLobbyScreenState extends State<ViperLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: buildUnifiedLobbyAppBar(
-        context: context,
-        gameId: 'viper',
-        accentColor: Colors.amberAccent,
-      ),
-      body: Container(
-        decoration: kLobbyBackgroundDecoration,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const NeonLobbyBanner(
-                          imagePath: 'assets/board_banner.png',
-                          borderColor: Colors.amberAccent,
-                        ),
-                        const SizedBox(height: 18),
-                        // --- 1. SÉLECTEUR DE MODE DU PLATEAU (EXPRESS / NORMAL / SPIRALE 🔥) ---
-                        _buildSectionTitle('MODE DE JEU'),
-                        Row(
+    return ListenableBuilder(
+      listenable: AccessControlProvider.instance,
+      builder: (context, _) {
+        final bool canAccessHot = AccessControlProvider.instance
+            .canAccess('viper_hot', isPremium: true);
+
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: buildUnifiedLobbyAppBar(
+            context: context,
+            gameId: 'viper',
+            accentColor: Colors.amberAccent,
+          ),
+          body: Container(
+            decoration: kLobbyBackgroundDecoration,
+            child: SafeArea(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
                           children: [
-                            _buildModeOption(
-                              mode: ViperBoardMode.express,
-                              icon: Icons.flash_on_rounded,
-                              accentColor: Colors.cyanAccent,
+                            const NeonLobbyBanner(
+                              imagePath: 'assets/banners/fr/board_banner.webp',
+                              borderColor: Colors.amberAccent,
                             ),
-                            const SizedBox(width: 8),
-                            _buildModeOption(
-                              mode: ViperBoardMode.normal,
-                              icon: Icons.grid_4x4_rounded,
-                              accentColor: Colors.amberAccent,
+                            const SizedBox(height: 18),
+                            // --- 1. SÉLECTEUR DE MODE DU PLATEAU (EXPRESS / NORMAL / SPIRALE 🔥) ---
+                            _buildSectionTitle('MODE DE JEU'),
+                            Row(
+                              children: [
+                                _buildModeOption(
+                                  mode: ViperBoardMode.express,
+                                  icon: Icons.flash_on_rounded,
+                                  accentColor: Colors.cyanAccent,
+                                ),
+                                const SizedBox(width: 8),
+                                _buildModeOption(
+                                  mode: ViperBoardMode.normal,
+                                  icon: Icons.grid_4x4_rounded,
+                                  accentColor: Colors.amberAccent,
+                                ),
+                                const SizedBox(width: 8),
+                                _buildModeOption(
+                                  mode: ViperBoardMode.spiral,
+                                  icon: Icons.all_inclusive_rounded,
+                                  accentColor: Colors.purpleAccent,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            _buildModeOption(
-                              mode: ViperBoardMode.spiral,
-                              icon: Icons.all_inclusive_rounded,
-                              accentColor: Colors.purpleAccent,
+                            const SizedBox(height: 18),
+                            // --- 2. SÉLECTEUR D'AMBIANCE (DECK) ---
+                            _buildSectionTitle('AMBIANCE DU DECK'),
+                            Row(
+                              children: [
+                                _buildMoodOption(ViperDeckMood.classic),
+                                const SizedBox(width: 8),
+                                _buildMoodOption(
+                                  ViperDeckMood.hot,
+                                  isLocked: !canAccessHot,
+                                ),
+                                const SizedBox(width: 8),
+                                _buildMoodOption(ViperDeckMood.blackout),
+                              ],
                             ),
+                            const SizedBox(height: 16),
                           ],
                         ),
-                        const SizedBox(height: 18),
-                        // --- 2. SÉLECTEUR D'AMBIANCE (DECK) ---
-                        _buildSectionTitle('AMBIANCE DU DECK'),
-                        Row(
-                          children: [
-                            _buildMoodOption(ViperDeckMood.classic),
-                            const SizedBox(width: 8),
-                            _buildMoodOption(ViperDeckMood.hot),
-                            const SizedBox(width: 8),
-                            _buildMoodOption(ViperDeckMood.blackout),
-                          ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: _startGame,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Colors.amberAccent.withValues(alpha: 0.12),
+                          side: const BorderSide(
+                            color: Colors.amberAccent,
+                            width: 2,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
                         ),
-                        const SizedBox(height: 16),
-                      ],
+                        child: const Text(
+                          'LANCER LA PARTIE',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amberAccent,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 10),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  height: 60,
-                  child: ElevatedButton(
-                    onPressed: _startGame,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.amberAccent.withValues(alpha: 0.12),
-                      side: const BorderSide(
-                        color: Colors.amberAccent,
-                        width: 2,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    child: const Text(
-                      'LANCER LA PARTIE',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.amberAccent,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

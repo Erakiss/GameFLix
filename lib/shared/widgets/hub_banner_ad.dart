@@ -1,4 +1,5 @@
 // lib/shared/widgets/hub_banner_ad.dart
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -8,8 +9,7 @@ import 'package:gameflix/state/access_control_provider.dart';
 /// Widget de bannière publicitaire discrète affichée en bas du Hub principal.
 ///
 /// Si l'utilisateur est abonné VIP ou sous Pass Soirée 1H, aucune annonce n'est chargée ni affichée.
-/// Si l'annonce ne charge pas (appareil hors-ligne, plateforme non mobile, etc.),
-/// le widget se replie gracieusement sans impacter l'interface ni provoquer d'erreur.
+/// Attend que le SDK AdMob soit prêt (après consentement UMP) et réessaie en cas d'échec temporaire.
 class HubBannerAd extends StatefulWidget {
   const HubBannerAd({super.key});
 
@@ -18,46 +18,61 @@ class HubBannerAd extends StatefulWidget {
 }
 
 class _HubBannerAdState extends State<HubBannerAd> {
+  static const int _maxRetries = 3;
+
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
+  bool _isLoading = false;
+  int _retryCount = 0;
+  Timer? _retryTimer;
 
   @override
   void initState() {
     super.initState();
-    final access = AccessControlProvider.instance;
-    if (!access.isSubscribed && !access.isPass1hActive) {
-      _loadBanner();
+    AdManager.instance.adsReadyNotifier.addListener(_onAdsReadyChanged);
+    _loadBannerIfEligible();
+  }
+
+  void _onAdsReadyChanged() {
+    if (AdManager.instance.adsReadyNotifier.value) {
+      _loadBannerIfEligible();
     }
   }
 
-  void _loadBanner() {
-    // 1. Contrôle de compatibilité plateforme / tests / abonnement VIP
+  void _loadBannerIfEligible() {
+    if (!mounted || _isLoading || _bannerAd != null) return;
     if (!AdManager.instance.isSupportedPlatform) return;
-    if (AccessControlProvider.instance.isSubscribed || AccessControlProvider.instance.isPass1hActive) {
-      return;
-    }
+    if (!AdManager.instance.adsReadyNotifier.value) return;
+    final access = AccessControlProvider.instance;
+    if (access.isSubscribed || access.isPass1hActive) return;
 
-    // 2. Instanciation et chargement de la bannière
+    _isLoading = true;
     final banner = BannerAd(
       adUnitId: AdManager.instance.bannerAdUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
+          _isLoading = false;
+          _retryCount = 0;
           if (mounted) {
             setState(() {
               _isAdLoaded = true;
             });
+          } else {
+            ad.dispose();
           }
         },
         onAdFailedToLoad: (ad, error) {
           debugPrint('Échec de chargement de la bannière AdMob : $error');
           ad.dispose();
+          _isLoading = false;
           if (mounted) {
             setState(() {
               _bannerAd = null;
               _isAdLoaded = false;
             });
+            _scheduleRetry();
           }
         },
       ),
@@ -67,8 +82,17 @@ class _HubBannerAdState extends State<HubBannerAd> {
     banner.load();
   }
 
+  void _scheduleRetry() {
+    if (_retryCount >= _maxRetries) return;
+    _retryCount++;
+    _retryTimer?.cancel();
+    _retryTimer = Timer(Duration(seconds: 4 * _retryCount), _loadBannerIfEligible);
+  }
+
   @override
   void dispose() {
+    AdManager.instance.adsReadyNotifier.removeListener(_onAdsReadyChanged);
+    _retryTimer?.cancel();
     _bannerAd?.dispose();
     super.dispose();
   }
@@ -78,12 +102,20 @@ class _HubBannerAdState extends State<HubBannerAd> {
     // Si l'utilisateur est VIP ou a un pass 1h actif, bannière totalement supprimée
     final access = context.watch<AccessControlProvider>();
     if (access.isSubscribed || access.isPass1hActive) {
+      _retryTimer?.cancel();
+      _retryCount = 0;
       if (_bannerAd != null) {
         _bannerAd?.dispose();
         _bannerAd = null;
         _isAdLoaded = false;
+        _isLoading = false;
       }
       return const SizedBox.shrink();
+    }
+
+    // Si le Pass 1H vient d'expirer et qu'aucune bannière n'est chargée, on relance le chargement
+    if (_bannerAd == null && !_isLoading && _retryCount == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadBannerIfEligible());
     }
 
     // Si la bannière n'est pas encore prête ou a échoué, repli invisible

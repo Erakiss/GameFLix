@@ -277,7 +277,7 @@ class _CodeLobbyScreenState extends State<CodeLobbyScreen> {
                   child: Column(
                     children: [
                       const NeonLobbyBanner(
-                        imagePath: 'assets/code_banner.png',
+                        imagePath: 'assets/banners/en/code_banner.webp',
                         borderColor: Colors.cyanAccent,
                         fixedHeight: 120,
                       ),

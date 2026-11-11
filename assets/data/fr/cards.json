@@ -1348,11 +1348,6 @@
   {
     "type": "ACTION",
     "difficulty": "HOT",
-    "content": "Enlève 2 vêtements (veste, montre, chaussettes ou pull)."
-  },
-  {
-    "type": "ACTION",
-    "difficulty": "HOT",
     "content": "Assieds-toi sur les genoux de la personne à ta droite pendant les 2 prochains tours."
   },
   {
@@ -1613,11 +1608,6 @@
   {
     "type": "ACTION",
     "difficulty": "HOT",
-    "content": "Laisse le groupe inspecter la marque et la couleur de tes sous-vêtements."
-  },
-  {
-    "type": "ACTION",
-    "difficulty": "HOT",
     "content": "Caresse la cuisse de la personne à ta droite jusqu'au prochain tour."
   },
   {
@@ -1648,7 +1638,17 @@
   {
     "type": "ACTION",
     "difficulty": "HOT",
-    "content": "Enlève deux vêtements d'un coup (chaussettes, ceinture, veste ou haut)."
+    "content": "Enlève un vêtement."
+  },
+  {
+    "type": "ACTION",
+    "difficulty": "HOT",
+    "content": "Enlève un vêtement."
+  },
+  {
+    "type": "ACTION",
+    "difficulty": "HOT",
+    "content": "Enlève un vêtement."
   },
   {
     "type": "ACTION",

@@ -200,6 +200,11 @@
     "imposter_word": "Jerry"
   },
   {
+    "category": "Personnage Animé",
+    "word": "Luffy",
+    "imposter_word": "Zoro"
+  },
+  {
     "category": "Film",
     "word": "Harry Potter",
     "imposter_word": "Le Seigneur des Anneaux"
@@ -250,6 +255,16 @@
     "imposter_word": "Terminator"
   },
   {
+    "category": "Film",
+    "word": "Game of Thrones",
+    "imposter_word": "The Witcher"
+  },
+  {
+    "category": "Film",
+    "word": "Breaking Bad",
+    "imposter_word": "Better Call Saul"
+  },
+  {
     "category": "Célébrités",
     "word": "Kylian Mbappé",
     "imposter_word": "Erling Haaland"
@@ -275,27 +290,27 @@
     "imposter_word": "Jeff Bezos"
   },
   {
-    "category": "Rap Français",
+    "category": "Musique",
     "word": "Jul",
     "imposter_word": "Ninho"
   },
   {
-    "category": "Rap Français",
+    "category": "Musique",
     "word": "Booba",
     "imposter_word": "Kaaris"
   },
   {
-    "category": "Rap Français",
+    "category": "Musique",
     "word": "Orelsan",
     "imposter_word": "Gringe"
   },
   {
-    "category": "Rap Français",
+    "category": "Musique",
     "word": "Damso",
     "imposter_word": "Hamza"
   },
   {
-    "category": "Rap Français",
+    "category": "Musique",
     "word": "SCH",
     "imposter_word": "PLK"
   },
@@ -328,36 +343,6 @@
     "category": "Nourriture",
     "word": "Tacos",
     "imposter_word": "Burrito"
-  },
-  {
-    "category": "Cinéma & Séries",
-    "word": "Harry Potter",
-    "imposter_word": "Le Seigneur des Anneaux"
-  },
-  {
-    "category": "Cinéma & Séries",
-    "word": "Star Wars",
-    "imposter_word": "Star Trek"
-  },
-  {
-    "category": "Cinéma & Séries",
-    "word": "Game of Thrones",
-    "imposter_word": "The Witcher"
-  },
-  {
-    "category": "Cinéma & Séries",
-    "word": "Spider-Man",
-    "imposter_word": "Batman"
-  },
-  {
-    "category": "Cinéma & Séries",
-    "word": "Titanic",
-    "imposter_word": "Avatar"
-  },
-  {
-    "category": "Personnage Animé",
-    "word": "Luffy",
-    "imposter_word": "Zoro"
   },
   {
     "category": "Soirée",

@@ -1,0 +1,190 @@
+[
+  {
+    "title": "TRUTH",
+    "description": "What is the most embarrassing thing you have ever done at a party?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "If you had to swap lives with one player at this table, who would it be and why?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "What is your biggest turn-off in someone?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Have you ever lied to get out of hanging out with friends? If so, what was the excuse?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "What is the worst habit of one of the players sitting here?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "What is the worst lie someone has ever told you? Spill the details!",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "TRUTH",
+    "description": "Is there anyone in this room you couldn't stand at first, but now adore?",
+    "type": "question",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Give a comforting hug to the player currently in last place.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Give a 30-second shoulder massage to the player on your right.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE (THE MIXOLOGIST)",
+    "description": "Time to show off your skills! Make the next drink (or shot) for the player of your choice.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "You are the table's waiter for the next 2 turns. Refill everyone's drink on demand.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Imitate the player closest to you until your next turn.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DARE",
+    "description": "Show the last photo saved in your camera roll, or take 2 sips.",
+    "type": "action",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "The player in first place has to take 2 sips with you!",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Buddy Shot! Pick a drinking partner: clink glasses and take 2 sips together.",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Make the loudest person at the table take 2 sips!",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Give 2 sips to the player you have known the longest!",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "Cheers everyone! The whole table takes 1 sip.",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "DRINK",
+    "description": "If you have more than 100 unread notifications on your phone, take 2 sips!",
+    "type": "drink",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "Who in this room has the most sex appeal in your opinion? Make them take 2 sips.",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "What is your deepest, darkest fantasy? Answer honestly or take 3 sips.",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "Kiss the neck of the player of your choice (or you both take 2 sips).",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "Which person in this room could you spend a one-night stand with?",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "SPICY",
+    "description": "Give an ultra-seductive compliment while staring into the eyes of the player on your left for 10 seconds.",
+    "type": "spicy",
+    "movement": 0
+  },
+  {
+    "title": "GLITCH",
+    "description": "Overclock successful! Move forward 3 spaces.",
+    "type": "special",
+    "movement": 3
+  },
+  {
+    "title": "GLITCH",
+    "description": "System short-circuit... Move back 3 spaces.",
+    "type": "special",
+    "movement": -3
+  },
+  {
+    "title": "GLITCH",
+    "description": "Time rift! Warp 5 spaces forward.",
+    "type": "special",
+    "movement": 5
+  },
+  {
+    "title": "GLITCH",
+    "description": "Server rollback. Move back 4 spaces.",
+    "type": "special",
+    "movement": -4
+  },
+  {
+    "title": "GLITCH",
+    "description": "Quantum teleport! Swap your board position with the player furthest behind.",
+    "type": "special",
+    "movement": 0
+  },
+  {
+    "title": "GLITCH",
+    "description": "Double Turn! Take 1 sip and roll the dice again immediately!",
+    "type": "special",
+    "movement": 0,
+    "reroll": true
+  },
+  {
+    "title": "GLITCH",
+    "description": "Anti-Venom Serum activated! You are immune to your next drop (Snake or Down Portal).",
+    "type": "special",
+    "movement": 0,
+    "shield": true
+  }
+]

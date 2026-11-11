@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:gameflix/models/player.dart';
 import 'package:gameflix/games/imposter/imp_game.dart';
+import 'package:gameflix/l10n/app_strings.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
@@ -42,13 +43,22 @@ class ImpLobbyScreen extends StatefulWidget {
 }
 
 class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
-  List<ImpCard> _allCards = [];
+  static const List<(String, Color)> _categories = [
+    ('Animaux', Colors.greenAccent),
+    ('Sport', Colors.orangeAccent),
+    ('Lieu', Colors.blueAccent),
+    ('Personnage Animé', Colors.pinkAccent),
+    ('Film', Colors.amberAccent),
+    ('Célébrités', Colors.cyanAccent),
+    ('Musique', Colors.purpleAccent),
+    ('Nourriture', Colors.limeAccent),
+    ('Soirée', Colors.redAccent),
+  ];
 
-  bool _isAnimaux = true;
-  bool _isSport = true;
-  bool _isLieu = true;
-  bool _isPerso = true;
-  bool _isFilm = true;
+  List<ImpCard> _allCards = [];
+  final Map<String, bool> _selectedCategories = {
+    for (final (cat, _) in _categories) cat: true,
+  };
   bool _isMisterWhiteMode = false;
 
   @override
@@ -67,22 +77,9 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
   }
 
   void _startGame() {
-    List<ImpCard> deck = [];
-    if (_isAnimaux) {
-      deck.addAll(_allCards.where((c) => c.category == 'Animaux'));
-    }
-    if (_isSport) {
-      deck.addAll(_allCards.where((c) => c.category == 'Sport'));
-    }
-    if (_isLieu) {
-      deck.addAll(_allCards.where((c) => c.category == 'Lieu'));
-    }
-    if (_isPerso) {
-      deck.addAll(_allCards.where((c) => c.category == 'Personnage Animé'));
-    }
-    if (_isFilm) {
-      deck.addAll(_allCards.where((c) => c.category == 'Film'));
-    }
+    final List<ImpCard> deck = _allCards
+        .where((c) => _selectedCategories[c.category] ?? false)
+        .toList();
 
     if (deck.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -140,6 +137,8 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.of(context);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: buildUnifiedLobbyAppBar(
@@ -155,7 +154,7 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
             child: Column(
               children: [
                 const NeonLobbyBanner(
-                  imagePath: 'assets/imp_banner.png',
+                  imagePath: 'assets/banners/fr/imp_banner.webp',
                   borderColor: Colors.purpleAccent,
                 ),
                 const SizedBox(height: 20),
@@ -206,36 +205,14 @@ class _ImpLobbyScreenState extends State<ImpLobbyScreen> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        NeonCategorySwitch(
-                          title: 'Animaux',
-                          color: Colors.greenAccent,
-                          value: _isAnimaux,
-                          onChanged: (val) => setState(() => _isAnimaux = val),
-                        ),
-                        NeonCategorySwitch(
-                          title: 'Sport',
-                          color: Colors.orangeAccent,
-                          value: _isSport,
-                          onChanged: (val) => setState(() => _isSport = val),
-                        ),
-                        NeonCategorySwitch(
-                          title: 'Lieu',
-                          color: Colors.blueAccent,
-                          value: _isLieu,
-                          onChanged: (val) => setState(() => _isLieu = val),
-                        ),
-                        NeonCategorySwitch(
-                          title: 'Personnage Animé',
-                          color: Colors.pinkAccent,
-                          value: _isPerso,
-                          onChanged: (val) => setState(() => _isPerso = val),
-                        ),
-                        NeonCategorySwitch(
-                          title: 'Film',
-                          color: Colors.amberAccent,
-                          value: _isFilm,
-                          onChanged: (val) => setState(() => _isFilm = val),
-                        ),
+                        for (final (cat, color) in _categories)
+                          NeonCategorySwitch(
+                            title: strings.impCategoryTitle(cat),
+                            color: color,
+                            value: _selectedCategories[cat] ?? true,
+                            onChanged: (val) =>
+                                setState(() => _selectedCategories[cat] = val),
+                          ),
                       ],
                     ),
                   ),

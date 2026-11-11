@@ -7,8 +7,10 @@ import 'package:gameflix/games/would_you_rather/wyr_game.dart';
 import 'package:gameflix/shared/widgets/neon_category_switch.dart';
 import 'package:gameflix/shared/widgets/neon_lobby_banner.dart';
 import 'package:gameflix/shared/widgets/global_settings_button.dart';
+import 'package:gameflix/shared/widgets/unlock_pack_sheet.dart';
 import 'package:gameflix/services/pack_loader_service.dart';
 import 'package:gameflix/services/audio_service.dart';
+import 'package:gameflix/state/access_control_provider.dart';
 
 // --- MODÈLE ---
 class WyrCard {
@@ -72,6 +74,7 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
   List<WyrCard> _allCards = [];
 
   bool _isSoftSelected = true;
+  bool _isFunSelected = true;
   bool _isGeekSelected = true;
   bool _isHardSelected = false;
   bool _isHotSelected = false;
@@ -101,13 +104,18 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
     if (_isSoftSelected) {
       deck.addAll(_allCards.where((c) => c.category == 'Soft'));
     }
+    if (_isFunSelected) {
+      deck.addAll(_allCards.where((c) => c.category == 'Fun'));
+    }
     if (_isGeekSelected) {
       deck.addAll(_allCards.where((c) => c.category == 'Geek'));
     }
     if (_isHardSelected) {
       deck.addAll(_allCards.where((c) => c.category == 'Hard'));
     }
-    if (_isHotSelected) {
+    final bool canAccessHot =
+        AccessControlProvider.instance.canAccess('wyr_hot', isPremium: true);
+    if (_isHotSelected && canAccessHot) {
       deck.addAll(_allCards.where((c) => c.category == 'Hot'));
     }
 
@@ -248,100 +256,139 @@ class _WyrLobbyScreenState extends State<WyrLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: buildUnifiedLobbyAppBar(
-        context: context,
-        gameId: 'wyr',
-        accentColor: Colors.orangeAccent,
-      ),
-      body: Container(
-        decoration: kLobbyBackgroundDecoration,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const NeonLobbyBanner(
-                          imagePath: 'assets/wyr_banner.png',
-                          borderColor: Colors.orangeAccent,
-                        ),
-                        const SizedBox(height: 20),
+    return ListenableBuilder(
+      listenable: AccessControlProvider.instance,
+      builder: (context, _) {
+        final bool canAccessHot = AccessControlProvider.instance
+            .canAccess('wyr_hot', isPremium: true);
 
-                        // Sélecteur de nombre de tours
-                        _buildRoundSelector(),
-                        const SizedBox(height: 20),
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: buildUnifiedLobbyAppBar(
+            context: context,
+            gameId: 'wyr',
+            accentColor: Colors.orangeAccent,
+          ),
+          body: Container(
+            decoration: kLobbyBackgroundDecoration,
+            child: SafeArea(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            const NeonLobbyBanner(
+                              imagePath: 'assets/banners/fr/wyr_banner.webp',
+                              borderColor: Colors.orangeAccent,
+                            ),
+                            const SizedBox(height: 20),
 
-                        // Catégories
-                        NeonCategorySwitch(
-                          title: 'SOFT',
-                          color: Colors.greenAccent,
-                          value: _isSoftSelected,
-                          onChanged: (val) =>
-                              setState(() => _isSoftSelected = val),
+                            // Sélecteur de nombre de tours
+                            _buildRoundSelector(),
+                            const SizedBox(height: 20),
+
+                            // Catégories
+                            NeonCategorySwitch(
+                              title: 'SOFT',
+                              color: Colors.greenAccent,
+                              value: _isSoftSelected,
+                              onChanged: (val) =>
+                                  setState(() => _isSoftSelected = val),
+                            ),
+                            NeonCategorySwitch(
+                              title: 'FUN',
+                              color: Colors.amberAccent,
+                              value: _isFunSelected,
+                              onChanged: (val) =>
+                                  setState(() => _isFunSelected = val),
+                            ),
+                            NeonCategorySwitch(
+                              title: 'GEEK',
+                              color: Colors.blueAccent,
+                              value: _isGeekSelected,
+                              onChanged: (val) =>
+                                  setState(() => _isGeekSelected = val),
+                            ),
+                            NeonCategorySwitch(
+                              title: 'HARD',
+                              color: Colors.orangeAccent,
+                              value: _isHardSelected,
+                              onChanged: (val) =>
+                                  setState(() => _isHardSelected = val),
+                            ),
+                            NeonCategorySwitch(
+                              title: 'HOT',
+                              color: Colors.redAccent,
+                              value: _isHotSelected && canAccessHot,
+                              isLocked: !canAccessHot,
+                              onLockedTap: () {
+                                UnlockPackSheet.show(
+                                  context,
+                                  packId: 'wyr_hot',
+                                  packTitle: 'Pack Hot & Piquant',
+                                  onUnlocked: () {
+                                    setState(() => _isHotSelected = true);
+                                  },
+                                );
+                              },
+                              onChanged: (val) {
+                                if (!canAccessHot) {
+                                  UnlockPackSheet.show(
+                                    context,
+                                    packId: 'wyr_hot',
+                                    packTitle: 'Pack Hot & Piquant',
+                                    onUnlocked: () {
+                                      setState(() => _isHotSelected = true);
+                                    },
+                                  );
+                                } else {
+                                  setState(() => _isHotSelected = val);
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 10),
+                          ],
                         ),
-                        NeonCategorySwitch(
-                          title: 'GEEK',
-                          color: Colors.blueAccent,
-                          value: _isGeekSelected,
-                          onChanged: (val) =>
-                              setState(() => _isGeekSelected = val),
-                        ),
-                        NeonCategorySwitch(
-                          title: 'HARD',
-                          color: Colors.orangeAccent,
-                          value: _isHardSelected,
-                          onChanged: (val) =>
-                              setState(() => _isHardSelected = val),
-                        ),
-                        NeonCategorySwitch(
-                          title: 'HOT',
-                          color: Colors.redAccent,
-                          value: _isHotSelected,
-                          onChanged: (val) =>
-                              setState(() => _isHotSelected = val),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _startGame,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.orangeAccent.withValues(alpha: 0.15),
-                      side: const BorderSide(
-                          color: Colors.orangeAccent, width: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    child: const Text(
-                      "LANCER LE JEU",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orangeAccent,
-                        letterSpacing: 2,
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _startGame,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Colors.orangeAccent.withValues(alpha: 0.15),
+                          side: const BorderSide(
+                              color: Colors.orangeAccent, width: 2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        child: const Text(
+                          "LANCER LE JEU",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orangeAccent,
+                            letterSpacing: 2,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 10),
+                  ],
                 ),
-                const SizedBox(height: 10),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

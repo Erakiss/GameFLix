@@ -174,6 +174,9 @@ void main() {
       expect(find.text('DURÉE DE LA PARTIE'), findsOneWidget);
       expect(find.text('15'), findsOneWidget);
       expect(find.text('LANCER LE JEU'), findsOneWidget);
+      expect(find.text('FUN'), findsOneWidget);
+      expect(find.text('SPICY'), findsOneWidget);
+      expect(find.byIcon(Icons.lock_rounded), findsOneWidget);
 
       // Changement de durée vers Express (10)
       await tester.tap(find.text('10'));

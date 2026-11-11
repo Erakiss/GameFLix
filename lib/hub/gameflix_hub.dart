@@ -353,7 +353,7 @@ class _GameFlixHubState extends State<GameFlixHub> {
         _buildWheelCard(
           subtitle: strings.gameSubtitle(game.id, game.subtitle),
           newBadgeLabel: strings.newBadge,
-          imagePath: game.bannerPath,
+          imagePath: strings.gameBannerPath(game.id, game.bannerPath),
           isNew: game.isNew,
           isLocked: game.isLocked,
           cardRenderHeight: fixedRenderHeight,
@@ -418,128 +418,137 @@ class _GameFlixHubState extends State<GameFlixHub> {
     required double cardRenderWidth,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      // Si la carte est verrouillée, on désactive le clic
-      onTap: isLocked
-          ? null
-          : () {
-              AudioService.instance.playSfx(SoundEffect.click);
-              onTap();
-            },
-      child: Stack(
-        clipBehavior: Clip.none, // Permet au badge NEW de dépasser légèrement
-        children: [
-          // 1. La carte de base
-          Container(
-            height: cardRenderHeight,
-            width: cardRenderWidth,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: const Color(0xFF111122),
-              border: Border.all(
-                color: Colors.purpleAccent.withValues(alpha: 0.5),
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.purpleAccent.withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  spreadRadius: 2,
+    final double dpr = MediaQuery.devicePixelRatioOf(context).clamp(1.0, 3.0);
+    final int cacheWidth = (cardRenderWidth * dpr).round();
+
+    return RepaintBoundary(
+      child: GestureDetector(
+        // Si la carte est verrouillée, on désactive le clic
+        onTap: isLocked
+            ? null
+            : () {
+                AudioService.instance.playSfx(SoundEffect.click);
+                onTap();
+              },
+        child: Stack(
+          clipBehavior: Clip.none, // Permet au badge NEW de dépasser légèrement
+          children: [
+            // 1. La carte de base
+            Container(
+              height: cardRenderHeight,
+              width: cardRenderWidth,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: const Color(0xFF111122),
+                border: Border.all(
+                  color: Colors.purpleAccent.withValues(alpha: 0.5),
+                  width: 2,
                 ),
-              ],
-              image: imagePath != null
-                  ? DecorationImage(
-                      image: AssetImage(imagePath),
-                      fit: BoxFit.cover,
-                      colorFilter: isLocked
-                          ? ColorFilter.mode(
-                              Colors.black.withValues(alpha: 0.7),
-                              BlendMode.darken,
-                            )
-                          : null,
-                    )
-                  : null,
-            ),
-            child: Stack(
-              children: [
-                // --- LE TEXTE : TITRE ET SOUS-TITRE ---
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.purpleAccent.withValues(alpha: 0.3),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
+                image: imagePath != null
+                    ? DecorationImage(
+                        image: ResizeImage.resizeIfNeeded(
+                          cacheWidth,
+                          null,
+                          AssetImage(imagePath),
+                        ),
+                        fit: BoxFit.cover,
+                        colorFilter: isLocked
+                            ? ColorFilter.mode(
+                                Colors.black.withValues(alpha: 0.7),
+                                BlendMode.darken,
+                              )
+                            : null,
+                      )
+                    : null,
+              ),
+              child: Stack(
+                children: [
+                  // --- LE TEXTE : TITRE ET SOUS-TITRE ---
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                        // Un dégradé noir pour que le texte ressorte bien sur l'image
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.9),
+                            Colors.transparent,
+                          ],
+                        ),
                       ),
-                      // Un dégradé noir pour que le texte ressorte bien sur l'image
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withValues(alpha: 0.9),
-                          Colors.transparent,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitle,
+                            style: const TextStyle(fontSize: 14, color: Colors.white70),
+                          ),
                         ],
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(fontSize: 14, color: Colors.white70),
+                  ),
+                  // --- LE CADENAS SI VERROUILLÉ ---
+                  if (isLocked)
+                    const Center(
+                      child: Icon(Icons.lock_outline, color: Colors.white54, size: 50),
+                    ),
+                ],
+              ),
+            ),
+
+            // 2. Le badge "NEW" superposé
+            if (isNew && !isLocked)
+              Positioned(
+                top: -5,
+                right: -5,
+                child: Transform.rotate(
+                  angle: 0.1,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.pinkAccent,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.pinkAccent.withValues(alpha: 0.6),
+                          blurRadius: 10,
+                          spreadRadius: 2,
                         ),
                       ],
+                      border: Border.all(color: Colors.white, width: 1.5),
                     ),
-                  ),
-                ),
-                // --- LE CADENAS SI VERROUILLÉ ---
-                if (isLocked)
-                  const Center(
-                    child: Icon(Icons.lock_outline, color: Colors.white54, size: 50),
-                  ),
-              ],
-            ),
-          ),
-
-          // 2. Le badge "NEW" superposé
-          if (isNew && !isLocked)
-            Positioned(
-              top: -5,
-              right: -5,
-              child: Transform.rotate(
-                angle: 0.1,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.pinkAccent,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.pinkAccent.withValues(alpha: 0.6),
-                        blurRadius: 10,
-                        spreadRadius: 2,
+                    child: Text(
+                      newBadgeLabel,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                        letterSpacing: 2,
                       ),
-                    ],
-                    border: Border.all(color: Colors.white, width: 1.5),
-                  ),
-                  child: Text(
-                    newBadgeLabel,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 12,
-                      letterSpacing: 2,
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

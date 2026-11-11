@@ -24,6 +24,9 @@ class AdManager {
   bool _isPrivacyOptionsRequired = false;
   DateTime? _lastInterstitialShownAt;
 
+  /// Notifie les widgets (bannières) dès que le SDK AdMob est initialisé et prêt.
+  final ValueNotifier<bool> adsReadyNotifier = ValueNotifier<bool>(false);
+
   /// Cooldown strict entre deux interstitiels pour ne pas briser la soirée
   Duration cooldownDuration = MonetizationConfig.interstitialCooldown;
 
@@ -119,6 +122,13 @@ class AdManager {
       (FormError error) async {
         debugPrint('Avertissement mise à jour RGPD UMP : ${error.message}');
         await _refreshPrivacyOptionsStatus();
+        try {
+          if (await ConsentInformation.instance.canRequestAds()) {
+            await _initializeMobileAdsSdk();
+          }
+        } catch (e) {
+          debugPrint('Avertissement reprise initialisation AdMob : $e');
+        }
         if (!completer.isCompleted) completer.complete();
       },
     );
@@ -130,6 +140,7 @@ class AdManager {
     if (_isMobileAdsSdkStarted) return;
     _isMobileAdsSdkStarted = true;
     await MobileAds.instance.initialize();
+    adsReadyNotifier.value = true;
     preloadInterstitial();
     preloadRewarded();
   }
